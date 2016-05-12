@@ -49,7 +49,8 @@ A simple program call is of the following form:
 
     dynqbf --reorder lazy-sift --opt-interval 4 --max-NSF-size 1000 --max-BDD-size 3000 --check-unsat < $file
 
-where (some of the available interesting) optimizations are configured by 
+where (some of the available interesting) optimizations are configured by
+ 
     --reorder <h>          : Use dynamic BDD variable reordering heuristic <h>
     --opt-interval <i>     : Optimize NSF every <i>-th computation step (default: 4, disable: 0)
     --max-NSF-size <s>     : Split until NSF size <s> is reached (Recommended: 1000)
