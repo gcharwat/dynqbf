@@ -47,19 +47,20 @@ Running dynQBF
 
 A simple program call is of the following form:
 
-`dynqbf --reorder lazy-sift --opt-interval 4 --max-NSF-size 1000 --max-BDD-size 3000 --check-unsat < $file`
+    dynqbf --reorder lazy-sift --opt-interval 4 --max-NSF-size 1000 --max-BDD-size 3000 --check-unsat < $file
 
 where (some of the available interesting) optimizations are configured by 
-`  --reorder <h>          : Use dynamic BDD variable reordering heuristic <h>
-  --opt-interval <i>     : Optimize NSF every <i>-th computation step (default: 4, disable: 0)
-  --max-NSF-size <s>     : Split until NSF size <s> is reached (Recommended: 1000)
-  --max-BDD-size <s>     : Always split if a BDD size exceeds <s> (Recommended: 3000, overrules max-NSF-size)
-  --sort-before-joining  : Sort NSFs by increasing size before joining; can increase subset check success rate
-  --check-unsat          : Check for unsatisfiable computations`
+    --reorder <h>          : Use dynamic BDD variable reordering heuristic <h>
+    --opt-interval <i>     : Optimize NSF every <i>-th computation step (default: 4, disable: 0)
+    --max-NSF-size <s>     : Split until NSF size <s> is reached (Recommended: 1000)
+    --max-BDD-size <s>     : Always split if a BDD size exceeds <s> (Recommended: 3000, overrules max-NSF-size)
+    --sort-before-joining  : Sort NSFs by increasing size before joining; can increase subset check success rate
+    --check-unsat          : Check for unsatisfiable computations
 
 Additional (interesting) options:
-` --enumerate		enumerate all minterms (outermost, existential quantifier, if instance is SAT)
- --seed <s>		fix seed to obtain reproducable benchmark results
- -o <ordering>		configure variable ordering in BDDs (min-cut, max-bag and max-clause are currently experimental)
- --output <module>      quiet, progress (more info), debug (most info)
- -h			see the help for a complete list of all available options`
+
+    --enumerate		enumerate all minterms (outermost, existential quantifier, if instance is SAT)
+    --seed <s>		fix seed to obtain reproducable benchmark results
+    -o <ordering>		configure variable ordering in BDDs (min-cut, max-bag and max-clause are currently experimental)
+    --output <module>      quiet, progress (more info), debug (most info)
+    -h			see the help for a complete list of all available options
