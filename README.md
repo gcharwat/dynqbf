@@ -13,7 +13,7 @@ Binary Decision Diagrams to efficiently store intermediate results.
 Contact 
 -------
 
-Contact:    Guenther Charwat <gcharwat at dbai dot tuwien dot ac dot at>
+Contact:    Guenther Charwat: gcharwat at dbai dot tuwien dot ac dot at
 WWW:        http://dbai.tuwien.ac.at/proj/decodyn/dynqbf/
 Source:     https://github.com/gcharwat/dynqbf
 
@@ -45,9 +45,9 @@ For instructions about compiling, please read the INSTALL file.
 Running dynQBF
 --------------
 
-A typical program call is of the following form:
+A simple program call is of the following form:
 
-./dynqbf-0.2 --reorder lazy-sift --opt-interval 4 --max-NSF-size 1000 --max-BDD-size 3000 --check-unsat < $file
+dynqbf --reorder lazy-sift --opt-interval 4 --max-NSF-size 1000 --max-BDD-size 3000 --check-unsat < $file
 
 where (some of the available interesting) optimizations are configured by 
   --reorder <h>          : Use dynamic BDD variable reordering heuristic <h>
