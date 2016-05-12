@@ -1,0 +1,124 @@
+/*
+Copyright 2016, Guenther Charwat
+WWW: <http://dbai.tuwien.ac.at/proj/decodyn/dynqbf>.
+
+This file is part of dynQBF.
+
+dynQBF is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+dynQBF is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
+
+ */
+
+#pragma once
+
+#include "options/OptionHandler.h"
+#include "options/Choice.h"
+#include "Utils.h"
+#include "NSFManager.h"
+
+#include <cuddObj.hh>
+
+#include <htd/NamedMultiHypergraph.hpp>
+#include <htd/IMutableHypertreeDecomposition.hpp>
+
+class HGInputParser;
+class Decomposer;
+class Preprocessor;
+class Ordering;
+class SolverFactory;
+class Printer;
+class BDDManager;
+
+typedef std::string vertexNameType;
+typedef std::string edgeNameType;
+typedef std::shared_ptr<htd::NamedMultiHypergraph<vertexNameType, edgeNameType>> HTDHypergraphPtr;
+typedef std::shared_ptr<htd::IMutableTreeDecomposition> HTDDecompositionPtr;
+
+class Application {
+public:
+    
+    Application(const std::string& binaryName);
+
+    // We assume that argv[0] contains the first option, NOT the binary name
+    int run(int argc, char** argv);
+    
+    // Print usage (but don't exit)
+    void usage() const;
+
+    options::OptionHandler& getOptionHandler();
+    options::Choice& getHGInputParserChoice();
+    options::Choice& getDecomposerChoice();
+    options::Choice& getPreprocessorChoice();
+    options::Choice& getOrderingChoice();
+    options::Choice& getSolverChoice();
+    options::Choice& getPrinterChoice();
+    
+    HTDHypergraphPtr getInputHypergraph() const;
+    const std::vector<int>& getVertexOrdering() const;
+    HTDDecompositionPtr getDecomposition() const;
+    const SolverFactory& getSolverFactory() const;
+    Printer& getPrinter() const;
+
+    void setHGInputParser(HGInputParser& inputParser);
+    void setDecomposer(Decomposer& decomposer);
+    void setPreprocessor(Preprocessor& preprocessor);
+    void setOrdering(Ordering& ordering);
+    void setSolverFactory(SolverFactory& solverFactory);
+    void setPrinter(Printer& printer);
+
+    bool printInputHypergraph() const;
+    bool printDecomposition() const;
+    bool printVertexOrdering() const;
+    bool enumerate() const;
+
+    BDDManager& getBDDManager() const;
+    NSFManager& getNSFManager() const;
+    Decomposer& getDecomposer() const;
+
+private:
+    
+    static const std::string MODULE_SECTION;
+
+    std::string binaryName;
+    
+    HTDHypergraphPtr inputHypergraph;
+    std::vector<int> vertexOrdering;
+
+    HTDDecompositionPtr decomposition;
+    
+    options::OptionHandler opts;
+    options::Option optHelp;
+    options::Choice optHGInputParser;
+    options::Choice optDecomposer;
+    options::Choice optPreprocessor;
+    options::Choice optOrdering;
+    options::Choice optSolver;
+    options::Choice optPrinter;
+    options::Option optPrintInputHypergraph;
+    options::Option optPrintDecomposition;
+    options::Option optPrintVertexOrdering;
+    options::Option optOnlyParseInstance;
+    options::Option optOnlyDecomposeInstance;
+    options::Option optEnumerate;
+    options::SingleValueOption optSeed;
+
+    HGInputParser* hgInputParser;
+    Decomposer* decomposer;
+    Preprocessor* preprocessor;
+    Ordering* ordering;
+    SolverFactory* solverFactory;
+    Printer* printer;
+
+    BDDManager* bddManager;
+    NSFManager* nsfManager;
+};
