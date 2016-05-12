@@ -60,8 +60,9 @@ where (some of the available interesting) optimizations are configured by
 
 Additional (interesting) options:
 
-    --enumerate		enumerate all minterms (outermost, existential quantifier, if instance is SAT)
-    --seed <s>		fix seed to obtain reproducable benchmark results
-    -o <ordering>		configure variable ordering in BDDs (min-cut, max-bag and max-clause are currently experimental)
-    --output <module>      quiet, progress (more info), debug (most info)
-    -h			see the help for a complete list of all available options
+    --enumerate		   : Enumerate all minterms (outermost, existential quantifier, if instance is SAT)
+    --seed <s>		   : Fix seed to obtain reproducable benchmark results
+    -o <ordering>	   : Configure variable ordering in BDDs (min-cut, max-bag and max-clause are 
+                             currently experimental)
+    --output <module>      : Quiet, progress (more info), debug (most info)
+    -h			   : See the help for a complete list of all available options
