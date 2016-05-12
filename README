@@ -1,4 +1,5 @@
-### dynQBF (version 0.2) ###
+dynQBF (version 0.2) 
+====================
 
 dynQBF is a structure-aware QBF solver. It handles QBF instances
 in prenex CNF format, and supports QSAT (deciding satisfiability
@@ -9,13 +10,15 @@ tree decomposition. The QBF is then solved by dynamic programming
 over the tree decomposition. As key ingredient, dynQBF uses
 Binary Decision Diagrams to efficiently store intermediate results.
 
-### Contact ###
+Contact 
+-------
 
 Contact:    Guenther Charwat <gcharwat at dbai dot tuwien dot ac dot at>
 WWW:        http://dbai.tuwien.ac.at/proj/decodyn/dynqbf/
 Source:     https://github.com/gcharwat/dynqbf
 
-### Version info ###
+Version info 
+--------------
 
 2016-05-10: dynQBF 0.2
  - Bug fix for QBFs with more than 2 quantifiers
@@ -27,17 +30,20 @@ Source:     https://github.com/gcharwat/dynqbf
 2016-02-24: dynQBF 0.1-beta
  Currently only available as statically linked x86-86 binary
 
-### License ###
+License
+-------
 
 Released under the GNU GENERAL PUBLIC LICENSE  Version 3, 29 June 2007
 A copy of the license should be provided with the system, otherwise see
 http://www.gnu.org/licenses/
 
-### Building dynQBF ###
+Building dynQBF 
+---------------
 
 For instructions about compiling, please read the INSTALL file.
 
-### Running dynQBF ###
+Running dynQBF
+--------------
 
 A typical program call is of the following form:
 
