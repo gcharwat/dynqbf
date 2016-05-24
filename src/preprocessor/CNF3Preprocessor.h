@@ -28,9 +28,9 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace preprocessor {
 
-    class NoPreprocessor : public Preprocessor {
+    class CNF3Preprocessor : public Preprocessor {
     public:
-        NoPreprocessor(Application& app, bool newDefault = false);
+        CNF3Preprocessor(Application& app, bool newDefault = false);
 
         HTDHypergraphPtr preprocess(const HTDHypergraphPtr& instance) const override;
 

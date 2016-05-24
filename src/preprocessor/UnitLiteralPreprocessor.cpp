@@ -34,7 +34,7 @@ namespace preprocessor {
     : Preprocessor(app, "unit-literal", "apply unit literal elimination", newDefault) {
     }
 
-    void UnitLiteralPreprocessor::preprocess(const HTDHypergraphPtr& instance) const {
+    HTDHypergraphPtr UnitLiteralPreprocessor::preprocess(const HTDHypergraphPtr& instance) const {
         std::vector<htd::vertex_t> unitLiterals;
         std::vector<bool> unitLiteralSigns;
 
@@ -83,8 +83,8 @@ namespace preprocessor {
             std::cout << instance->vertexName(variable) << " ";
         }
         std::cout << std::endl;
+        
+        return instance;
     }
-
-
 
 } // namespace preprocessor

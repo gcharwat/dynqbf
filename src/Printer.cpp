@@ -41,17 +41,21 @@ void Printer::inputHypergraph(const HTDHypergraphPtr& hypergraph) {
         return;
     }
 
-    std::cout << "#vertices: " << hypergraph.get()->vertexCount() << std::endl;
-    for (const auto& vertexId : hypergraph.get()->internalGraph().vertices()) {
-        std::cout << " " << vertexId << ": " << hypergraph.get()->vertexName(vertexId) << "\t";
-        int vertexLevel = htd::accessLabel<int>(app.getInputHypergraph()->internalGraph().vertexLabel("level", vertexId));
-        std::cout << "level " << vertexLevel << std::endl;
+    std::cout << "#vertices: " << hypergraph->vertexCount() << std::endl;
+    for (const auto& vertexId : hypergraph->internalGraph().vertices()) {
+        std::cout << " " << vertexId << ": " << hypergraph.get()->vertexName(vertexId);
+        int vertexLevel = htd::accessLabel<int>(hypergraph->internalGraph().vertexLabel("level", vertexId));
+        NTYPE quantor = app.getNSFManager().quantifier(vertexLevel);
+        std::cout << "; level " << vertexLevel << " " << (quantor == NTYPE::EXISTS ? "E" : "A") << std::endl;
     }
-    std::cout << "#edges: " << hypergraph.get()->edgeCount() << std::endl;
-    for (const auto& hyperedge : hypergraph.get()->internalGraph().hyperedges()) {
+    std::cout << "#edges: " << hypergraph->edgeCount() << std::endl;
+    for (const auto& hyperedge : hypergraph->internalGraph().hyperedges()) {
+        const std::vector<bool> &edgeSigns = htd::accessLabel < std::vector<bool>>(hypergraph->edgeLabel("signs", hyperedge.id()));
+        int index = 0;
         std::cout << " " << hyperedge.id() << ": ";
         for (const auto& vertexId : hyperedge.elements()) {
-            std::cout << hypergraph.get()->vertexName(vertexId) << " ";
+            std::cout << (edgeSigns[index] ? "+": "-") << hypergraph.get()->vertexName(vertexId) << " ";
+            index++;
         }
         std::cout << std::endl;
     }

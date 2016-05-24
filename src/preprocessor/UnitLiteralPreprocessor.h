@@ -32,7 +32,7 @@ namespace preprocessor {
     public:
         UnitLiteralPreprocessor(Application& app, bool newDefault = false);
 
-        void preprocess(const HTDHypergraphPtr& instance) const override;
+        HTDHypergraphPtr preprocess(const HTDHypergraphPtr& instance) const override;
 
     };
 

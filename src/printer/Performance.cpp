@@ -36,40 +36,47 @@ namespace printer {
     void Performance::inputHypergraph(const HTDHypergraphPtr& hypergraph) {
         intermediateEndClock = std::clock();
         double elapsed_secs = double(intermediateEndClock - intermediateBeginClock) / CLOCKS_PER_SEC;
-        std::cout << std::fixed << "Parsing: " << elapsed_secs << std::endl;
+        std::cout << std::fixed << "Input (parsing time): " << elapsed_secs << std::endl;
         intermediateBeginClock = std::clock();
+        std::cout << "Input (vertices): " << hypergraph->vertexCount() << std::endl;
+        std::cout << "Input (edges): " << hypergraph->edgeCount() << std::endl;
     }
 
     void Performance::preprocessedHypergraph(const HTDHypergraphPtr& hypergraph) {
         intermediateEndClock = std::clock();
         double elapsed_secs = double(intermediateEndClock - intermediateBeginClock) / CLOCKS_PER_SEC;
-        std::cout << std::fixed << "Preprocessing: " << elapsed_secs << std::endl;
+        std::cout << std::fixed << "Preprocessing (time): " << elapsed_secs << std::endl;
         intermediateBeginClock = std::clock();
+        std::cout << "Preprocessing (vertices): " << hypergraph->vertexCount() << std::endl;
+        std::cout << "Preprocessing (edges): " << hypergraph->edgeCount() << std::endl;
     }
 
     void Performance::decomposerResult(const HTDDecompositionPtr& result) {
         intermediateEndClock = std::clock();
         double elapsed_secs = double(intermediateEndClock - intermediateBeginClock) / CLOCKS_PER_SEC;
-        std::cout << std::fixed << "Decompose: " << elapsed_secs << std::endl;
-        std::cout << "Width: " << (result->maximumBagSize() - 1) << std::endl;
+        std::cout << std::fixed << "Decomposition (decomposing time): " << elapsed_secs << std::endl;
+        std::cout << "Decomposition (width): " << (result->maximumBagSize() - 1) << std::endl;
         intermediateBeginClock = std::clock();
+        std::cout << "Decomposition (nodes): " << result->vertexCount() << std::endl;
+        std::cout << "Decomposition (leaf nodes): " << result->leafNodeCount() << std::endl;
+        std::cout << "Decomposition (join nodes): " << result->joinNodeCount() << std::endl;
     }
 
     void Performance::vertexOrdering(const std::vector<int>& ordering) {
         intermediateEndClock = std::clock();
         double elapsed_secs = double(intermediateEndClock - intermediateBeginClock) / CLOCKS_PER_SEC;
-        std::cout << std::fixed << "Ordering: " << elapsed_secs << std::endl;
+        std::cout << std::fixed << "Ordering (time): " << elapsed_secs << std::endl;
         intermediateBeginClock = std::clock();
     }
 
     void Performance::afterComputation() {
         intermediateEndClock = std::clock();
         double elapsed_secs = double(intermediateEndClock - intermediateBeginClock) / CLOCKS_PER_SEC;
-        std::cout << std::fixed << "Compute: " << elapsed_secs << std::endl;
+        std::cout << std::fixed << "Solve (time): " << elapsed_secs << std::endl;
         intermediateBeginClock = std::clock();
 
         double elapsed_total_secs = double(intermediateEndClock - beginClock) / CLOCKS_PER_SEC;
-        std::cout << std::fixed << "Total: " << elapsed_total_secs << std::endl;
+        std::cout << std::fixed << "Total (time): " << elapsed_total_secs << std::endl;
     }
 
 } // namespace printer

@@ -33,8 +33,8 @@ namespace preprocessor {
     : Preprocessor(app, "none", "No preprocessing", newDefault) {
     }
 
-    void NoPreprocessor::preprocess(const HTDHypergraphPtr& instance) const {
-        return;
+    HTDHypergraphPtr NoPreprocessor::preprocess(const HTDHypergraphPtr& instance) const {
+        return instance;
     }
 
 } // namespace preprocessor

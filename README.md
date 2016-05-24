@@ -14,7 +14,9 @@ Contact
 -------
 
 Contact:    Guenther Charwat: gcharwat at dbai dot tuwien dot ac dot at
+
 WWW:        http://dbai.tuwien.ac.at/proj/decodyn/dynqbf/
+
 Source:     https://github.com/gcharwat/dynqbf
 
 Version info 
@@ -28,7 +30,7 @@ Version info
  - Various performance improvements (NSF manager, updated HTD lib)
 
 2016-02-24: dynQBF 0.1-beta
- Currently only available as statically linked x86-86 binary
+ - Currently only available as statically linked x86-86 binary
 
 License
 -------
