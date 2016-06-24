@@ -43,6 +43,7 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "preprocessor/NoPreprocessor.h"
 #include "preprocessor/UnitLiteralPreprocessor.h"
 #include "preprocessor/CNF3Preprocessor.h"
+#include "preprocessor/CombinedPreprocessor.h"
 
 #include "decomposer/Dummy.h"
 #include "decomposer/HTDTreeDecomposer.h"
@@ -107,8 +108,9 @@ int Application::run(int argc, char** argv) {
 
     opts.addOption(optPreprocessor, MODULE_SECTION);
     preprocessor::NoPreprocessor noPreprocessor(*this, true);
-    preprocessor::UnitLiteralPreprocessor unitLiteralPreprocessor(*this);
-    preprocessor::CNF3Preprocessor cnf3Preprocessor(*this);
+//    preprocessor::UnitLiteralPreprocessor unitLiteralPreprocessor(*this);
+//    preprocessor::CNF3Preprocessor cnf3Preprocessor(*this);
+    preprocessor::CombinedPreprocessor combinedPreprocessor(*this, true);
     
 
     opts.addOption(optSolver, MODULE_SECTION);

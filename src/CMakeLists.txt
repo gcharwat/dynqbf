@@ -58,6 +58,7 @@ add_library(dynqbf-objects
     preprocessor/NoPreprocessor.cpp
     preprocessor/UnitLiteralPreprocessor.cpp
     preprocessor/CNF3Preprocessor.cpp
+    preprocessor/CombinedPreprocessor.cpp
     Decomposer.cpp
     decomposer/Dummy.cpp
     decomposer/HTDTreeDecomposer.cpp

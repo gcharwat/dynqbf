@@ -35,27 +35,28 @@ namespace preprocessor {
     }
 
     HTDHypergraphPtr UnitLiteralPreprocessor::preprocess(const HTDHypergraphPtr& instance) const {
-        std::vector<htd::vertex_t> unitLiterals;
-        std::vector<bool> unitLiteralSigns;
+        std::vector<htd::vertex_t> unitLiteralsPos;
+        std::vector<htd::vertex_t> unitLiteralsNeg;
 
         for (auto clause : instance->internalGraph().hyperedges()) {
+            const std::vector<bool> &edgeSigns = htd::accessLabel < std::vector<bool>>(instance->edgeLabel("signs", clause.id()));
+            
             bool unit = false;
 
-            const std::vector<bool> &edgeSigns = htd::accessLabel < std::vector<bool>>(instance->edgeLabel("signs", clause.id()));
-
             htd::vertex_t existentialVariable = htd::Vertex::UNKNOWN;
+            bool existentialVariableSign = false;
+                    
             unsigned int existsLevel = 0;
-            bool existsSign = false;
             unsigned int minForallLevel = UINT_MAX;
-            unsigned int index = 0;
-            for (auto variable : clause) {
-                unsigned int variableLevel = htd::accessLabel<int>(instance->internalGraph().vertexLabel("level", variable));
+
+            for (unsigned int i = 0; i < clause.size(); i++) {
+                unsigned int variableLevel = htd::accessLabel<int>(instance->internalGraph().vertexLabel("level", clause[i]));
                 NTYPE quantor = app.getNSFManager().quantifier(variableLevel);
                 if (quantor == NTYPE::EXISTS) {
-                    if (existentialVariable != htd::Vertex::UNKNOWN) {
-                        existentialVariable = variable;
+                    if (existentialVariable == htd::Vertex::UNKNOWN) {
+                        existentialVariable = clause[i];
+                        existentialVariableSign = edgeSigns[i];
                         existsLevel = variableLevel;
-                        existsSign = edgeSigns[index];
                         unit = true;
                     } else {
                         unit = false;
@@ -70,21 +71,83 @@ namespace preprocessor {
                     unit = false;
                     break; // universal is at left of exists
                 }
-                index++;
             }
             if (unit) {
-                unitLiterals.push_back(existentialVariable);
-                unitLiteralSigns.push_back(existsSign);
+                if (existentialVariableSign)
+                    unitLiteralsPos.push_back(existentialVariable);
+                else 
+                    unitLiteralsNeg.push_back(existentialVariable);
             }
         }
 
-        std::cout << "Unit: ";
-        for (auto variable : unitLiterals) {
-            std::cout << instance->vertexName(variable) << " ";
+        std::sort(unitLiteralsPos.begin(), unitLiteralsPos.end());
+        unitLiteralsPos.erase(std::unique(unitLiteralsPos.begin(), unitLiteralsPos.end()), unitLiteralsPos.end());
+        std::sort(unitLiteralsNeg.begin(), unitLiteralsNeg.end());
+        unitLiteralsNeg.erase(std::unique(unitLiteralsNeg.begin(), unitLiteralsNeg.end()), unitLiteralsNeg.end());
+
+//        std::cout << "Unit: ";
+//        for (auto variable : unitLiterals) {
+//            std::cout << instance->vertexName(variable) << " ";
+//        }
+//        std::cout << std::endl;
+
+        HTDHypergraphPtr preprocessed(new htd::NamedMultiHypergraph<std::string, std::string>());
+
+        for (const std::string vertex : instance->vertices()) {
+            htd::vertex_t vertexId = instance->lookupVertex(vertex);
+            if ((std::find(unitLiteralsPos.begin(), unitLiteralsPos.end(), vertexId) == unitLiteralsPos.end()) && 
+                (std::find(unitLiteralsNeg.begin(), unitLiteralsNeg.end(), vertexId) == unitLiteralsNeg.end())) {
+                preprocessed->addVertex(vertex);
+                int vertexLevel = htd::accessLabel<int>(instance->vertexLabel("level", vertex));
+                preprocessed->setVertexLabel("level", vertex, new htd::Label<int>(vertexLevel));
+            }
         }
-        std::cout << std::endl;
-        
-        return instance;
+
+        for (auto clause : instance->hyperedges()) {
+            const std::vector<bool> &edgeSigns = htd::accessLabel < std::vector<bool>>(instance->edgeLabel("signs", clause.id()));
+
+            bool deleteClause = false;
+            std::vector<std::string> newClause;
+            std::vector<bool> newSigns;
+
+            for (unsigned int i = 0; i < clause.size(); i++) {
+                bool deleteLiteral = false;
+                for (auto unit : unitLiteralsPos) {
+                    if (instance->lookupVertex(clause[i]) == unit) {
+                        if (edgeSigns[i] == true) {
+                            deleteClause = true;
+                        } else {
+                            deleteLiteral = true;
+                        }
+                        break;
+                    }
+                }
+                for (auto unit : unitLiteralsNeg) {
+                    if (instance->lookupVertex(clause[i]) == unit) {
+                        if (edgeSigns[i] == false) {
+                            deleteClause = true;
+                        } else {
+                            deleteLiteral = true;
+                        }
+                        break;
+                    }
+                }
+                if (deleteClause) {
+                    break;
+                }
+                if (!deleteLiteral) {
+                    newClause.push_back(clause[i]);
+                    newSigns.push_back(edgeSigns[i]);
+                }
+            }
+
+            if (!deleteClause) {
+                htd::id_t newEdgeId = preprocessed->addEdge(newClause);
+                preprocessed->setEdgeLabel("signs", newEdgeId, new htd::Label < std::vector<bool>>(newSigns));
+            }
+        }
+
+        return preprocessed;
     }
 
 } // namespace preprocessor
