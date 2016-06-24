@@ -53,7 +53,7 @@ namespace solver {
 
                 Computation* cC = NULL;
 
-                if (decomposition->isLeafNode(currentNode)) {
+                if (decomposition->isLeaf(currentNode)) {
                     cC = nsfMan.newComputation(1, currentClauses(currentNode));
                 } else {
                     bool first = true;

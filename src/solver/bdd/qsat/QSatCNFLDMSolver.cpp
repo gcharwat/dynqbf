@@ -52,7 +52,7 @@ namespace solver {
 
                 Computation* cC = NULL;
 
-                if (decomposition->isLeafNode(currentNode)) {
+                if (decomposition->isLeaf(currentNode)) {
                     cC = nsfMan.newComputation(1, app.getBDDManager().getManager().bddOne());
                 } else {
                     bool first = true;

@@ -58,7 +58,7 @@ namespace printer {
         std::cout << "Decomposition (width): " << (result->maximumBagSize() - 1) << std::endl;
         intermediateBeginClock = std::clock();
         std::cout << "Decomposition (nodes): " << result->vertexCount() << std::endl;
-        std::cout << "Decomposition (leaf nodes): " << result->leafNodeCount() << std::endl;
+        std::cout << "Decomposition (leaf nodes): " << result->leafCount() << std::endl;
         std::cout << "Decomposition (join nodes): " << result->joinNodeCount() << std::endl;
     }
 
