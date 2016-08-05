@@ -21,30 +21,32 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include "../Decomposer.h"
-#include "../options/Choice.h"
+#include <vector>
 
-#include <list>
+#include "ValueOption.h"
 
-namespace decomposer {
+namespace options {
 
-    class HTDTreeDecomposer : public Decomposer {
+    class DefaultIntegerValueOption : public ValueOption {
     public:
-        HTDTreeDecomposer(Application& app, bool newDefault = false);
+        DefaultIntegerValueOption(const std::string& name, const std::string& placeholder, const std::string& description, int defaultValue);
 
-        HTDDecompositionPtr decompose(const HTDHypergraphPtr& instance) const override;
-
-    private:
-        static const std::string OPTION_SECTION;
-
-        options::Choice optNormalization;
-        options::Choice optEliminationOrdering;
-        options::Option optNoEmptyRoot;
-        options::Option optEmptyLeaves;
-        options::Option optPathDecomposition;
-        options::DefaultIntegerValueOption optOptimizeHeight;
-        options::DefaultIntegerValueOption optOptimizeWidth;
+        const int getValue() const {
+            return value;
+        }
         
+        const int getDefaultValue() const {
+            return defaultValue;
+        }
+        
+        // May only be called once and with an integer as string, otherwise an exception is thrown.
+        virtual void setValue(const std::string& value) override;
+
+        virtual void printHelp() const override;
+        
+    protected:
+        int value;
+        int defaultValue;
     };
 
-} // namespace decomposer
+} // namespace options

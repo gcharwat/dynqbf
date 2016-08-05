@@ -26,6 +26,8 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "Utils.h"
 #include "NSFManager.h"
 
+#include <mtr.h>
+
 #include <cuddObj.hh>
 
 #include <htd/NamedMultiHypergraph.hpp>
@@ -83,6 +85,7 @@ public:
 
     BDDManager& getBDDManager() const;
     NSFManager& getNSFManager() const;
+    htd::LibraryInstance* getHTDManager() const;
     Decomposer& getDecomposer() const;
 
 private:
@@ -121,4 +124,5 @@ private:
 
     BDDManager* bddManager;
     NSFManager* nsfManager;
+    htd::LibraryInstance* htdManager;
 };

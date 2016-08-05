@@ -36,9 +36,9 @@ NSFManager::NSFManager(Application& app)
 : app(app)
 , quantifierSequence()
 , optPrintStats("print-NSF-stats", "Print NSF Manager statistics")
-, optMaxNSFSize("max-NSF-size", "s", "Split until NSF size <s> is reached (Recommended: 1000)")
-, optMaxBDDSize("max-BDD-size", "s", "Always split if a BDD size exceeds <s> (Recommended: 3000, overrules max-NSF-size)")
-, optOptimizeInterval("opt-interval", "i", "Optimize NSF every <i>-th computation step (default: 4, disable: 0)")
+, optMaxNSFSize("max-NSF-size", "s", "Split until NSF size <s> is reached", 1000)
+, optMaxBDDSize("max-BDD-size", "s", "Always split if a BDD size exceeds <s> (overrules max-NSF-size)", 3000)
+, optOptimizeInterval("opt-interval", "i", "Optimize NSF every <i>-th computation step", 4)
 , optSortBeforeJoining("sort-before-joining", "Sort NSFs by increasing size before joining; can increase subset check success rate")
 , subsetChecks(0)
 , subsetChecksSuccessful(0)
@@ -102,29 +102,27 @@ void NSFManager::apply(Computation& c, std::function<BDD(const BDD&)> f) const {
 }
 
 Computation* NSFManager::conjunct(Computation& c1, Computation& c2) const {
-    if (optMaxBDDSize.isUsed()) {
-        if (c1.maxBDDsize() > (std::stoi(optMaxBDDSize.getValue()))) {
-            int maxNSFSizeEstimationTmp = maxNSFSizeEstimation;
-            int oldSize = c1.leavesCount();
-            maxNSFSizeEstimation = 0;
-            split(c1);
-            maxNSFSizeEstimation = maxNSFSizeEstimationTmp / oldSize;
-            if (maxNSFSizeEstimation <= 0) {
-                maxNSFSizeEstimation = 1;
-            }
-            maxNSFSizeEstimation *= c1.leavesCount();
+    if (c1.maxBDDsize() > optMaxBDDSize.getValue()) {
+        int maxNSFSizeEstimationTmp = maxNSFSizeEstimation;
+        int oldSize = c1.leavesCount();
+        maxNSFSizeEstimation = 0;
+        split(c1);
+        maxNSFSizeEstimation = maxNSFSizeEstimationTmp / oldSize;
+        if (maxNSFSizeEstimation <= 0) {
+            maxNSFSizeEstimation = 1;
         }
-        if (c2.maxBDDsize() > (std::stoi(optMaxBDDSize.getValue()))) {
-            int maxNSFSizeEstimationTmp = maxNSFSizeEstimation;
-            int oldSize = c2.leavesCount();
-            maxNSFSizeEstimation = 0;
-            split(c2);
-            maxNSFSizeEstimation = maxNSFSizeEstimationTmp / oldSize;
-            if (maxNSFSizeEstimation <= 0) {
-                maxNSFSizeEstimation = 1;
-            }
-            maxNSFSizeEstimation *= c2.leavesCount();
+        maxNSFSizeEstimation *= c1.leavesCount();
+    }
+    if (c2.maxBDDsize() > optMaxBDDSize.getValue()) {
+        int maxNSFSizeEstimationTmp = maxNSFSizeEstimation;
+        int oldSize = c2.leavesCount();
+        maxNSFSizeEstimation = 0;
+        split(c2);
+        maxNSFSizeEstimation = maxNSFSizeEstimationTmp / oldSize;
+        if (maxNSFSizeEstimation <= 0) {
+            maxNSFSizeEstimation = 1;
         }
+        maxNSFSizeEstimation *= c2.leavesCount();
     }
 
 
@@ -320,7 +318,7 @@ bool NSFManager::split(Computation& c) const {
     if (c.removeCache().empty()) {
         return false;
     }
-    if (!c.isLeaf() && optMaxNSFSize.isUsed() && (maxNSFSizeEstimation > (std::stoi(optMaxNSFSize.getValue())))) {
+    if (!c.isLeaf() && (maxNSFSizeEstimation > optMaxNSFSize.getValue())) {
         return false;
     }
     if (app.enumerate() && c.level() == 1 && c.quantifier() == NTYPE::EXISTS) {
@@ -368,7 +366,7 @@ void NSFManager::compressConjunctive(Computation &c) const {
         return;
     } else {
         std::list<Computation *> list(c.nestedSet().begin(), c.nestedSet().end());
-        
+
         std::list<Computation*>::iterator it1;
         std::list<Computation*>::iterator it2;
 
@@ -509,10 +507,7 @@ void NSFManager::printStatistics() const {
 }
 
 bool NSFManager::optimizeNow(bool half) const {
-    int rotateCheckInterval = 4;
-    if (optOptimizeInterval.isUsed()) {
-        rotateCheckInterval = ((std::stoi) (optOptimizeInterval.getValue()));
-    }
+    int rotateCheckInterval = optOptimizeInterval.getValue();
     if (rotateCheckInterval <= 0) {
         return false;
     }

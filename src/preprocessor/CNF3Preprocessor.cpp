@@ -34,7 +34,7 @@ namespace preprocessor {
     }
 
     HTDHypergraphPtr CNF3Preprocessor::preprocess(const HTDHypergraphPtr& instance) const {
-        HTDHypergraphPtr preprocessed(new htd::NamedMultiHypergraph<std::string, std::string>());
+        HTDHypergraphPtr preprocessed(new htd::NamedMultiHypergraph<std::string, std::string>(app.getHTDManager()));
 
         if (app.getNSFManager().innermostQuantifier() != NTYPE::EXISTS) {
             app.getNSFManager().pushBackQuantifier(NTYPE::EXISTS);

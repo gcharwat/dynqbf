@@ -70,6 +70,7 @@ void Printer::decomposerResult(const HTDDecompositionPtr& result) {
         return;
     }
     std::cout << "Width: " << (result->maximumBagSize() - 1) << std::endl;
+    std::cout << "Height: " << (result->height()) << std::endl;
 }
 
 void Printer::vertexOrdering(const std::vector<int>& ordering) {

@@ -31,7 +31,7 @@ namespace decomposer {
 
     HTDDecompositionPtr Dummy::decompose(const HTDHypergraphPtr& instance) const {
 
-        htd::IMutableTreeDecomposition * decompMutable = htd::TreeDecompositionFactory::instance().getTreeDecomposition();
+        htd::IMutableTreeDecomposition * decompMutable = app.getHTDManager()->treeDecompositionFactory().getTreeDecomposition();
         decompMutable->insertRoot();
         std::vector<htd::vertex_t> & bag = decompMutable->bagContent(decompMutable->root());
         const htd::ConstCollection<htd::vertex_t> & vertices = instance->internalGraph().vertices();

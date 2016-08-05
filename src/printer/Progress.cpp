@@ -33,6 +33,12 @@ namespace printer {
         std::cout << "\rParsing done." << std::flush;
         std::cout << std::endl;
     }
+    
+    void Progress::preprocessedHypergraph(const HTDHypergraphPtr& hypergraph) {
+        Printer::inputHypergraph(hypergraph);
+        std::cout << "\rPreprocessing done." << std::flush;
+        std::cout << std::endl;
+    }
 
     void Progress::decomposerResult(const HTDDecompositionPtr & result) {
         Printer::decomposerResult(result);

@@ -91,8 +91,8 @@ namespace preprocessor {
 //        }
 //        std::cout << std::endl;
 
-        HTDHypergraphPtr preprocessed(new htd::NamedMultiHypergraph<std::string, std::string>());
-
+        HTDHypergraphPtr preprocessed(new htd::NamedMultiHypergraph<std::string, std::string>(app.getHTDManager()));
+        
         for (const std::string vertex : instance->vertices()) {
             htd::vertex_t vertexId = instance->lookupVertex(vertex);
             if ((std::find(unitLiteralsPos.begin(), unitLiteralsPos.end(), vertexId) == unitLiteralsPos.end()) && 

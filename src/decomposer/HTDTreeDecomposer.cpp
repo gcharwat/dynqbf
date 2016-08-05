@@ -23,6 +23,8 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "HTDTreeDecomposer.h"
 #include "../Application.h"
+#include "WidthFitnessFunction.h"
+#include "HeightFitnessFunction.h"
 
 #include <htd/main.hpp>
 
@@ -37,9 +39,12 @@ namespace decomposer {
     , optEliminationOrdering("elimination", "h", "Use heuristic <h> for bucket elimination")
     , optNoEmptyRoot("no-empty-root", "Do not add an empty root to the tree decomposition")
     , optEmptyLeaves("empty-leaves", "Add empty leaves to the tree decomposition")
-    , optPathDecomposition("path-decomposition", "Create a path decomposition") {
+    , optPathDecomposition("path-decomposition", "Create a path decomposition")
+    , optOptimizeHeight("opt-height", "h", "Randomly select <h> decomposition nodes as root, choose decomposition with minimum height", 10)
+    , optOptimizeWidth("opt-width", "w", "Generate <w> tree decompositions, choose decomposition with minimum width", 10) {
         optNormalization.addCondition(selected);
-        optNormalization.addChoice("weak", "weak normalization", true);
+        optNormalization.addChoice("none", "no normalization", true);
+        optNormalization.addChoice("weak", "weak normalization");
         optNormalization.addChoice("semi", "semi-normalization");
         optNormalization.addChoice("normalized", "normalization");
         app.getOptionHandler().addOption(optNormalization, OPTION_SECTION);
@@ -59,6 +64,13 @@ namespace decomposer {
 
         optPathDecomposition.addCondition(selected);
         app.getOptionHandler().addOption(optPathDecomposition, OPTION_SECTION);
+        
+        optOptimizeHeight.addCondition(selected);
+        app.getOptionHandler().addOption(optOptimizeHeight, OPTION_SECTION);
+        
+        optOptimizeWidth.addCondition(selected);
+        app.getOptionHandler().addOption(optOptimizeWidth, OPTION_SECTION);
+        
     }
 
     HTDDecompositionPtr HTDTreeDecomposer::decompose(const HTDHypergraphPtr& instance) const {
@@ -68,45 +80,58 @@ namespace decomposer {
         htd::IOrderingAlgorithm * orderingAlgorithm;
 
         if (optEliminationOrdering.getValue() == "min-fill")
-            orderingAlgorithm = new htd::MinFillOrderingAlgorithm();
+            orderingAlgorithm = new htd::MinFillOrderingAlgorithm(app.getHTDManager());
         else if (optEliminationOrdering.getValue() == "min-degree")
-            orderingAlgorithm = new htd::MinDegreeOrderingAlgorithm();
+            orderingAlgorithm = new htd::MinDegreeOrderingAlgorithm(app.getHTDManager());
         else if (optEliminationOrdering.getValue() == "mcs")
-            orderingAlgorithm = new htd::MaximumCardinalitySearchOrderingAlgorithm();
+            orderingAlgorithm = new htd::MaximumCardinalitySearchOrderingAlgorithm(app.getHTDManager());
         else {
             assert(optEliminationOrdering.getValue() == "natural");
-            orderingAlgorithm = new htd::NaturalOrderingAlgorithm();
+            orderingAlgorithm = new htd::NaturalOrderingAlgorithm(app.getHTDManager());
         }
-        htd::OrderingAlgorithmFactory::instance().setConstructionTemplate(orderingAlgorithm);
-        htd::TreeDecompositionAlgorithmFactory::instance().setConstructionTemplate(new htd::BucketEliminationTreeDecompositionAlgorithm());
+        app.getHTDManager()->orderingAlgorithmFactory().setConstructionTemplate(orderingAlgorithm);
+        app.getHTDManager()->treeDecompositionAlgorithmFactory().setConstructionTemplate(new htd::BucketEliminationTreeDecompositionAlgorithm(app.getHTDManager()));
         // set cover oder exact...
         // htd::SetCoverAlgorithmFactory::instance().setConstructionTemplate(new htd::HeuristicSetCoverAlgorithm());
 
         bool emptyLeaves = optEmptyLeaves.isUsed();
         bool emptyRoot = !optNoEmptyRoot.isUsed();
 
+        HeightFitnessFunction heightFitnessFunction;
+        htd::TreeDecompositionOptimizationOperation * operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager(), heightFitnessFunction);
+        
+        operation->setVertexSelectionStrategy(new htd::RandomVertexSelectionStrategy(optOptimizeHeight.getValue()));
+        
         // Path decomposition
         if (optPathDecomposition.isUsed()) {
-            htd::TreeDecompositionAlgorithmFactory::instance().addManipulationOperations({new htd::JoinNodeReplacementOperation()});
+            operation->addManipulationOperations({new htd::JoinNodeReplacementOperation(app.getHTDManager())});
         }
 
         // Normalize
-        if (optNormalization.getValue() == "weak") {
-            htd::TreeDecompositionAlgorithmFactory::instance().addManipulationOperations({new htd::WeakNormalizationOperation(emptyRoot, emptyLeaves, false)});
+        if (optNormalization.getValue() == "none") {
+            if (emptyRoot)   operation->addManipulationOperations({new htd::AddEmptyRootOperation(app.getHTDManager())});
+            if (emptyLeaves) operation->addManipulationOperations({new htd::AddEmptyLeavesOperation(app.getHTDManager())});
+        } else if (optNormalization.getValue() == "weak") {
+            operation->addManipulationOperations({new htd::WeakNormalizationOperation(app.getHTDManager(), emptyRoot, emptyLeaves, false)});
         } else if (optNormalization.getValue() == "semi") {
-            htd::TreeDecompositionAlgorithmFactory::instance().addManipulationOperations({new htd::SemiNormalizationOperation(emptyRoot, emptyLeaves, false)});
+            operation->addManipulationOperations({new htd::SemiNormalizationOperation(app.getHTDManager(), emptyRoot, emptyLeaves, false)});
         } else if (optNormalization.getValue() == "normalized") {
-            htd::TreeDecompositionAlgorithmFactory::instance().addManipulationOperations({new htd::NormalizationOperation(emptyRoot, emptyLeaves, false, false)});
+            operation->addManipulationOperations({new htd::NormalizationOperation(app.getHTDManager(), emptyRoot, emptyLeaves, false, false)});
         } else {
             /* nothing to do */
         }
+        
+        htd::ITreeDecompositionAlgorithm * algorithm = app.getHTDManager()->treeDecompositionAlgorithmFactory().getTreeDecompositionAlgorithm();
+        algorithm->addManipulationOperation(operation);
+        
+        WidthFitnessFunction widthFitnessFunction;
+        htd::IterativeImprovementTreeDecompositionAlgorithm iterativeAlgorithm(app.getHTDManager(), algorithm, widthFitnessFunction);
+        iterativeAlgorithm.setIterationCount(optOptimizeWidth.getValue());
+        iterativeAlgorithm.setNonImprovementLimit(-1);
+        
+        htd::ITreeDecomposition * decomp = iterativeAlgorithm.computeDecomposition(instance->internalGraph());
 
-        htd::ITreeDecompositionAlgorithm * algorithm = htd::TreeDecompositionAlgorithmFactory::instance().getTreeDecompositionAlgorithm();
-        htd::ITreeDecomposition * decomp = algorithm->computeDecomposition(instance->internalGraph());
-        delete algorithm;
-
-        htd::IMutableTreeDecomposition * decompMutable = &(htd::TreeDecompositionFactory::instance().accessMutableTreeDecomposition(*decomp));
-
+        htd::IMutableTreeDecomposition * decompMutable = &(app.getHTDManager()->treeDecompositionFactory().accessMutableTreeDecomposition(*decomp));
         HTDDecompositionPtr decomposition(decompMutable);
         return decomposition;
     }

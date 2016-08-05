@@ -59,12 +59,14 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "solver/dummy/SolverFactory.h"
 #include "solver/bdd/qsat/QSatCNFSolverFactory.h"
+#include "solver/bdd/qsat/QSat2CNFSolverFactory.h"
 #include "solver/bdd/qsat/QSatBDDSolverFactory.h"
 
 #include "printer/Quiet.h"
 #include "printer/Progress.h"
 #include "printer/Debug.h"
 #include "printer/Performance.h"
+#include "solver/bdd/qsat/QSat2CNFSolverFactory.h"
 
 const std::string Application::MODULE_SECTION = "Module selection";
 
@@ -115,6 +117,7 @@ int Application::run(int argc, char** argv) {
 
     opts.addOption(optSolver, MODULE_SECTION);
     solver::bdd::qsat::QSatCNFSolverFactory qsatSolverCNFFactory(*this, true);
+    solver::bdd::qsat::QSat2CNFSolverFactory qsat2SolverCNFFactory(*this);
     //    solver::bdd::qsat::QSatDNFSolverFactory qsatSolverDNFFactory(*this);
     solver::bdd::qsat::QSatBDDSolverFactory qsatSolverBDDFactory(*this);
     solver::dummy::SolverFactory dummySolverFactory(*this);
@@ -142,6 +145,7 @@ int Application::run(int argc, char** argv) {
 
     bddManager = new BDDManager(*this);
     nsfManager = new NSFManager(*this);
+    htdManager = htd::createManagementInstance(htd::Id::FIRST);
     
     time_t seed = time(0);
     // Parse command line
@@ -155,6 +159,41 @@ int Application::run(int argc, char** argv) {
         throw;
     }
     srand(seed);
+    
+//    Cudd* c = new Cudd();
+//    BDD v1 = c->bddVar();
+//    BDD v2 = c->bddVar();
+//    BDD v3 = c->bddVar();
+//    BDD v4 = c->bddVar();
+//    BDD v5 = c->bddVar();
+//    BDD v6 = c->bddVar();
+//    BDD v7 = c->bddVar();
+//    BDD v8 = c->bddVar();
+//    BDD v9 = c->bddVar();
+//    BDD v10 = c->bddVar();
+//    
+//    BDD b = (v1 + v6) * (v2 + v7) * (v3 + v8) * (v4 + v9) * (v5 + v10) * (v1 + v7 + v2 + v9 + v10);
+//    b.print(0,5);
+//    for (int i = 0; i < 10; i++) { std::cout << c->ReadPerm(i) << " "; } std::cout <<std::endl;
+//    
+//    MtrNode * root = Mtr_InitGroupTree(0,10);
+//    (void) Mtr_MakeGroup(root,0,10,MTR_FIXED);
+//    
+//    (void) Mtr_MakeGroup(root,0,5,MTR_DEFAULT);
+//    (void) Mtr_MakeGroup(root,5,5,MTR_DEFAULT);
+//    
+//    c->SetTree(root);
+//    
+//    c->ReduceHeap(CUDD_REORDER_EXACT, 0);
+//    for (int i = 0; i < 10; i++) { std::cout << c->ReadPerm(i) << " "; } std::cout <<std::endl;
+//
+//    for (int j = 0; j < 100; j++) {
+//        c->ReduceHeap(CUDD_REORDER_RANDOM, 0);
+//        for (int i = 0; i < 10; i++) { std::cout << c->ReadPerm(i) << " "; } std::cout <<std::endl;
+//    }
+//    
+//    return 0;
+    
     
     RESULT result = RESULT::UNDECIDED;
 
@@ -335,4 +374,8 @@ BDDManager& Application::getBDDManager() const {
 
 NSFManager& Application::getNSFManager() const {
     return *nsfManager;
+}
+
+htd::LibraryInstance* Application::getHTDManager() const {
+    return htdManager;
 }

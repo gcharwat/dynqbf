@@ -43,7 +43,7 @@ namespace parser {
     HTDHypergraphPtr DIMACSDriver::parse(std::istream& input) {
         NSFManager& nsfMan = app.getNSFManager();
 
-        HTDHypergraphPtr hypergraph(new htd::NamedMultiHypergraph<std::string, std::string>());
+        HTDHypergraphPtr hypergraph(new htd::NamedMultiHypergraph<std::string, std::string>(app.getHTDManager()));
 
         std::string inputFileFormat, dummy;
         unsigned int atoms = 0, clauses = 0;

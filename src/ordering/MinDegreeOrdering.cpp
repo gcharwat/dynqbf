@@ -30,7 +30,7 @@ namespace ordering {
     }
     
     std::vector<int> MinDegreeOrdering::computeVertexOrder(const HTDHypergraphPtr& instance, const HTDDecompositionPtr& decomposition) const {
-        htd::IOrderingAlgorithm * orderingAlgorithm = new htd::MinDegreeOrderingAlgorithm();
+        htd::IOrderingAlgorithm * orderingAlgorithm = new htd::MinDegreeOrderingAlgorithm(app.getHTDManager());
         std::vector<htd::vertex_t> orderingVertices;
         // TODO: Do not recompute ordering
         orderingAlgorithm->writeOrderingTo(instance->internalGraph(), orderingVertices);

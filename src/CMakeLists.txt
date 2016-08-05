@@ -44,6 +44,7 @@ add_library(dynqbf-objects
     options/ValueOption.cpp
     options/SingleValueOption.cpp
     options/MultiValueOption.cpp
+    options/DefaultIntegerValueOption.cpp
     options/Choice.cpp
     options/OptionHandler.cpp
     options/HelpObserver.cpp
@@ -62,6 +63,8 @@ add_library(dynqbf-objects
     Decomposer.cpp
     decomposer/Dummy.cpp
     decomposer/HTDTreeDecomposer.cpp
+    decomposer/HeightFitnessFunction.cpp
+    decomposer/WidthFitnessFunction.cpp
     Ordering.cpp
     ordering/InstanceOrdering.cpp
     ordering/LexicographicalOrdering.cpp
@@ -78,6 +81,8 @@ add_library(dynqbf-objects
     solver/bdd/qsat/QSatCNFSolverFactory.cpp
     solver/bdd/qsat/QSatCNFEDMSolver.cpp
     solver/bdd/qsat/QSatCNFLDMSolver.cpp
+    solver/bdd/qsat/QSat2CNFSolverFactory.cpp
+    solver/bdd/qsat/QSat2CNFEDMSolver.cpp
     solver/bdd/qsat/QSatBDDSolverFactory.cpp
     solver/bdd/qsat/QSatBDDSolver.cpp
     Printer.cpp

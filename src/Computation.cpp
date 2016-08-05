@@ -218,7 +218,7 @@ void Computation::printCompact() const {
             std::cout << "[T]";
         } else {
             std::cout << "[" << _value.nodeCount() << "]";
-            //  _value.print(0,2);
+            _value.print(0,2);
         }
     } else {
         std::cout << "{";

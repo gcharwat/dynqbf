@@ -26,6 +26,7 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "Utils.h"
 #include "Application.h"
 #include "Computation.h"
+#include "options/DefaultIntegerValueOption.h"
 
 class Application;
 class Computation;
@@ -76,9 +77,9 @@ private:
     static const std::string NSFMANAGER_SECTION;
 
     options::Option optPrintStats;
-    options::SingleValueOption optMaxNSFSize;
-    options::SingleValueOption optMaxBDDSize;
-    options::SingleValueOption optOptimizeInterval;
+    options::DefaultIntegerValueOption optMaxNSFSize;
+    options::DefaultIntegerValueOption optMaxBDDSize;
+    options::DefaultIntegerValueOption optOptimizeInterval;
     options::Option optSortBeforeJoining;
 
     mutable int rotateCheck = 0;
