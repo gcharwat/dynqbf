@@ -28,11 +28,11 @@ namespace ordering {
     : Ordering(app, "instance", "first appearance in input instance", newDefault) {
     }
 
-    std::vector<int> InstanceOrdering::computeVertexOrder(const HTDHypergraphPtr& instance, const HTDDecompositionPtr& decomposition) const {
+    std::vector<int> InstanceOrdering::computeVertexOrder(const InstancePtr& instance, const HTDDecompositionPtr& decomposition) const {
 
-        std::vector<int> orderingIndex(instance->vertexCount() + 1);
+        std::vector<int> orderingIndex(instance->hypergraph->vertexCount() + 1);
         // assigned vertex ID corresponds to ordering in BDD        
-        for (const auto& vertexId : instance->internalGraph().vertices()) {
+        for (const auto& vertexId : instance->hypergraph->internalGraph().vertices()) {
             orderingIndex[vertexId] = vertexId - 1;
         }
 

@@ -26,6 +26,7 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Application.h"
 #include "Printer.h"
+#include "Instance.h"
 
 #include <htd/main.hpp>
 
@@ -36,16 +37,18 @@ Printer::Printer(Application& app, const std::string& optionName, const std::str
 Printer::~Printer() {
 }
 
-void Printer::inputHypergraph(const HTDHypergraphPtr& hypergraph) {
-    if (!app.printInputHypergraph()) {
+void Printer::inputInstance(const InstancePtr& instance) {
+    if (!app.printInputInstance()) {
         return;
     }
+    
+    HTDHypergraph* hypergraph = instance->hypergraph;
 
     std::cout << "#vertices: " << hypergraph->vertexCount() << std::endl;
     for (const auto& vertexId : hypergraph->internalGraph().vertices()) {
-        std::cout << " " << vertexId << ": " << hypergraph.get()->vertexName(vertexId);
+        std::cout << " " << vertexId << ": " << hypergraph->vertexName(vertexId);
         int vertexLevel = htd::accessLabel<int>(hypergraph->internalGraph().vertexLabel("level", vertexId));
-        NTYPE quantor = app.getNSFManager().quantifier(vertexLevel);
+        NTYPE quantor = instance->quantifier(vertexLevel);
         std::cout << "; level " << vertexLevel << " " << (quantor == NTYPE::EXISTS ? "E" : "A") << std::endl;
     }
     std::cout << "#edges: " << hypergraph->edgeCount() << std::endl;
@@ -54,15 +57,15 @@ void Printer::inputHypergraph(const HTDHypergraphPtr& hypergraph) {
         int index = 0;
         std::cout << " " << hyperedge.id() << ": ";
         for (const auto& vertexId : hyperedge.elements()) {
-            std::cout << (edgeSigns[index] ? "+": "-") << hypergraph.get()->vertexName(vertexId) << " ";
+            std::cout << (edgeSigns[index] ? "+": "-") << hypergraph->vertexName(vertexId) << " ";
             index++;
         }
         std::cout << std::endl;
     }
 }
 
-void Printer::preprocessedHypergraph(const HTDHypergraphPtr& hypergraph) {
-    inputHypergraph(hypergraph);
+void Printer::preprocessedInstance(const InstancePtr& instance) {
+    inputInstance(instance);
 }
 
 void Printer::decomposerResult(const HTDDecompositionPtr& result) {
@@ -78,7 +81,9 @@ void Printer::vertexOrdering(const std::vector<int>& ordering) {
         return;
     }
 
-    std::vector<htd::vertex_t> verticesSorted(app.getInputHypergraph()->internalGraph().vertices().begin(), app.getInputHypergraph()->internalGraph().vertices().end());
+    HTDHypergraph* hypergraph = app.getInputInstance()->hypergraph;
+    
+    std::vector<htd::vertex_t> verticesSorted(hypergraph->internalGraph().vertices().begin(), hypergraph->internalGraph().vertices().end());
 
     std::sort(verticesSorted.begin(), verticesSorted.end(), [ordering] (htd::vertex_t x1, htd::vertex_t x2) -> bool {
         int x1Index = ordering[x1];
@@ -89,7 +94,7 @@ void Printer::vertexOrdering(const std::vector<int>& ordering) {
 
     std::cout << "[ ";
     for (const auto vertex : verticesSorted) {
-        std::cout << app.getInputHypergraph()->vertexName(vertex) << " "; //":" << ordering[vertex] <<
+        std::cout << hypergraph->vertexName(vertex) << " "; //":" << ordering[vertex] <<
     }
     std::cout << "]" << std::endl;
 }
@@ -138,10 +143,13 @@ void Printer::select() {
 }
 
 void Printer::models(const BDD bdd, std::vector<Variable> variables) {
+    
+    HTDHypergraph* hypergraph = app.getInputInstance()->hypergraph;
+    
     // only vertices at level 1
     std::list<Variable> lvl1;
     for (Variable v : variables) {
-        int vertexLevel = htd::accessLabel<int>(app.getInputHypergraph()->internalGraph().vertexLabel("level", v.getVertices()[0]));
+        int vertexLevel = htd::accessLabel<int>(hypergraph->internalGraph().vertexLabel("level", v.getVertices()[0]));
         if (vertexLevel == 1) {
             lvl1.push_back(v);
         }
@@ -173,8 +181,9 @@ void Printer::modelsRec(BDD bdd, std::list<Variable> variables, std::vector<std:
         Variable v = variables.front();
         variables.pop_front();
 
+        HTDHypergraph* hypergraph = app.getInputInstance()->hypergraph;
         // Only works for simple variables! (one type, one number, one vertex)
-        std::string vString = app.getInputHypergraph()->vertexName(v.getVertices()[0]);
+        std::string vString = hypergraph->vertexName(v.getVertices()[0]);
 
         BDD bdd1 = bdd.Restrict(app.getBDDManager().getManager().bddVar(v.getId()));
         BDD bdd0 = bdd.Restrict(!(app.getBDDManager().getManager().bddVar(v.getId())));

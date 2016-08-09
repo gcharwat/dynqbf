@@ -28,7 +28,7 @@ class Ordering : public Module {
 public:
     Ordering(Application& app, const std::string& optionName, const std::string& optionDescription, bool newDefault = false);
 
-    virtual std::vector<int> computeVertexOrder(const HTDHypergraphPtr& instance, const HTDDecompositionPtr& decomposition) const = 0;
+    virtual std::vector<int> computeVertexOrder(const InstancePtr& instance, const HTDDecompositionPtr& decomposition) const = 0;
 
     virtual void select() override;
 };

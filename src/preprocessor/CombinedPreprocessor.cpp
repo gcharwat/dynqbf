@@ -41,8 +41,8 @@ namespace preprocessor {
         app.getOptionHandler().addOption(optUseUnitLiteral, OPTION_SECTION);
     }
 
-    HTDHypergraphPtr CombinedPreprocessor::preprocess(const HTDHypergraphPtr& instance) const {
-        HTDHypergraphPtr preprocessed = instance;
+    InstancePtr CombinedPreprocessor::preprocess(const InstancePtr& instance) const {
+        InstancePtr preprocessed = instance;
         
         if (optUseUnitLiteral.isUsed()) {
             UnitLiteralPreprocessor* unitLiteralPreprocessor = new UnitLiteralPreprocessor(app);

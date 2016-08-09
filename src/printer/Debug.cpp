@@ -43,7 +43,7 @@ namespace printer {
     void Debug::decomposerResultRec(const std::string& depth, const htd::vertex_t current) {
         std::cout << depth << current << ": ";
         for (const auto& v : app.getDecomposition()->bagContent(current)) {
-            std::cout << app.getInputHypergraph()->vertexName(v) << " ";
+            std::cout << app.getInputInstance()->hypergraph->vertexName(v) << " ";
         }
         std::cout << "" << std::endl;
         for (const auto& c : app.getDecomposition()->children(current)) {

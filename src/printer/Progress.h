@@ -29,8 +29,8 @@ namespace printer {
     public:
         Progress(Application& app, bool newDefault = false);
 
-        virtual void inputHypergraph(const HTDHypergraphPtr& hypergraph) override;
-        virtual void preprocessedHypergraph(const HTDHypergraphPtr& hypergraph) override;
+        virtual void inputInstance(const InstancePtr& instance) override;
+        virtual void preprocessedInstance(const InstancePtr& instance) override;
         virtual void decomposerResult(const HTDDecompositionPtr& result) override;
         virtual void solverIntermediateEvent(const htd::vertex_t vertex, const Computation& computation, const std::string& message) override;
         virtual void solverIntermediateEvent(const htd::vertex_t vertex, const Computation& c1, const Computation& c2, const std::string& message) override;

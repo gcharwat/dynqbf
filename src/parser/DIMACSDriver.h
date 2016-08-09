@@ -32,7 +32,7 @@ namespace parser {
     public:
         DIMACSDriver(Application& app, bool newDefault = false);
         ~DIMACSDriver();
-        virtual HTDHypergraphPtr parse(std::istream& inputStringStream) override;
+        virtual InstancePtr parse(std::istream& inputStringStream) override;
         void error(const std::string& m);
 
     };

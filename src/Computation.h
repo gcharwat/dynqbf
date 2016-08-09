@@ -31,6 +31,7 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Application.h"
 #include "BDDManager.h"
+#include "Instance.h"
 
 class Computation {
     friend class NSFManager;

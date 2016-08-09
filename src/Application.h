@@ -40,10 +40,9 @@ class Ordering;
 class SolverFactory;
 class Printer;
 class BDDManager;
+class Instance;
 
-typedef std::string vertexNameType;
-typedef std::string edgeNameType;
-typedef std::shared_ptr<htd::NamedMultiHypergraph<vertexNameType, edgeNameType>> HTDHypergraphPtr;
+typedef std::shared_ptr<Instance> InstancePtr;
 typedef std::shared_ptr<htd::IMutableTreeDecomposition> HTDDecompositionPtr;
 
 class Application {
@@ -65,7 +64,7 @@ public:
     options::Choice& getSolverChoice();
     options::Choice& getPrinterChoice();
     
-    HTDHypergraphPtr getInputHypergraph() const;
+    InstancePtr getInputInstance() const;
     const std::vector<int>& getVertexOrdering() const;
     HTDDecompositionPtr getDecomposition() const;
     const SolverFactory& getSolverFactory() const;
@@ -78,7 +77,7 @@ public:
     void setSolverFactory(SolverFactory& solverFactory);
     void setPrinter(Printer& printer);
 
-    bool printInputHypergraph() const;
+    bool printInputInstance() const;
     bool printDecomposition() const;
     bool printVertexOrdering() const;
     bool enumerate() const;
@@ -94,7 +93,7 @@ private:
 
     std::string binaryName;
     
-    HTDHypergraphPtr inputHypergraph;
+    InstancePtr inputInstance;
     std::vector<int> vertexOrdering;
 
     HTDDecompositionPtr decomposition;
@@ -107,7 +106,7 @@ private:
     options::Choice optOrdering;
     options::Choice optSolver;
     options::Choice optPrinter;
-    options::Option optPrintInputHypergraph;
+    options::Option optPrintInputInstance;
     options::Option optPrintDecomposition;
     options::Option optPrintVertexOrdering;
     options::Option optOnlyParseInstance;

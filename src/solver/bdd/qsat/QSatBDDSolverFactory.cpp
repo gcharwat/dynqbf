@@ -60,7 +60,7 @@ namespace solver {
             std::vector<Variable> QSatBDDSolverFactory::getVariables() const {
                 std::vector<Variable> variables;
 
-                for (const auto& vertex : app.getInputHypergraph()->internalGraph().vertices()) {
+                for (const auto& vertex : app.getInputInstance()->hypergraph->internalGraph().vertices()) {
                     BDD var = QSatBDDSolverFactory::getBDDVariable("a", 0,{vertex});
                     Variable v = Variable(var.getNode()->index, "a", 0, {
                         vertex

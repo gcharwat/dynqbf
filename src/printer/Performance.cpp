@@ -33,22 +33,22 @@ namespace printer {
         intermediateBeginClock = std::clock();
     }
 
-    void Performance::inputHypergraph(const HTDHypergraphPtr& hypergraph) {
+    void Performance::inputInstance(const InstancePtr& instance) {
         intermediateEndClock = std::clock();
         double elapsed_secs = double(intermediateEndClock - intermediateBeginClock) / CLOCKS_PER_SEC;
         std::cout << std::fixed << "Input (parsing time): " << elapsed_secs << std::endl;
         intermediateBeginClock = std::clock();
-        std::cout << "Input (vertices): " << hypergraph->vertexCount() << std::endl;
-        std::cout << "Input (edges): " << hypergraph->edgeCount() << std::endl;
+        std::cout << "Input (vertices): " << instance->hypergraph->vertexCount() << std::endl;
+        std::cout << "Input (edges): " << instance->hypergraph->edgeCount() << std::endl;
     }
 
-    void Performance::preprocessedHypergraph(const HTDHypergraphPtr& hypergraph) {
+    void Performance::preprocessedInstance(const InstancePtr& instance) {
         intermediateEndClock = std::clock();
         double elapsed_secs = double(intermediateEndClock - intermediateBeginClock) / CLOCKS_PER_SEC;
         std::cout << std::fixed << "Preprocessing (time): " << elapsed_secs << std::endl;
         intermediateBeginClock = std::clock();
-        std::cout << "Preprocessing (vertices): " << hypergraph->vertexCount() << std::endl;
-        std::cout << "Preprocessing (edges): " << hypergraph->edgeCount() << std::endl;
+        std::cout << "Preprocessing (vertices): " << instance->hypergraph->vertexCount() << std::endl;
+        std::cout << "Preprocessing (edges): " << instance->hypergraph->edgeCount() << std::endl;
     }
 
     void Performance::decomposerResult(const HTDDecompositionPtr& result) {

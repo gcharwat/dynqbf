@@ -28,7 +28,7 @@ class Decomposer : public Module {
 public:
     Decomposer(Application& app, const std::string& optionName, const std::string& optionDescription, bool newDefault = false);
 
-    virtual HTDDecompositionPtr decompose(const HTDHypergraphPtr& instance) const = 0;
+    virtual HTDDecompositionPtr decompose(const InstancePtr& instance) const = 0;
 
     virtual void select() override;
 };

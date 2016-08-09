@@ -30,16 +30,16 @@ namespace ordering {
     : Ordering(app, "lexicographic", "lexicographic ordering", newDefault) {
     }
 
-    std::vector<int> LexicographicalOrdering::computeVertexOrder(const HTDHypergraphPtr& instance, const HTDDecompositionPtr& decomposition) const {
+    std::vector<int> LexicographicalOrdering::computeVertexOrder(const InstancePtr& instance, const HTDDecompositionPtr& decomposition) const {
         std::vector<std::string> vNames;
-        for (const auto& vName : instance->vertices()) {
+        for (const auto& vName : instance->hypergraph->vertices()) {
             vNames.push_back(vName);
         }
         std::sort(vNames.begin(), vNames.end());
 
-        std::vector<int> orderingIndex(instance->vertexCount() + 1); // "0" vertex is skipped by HTD
-        for (const auto& vertexId : instance->internalGraph().vertices()) {
-            std::string vName = instance->vertexName(vertexId);
+        std::vector<int> orderingIndex(instance->hypergraph->vertexCount() + 1); // "0" vertex is skipped by HTD
+        for (const auto& vertexId : instance->hypergraph->internalGraph().vertices()) {
+            std::string vName = instance->hypergraph->vertexName(vertexId);
             int index = std::find(vNames.begin(), vNames.end(), vName) - vNames.begin();
             orderingIndex[vertexId] = index;
         }

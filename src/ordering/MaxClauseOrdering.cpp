@@ -32,17 +32,17 @@ namespace ordering {
     : Ordering(app, "max-clause", "vertices together in many clauses are close in the ordering (tends to be slow, experimental)", newDefault) {
     }
 
-    std::vector<int> MaxClauseOrdering::computeVertexOrder(const HTDHypergraphPtr& instance, const HTDDecompositionPtr& decomposition) const {
+    std::vector<int> MaxClauseOrdering::computeVertexOrder(const InstancePtr& instance, const HTDDecompositionPtr& decomposition) const {
 
-        map = new unsigned int*[instance->vertexCount() + 1];
-        for (unsigned int i = 0; i <= instance->vertexCount(); ++i) {
-            map[i] = new unsigned int[instance->vertexCount() + 1];
-            for (unsigned int j = 0; j <= instance->vertexCount(); ++j) {
+        map = new unsigned int*[instance->hypergraph->vertexCount() + 1];
+        for (unsigned int i = 0; i <= instance->hypergraph->vertexCount(); ++i) {
+            map[i] = new unsigned int[instance->hypergraph->vertexCount() + 1];
+            for (unsigned int j = 0; j <= instance->hypergraph->vertexCount(); ++j) {
                 map[i][j] = 0;
             }
         }
 
-        for (const auto edge : instance->internalGraph().hyperedges()) {
+        for (const auto edge : instance->hypergraph->internalGraph().hyperedges()) {
             for (const auto v1 : edge) {
                 for (const auto v2 : edge) {
                     map[v1][v2]++;
@@ -51,7 +51,7 @@ namespace ordering {
         }
 
         std::vector<htd::vertex_t> orderingVertices;
-        for (const auto v : instance->internalGraph().vertices()) {
+        for (const auto v : instance->hypergraph->internalGraph().vertices()) {
 
             int bestPos = 0;
             int bestCosts = INT_MAX;
@@ -115,8 +115,8 @@ namespace ordering {
         //            }
         //        }
 
-        std::vector<int> orderingIndex(instance->vertexCount() + 1); // "0" vertex is skipped by HTD
-        for (const auto& vertexId : instance->internalGraph().vertices()) {
+        std::vector<int> orderingIndex(instance->hypergraph->vertexCount() + 1); // "0" vertex is skipped by HTD
+        for (const auto& vertexId : instance->hypergraph->internalGraph().vertices()) {
             int index = std::find(orderingVertices.begin(), orderingVertices.end(), vertexId) - orderingVertices.begin();
             orderingIndex[vertexId] = index;
         }

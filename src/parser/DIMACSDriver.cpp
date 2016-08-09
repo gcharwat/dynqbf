@@ -40,10 +40,8 @@ namespace parser {
     DIMACSDriver::~DIMACSDriver() {
     }
 
-    HTDHypergraphPtr DIMACSDriver::parse(std::istream& input) {
-        NSFManager& nsfMan = app.getNSFManager();
-
-        HTDHypergraphPtr hypergraph(new htd::NamedMultiHypergraph<std::string, std::string>(app.getHTDManager()));
+    InstancePtr DIMACSDriver::parse(std::istream& input) {
+        InstancePtr instance(new Instance(app));
 
         std::string inputFileFormat, dummy;
         unsigned int atoms = 0, clauses = 0;
@@ -64,29 +62,29 @@ namespace parser {
                     }
                     break;
                 case 'e':
-                    if (nsfMan.innermostQuantifier() != NTYPE::EXISTS) {
-                        nsfMan.pushBackQuantifier(NTYPE::EXISTS);
+                    if (instance->innermostQuantifier() != NTYPE::EXISTS) {
+                        instance->pushBackQuantifier(NTYPE::EXISTS);
                     }
                     std::getline(lineStream, lineElement, ' '); // skip first character
                     while (std::getline(lineStream, lineElement, ' ')) {
                         if (lineElement == "0") break;
-                        hypergraph->addVertex(lineElement);
-                        hypergraph->setVertexLabel("level", lineElement, new htd::Label<int>(nsfMan.quantifierCount()));
-                        if (nsfMan.quantifierCount() == 1) {
+                        instance->hypergraph->addVertex(lineElement);
+                        instance->hypergraph->setVertexLabel("level", lineElement, new htd::Label<int>(instance->quantifierCount()));
+                        if (instance->quantifierCount() == 1) {
                             firstLevelCount++;
                         }
                     }
                     break;
                 case 'a':
-                    if (nsfMan.innermostQuantifier() != NTYPE::FORALL) {
-                        nsfMan.pushBackQuantifier(NTYPE::FORALL);
+                    if (instance->innermostQuantifier() != NTYPE::FORALL) {
+                        instance->pushBackQuantifier(NTYPE::FORALL);
                     }
                     std::getline(lineStream, lineElement, ' '); // skip first character
                     while (std::getline(lineStream, lineElement, ' ')) {
                         if (lineElement == "0") break;
-                        hypergraph->addVertex(lineElement);
-                        hypergraph->setVertexLabel("level", lineElement, new htd::Label<int>(nsfMan.quantifierCount()));
-                        if (nsfMan.quantifierCount() == 1) {
+                        instance->hypergraph->addVertex(lineElement);
+                        instance->hypergraph->setVertexLabel("level", lineElement, new htd::Label<int>(instance->quantifierCount()));
+                        if (instance->quantifierCount() == 1) {
                             firstLevelCount++;
                         }
                     }
@@ -109,19 +107,19 @@ namespace parser {
                         }
                         // Does the vertex already exist?
                         // TODO adding vertex also checks if it already exists -> remove redundant check
-                        if (!hypergraph->isVertexName(vertexName)) {
+                        if (!instance->hypergraph->isVertexName(vertexName)) {
                             // Shift all levels by 1
-                            if (nsfMan.quantifier(1) != NTYPE::EXISTS) {
-                                nsfMan.pushFrontQuantifier(NTYPE::EXISTS);
-                                for (const auto& oldVertex : hypergraph.get()->internalGraph().vertices()) {
-                                    const std::string oldVertexName = hypergraph->vertexName(oldVertex);
-                                    int oldVertexLevel = htd::accessLabel<int>(hypergraph->internalGraph().vertexLabel("level", oldVertex));
+                            if (instance->quantifier(1) != NTYPE::EXISTS) {
+                                instance->pushFrontQuantifier(NTYPE::EXISTS);
+                                for (const auto& oldVertex : instance->hypergraph->internalGraph().vertices()) {
+                                    const std::string oldVertexName = instance->hypergraph->vertexName(oldVertex);
+                                    int oldVertexLevel = htd::accessLabel<int>(instance->hypergraph->internalGraph().vertexLabel("level", oldVertex));
                                     int newVertexLevel = oldVertexLevel + 1;
-                                    hypergraph->setVertexLabel("level", oldVertexName, new htd::Label<int>(newVertexLevel));
+                                    instance->hypergraph->setVertexLabel("level", oldVertexName, new htd::Label<int>(newVertexLevel));
                                 }
                             }
-                            hypergraph->addVertex(vertexName);
-                            hypergraph->setVertexLabel("level", vertexName, new htd::Label<int>(1)); // insert at level 1
+                            instance->hypergraph->addVertex(vertexName);
+                            instance->hypergraph->setVertexLabel("level", vertexName, new htd::Label<int>(1)); // insert at level 1
                             firstLevelCount++;
                         }
                         atoms.push_back(vertexName);
@@ -131,16 +129,16 @@ namespace parser {
                     if (atoms.size() == 0) {
                         throw AbortException("empty clause in input instance", RESULT::UNSAT);
                     }
-                    htd::id_t edgeId = hypergraph->addEdge(atoms, std::to_string(clauses));
-                    hypergraph->setEdgeLabel("signs", edgeId, new htd::Label < std::vector<bool>>(signs));
+                    htd::id_t edgeId = instance->hypergraph->addEdge(atoms, std::to_string(clauses));
+                    instance->hypergraph->setEdgeLabel("signs", edgeId, new htd::Label < std::vector<bool>>(signs));
                     clauses--;
             }
         }
-        if (hypergraph->vertexCount() == 0) {
+        if (instance->hypergraph->vertexCount() == 0) {
             throw AbortException("empty input instance", RESULT::SAT);
         }
 
-        return hypergraph;
+        return instance;
     }
 
     void DIMACSDriver::error(const std::string& m) {

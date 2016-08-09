@@ -47,31 +47,31 @@ namespace solver {
                 const SolverFactory& varMap = app.getSolverFactory();
 
                 std::vector<BDD> cubesAtlevels;
-                for (unsigned int i = 0; i < app.getNSFManager().quantifierCount(); i++) {
+                for (unsigned int i = 0; i < app.getInputInstance()->quantifierCount(); i++) {
                     cubesAtlevels.push_back(app.getBDDManager().getManager().bddOne());
                 }
-                const htd::ConstCollection<htd::vertex_t> currentVertices = app.getInputHypergraph()->internalGraph().vertices();
+                const htd::ConstCollection<htd::vertex_t> currentVertices = app.getInputInstance()->hypergraph->internalGraph().vertices();
                 for (const auto v : currentVertices) {
-                    int level = htd::accessLabel<int>(this->app.getInputHypergraph()->internalGraph().vertexLabel("level", v));
+                    int level = htd::accessLabel<int>(this->app.getInputInstance()->hypergraph->internalGraph().vertexLabel("level", v));
                     BDD vertexVar = varMap.getBDDVariable("a", 0,{v});
                     cubesAtlevels[level - 1] *= vertexVar;
                 }
 
                 unsigned int keepUntil = 0;
-                if (app.enumerate() && app.getNSFManager().quantifier(1) == NTYPE::EXISTS) {
+                if (app.enumerate() && app.getInputInstance()->quantifier(1) == NTYPE::EXISTS) {
                     keepUntil = 1;
                 }
 
-                for (unsigned int level = app.getNSFManager().quantifierCount(); level > keepUntil; level--) {
+                for (unsigned int level = app.getInputInstance()->quantifierCount(); level > keepUntil; level--) {
                     BDD cube = cubesAtlevels[level - 1];
-                    if (app.getNSFManager().quantifier(level) == NTYPE::EXISTS) {
+                    if (app.getInputInstance()->quantifier(level) == NTYPE::EXISTS) {
                         bdd = bdd.ExistAbstract(cube, 0);
                     } else {
                         bdd = bdd.UnivAbstract(cube);
                     }
                 }
 
-                Computation* c = app.getNSFManager().newComputation(1, bdd);
+                Computation* c = app.getNSFManager().newComputation(bdd);
 
                 app.getPrinter().solverInvocationResult(currentNode, *c);
 
@@ -86,11 +86,11 @@ namespace solver {
                 const SolverFactory& varMap = app.getSolverFactory();
 
                 BDD clauses = manager.bddOne();
-                const htd::ConstCollection<htd::Hyperedge> edges = app.getInputHypergraph()->internalGraph().hyperedges();
+                const htd::ConstCollection<htd::Hyperedge> edges = app.getInputInstance()->hypergraph->internalGraph().hyperedges();
 
                 for (const auto& edge : edges) {
                     htd::id_t edgeId = edge.id();
-                    const std::vector<bool> &edgeSigns = htd::accessLabel < std::vector<bool>>(app.getInputHypergraph()->edgeLabel("signs", edgeId));
+                    const std::vector<bool> &edgeSigns = htd::accessLabel < std::vector<bool>>(app.getInputInstance()->hypergraph->edgeLabel("signs", edgeId));
                     BDD clause = manager.bddZero();
 
                     std::vector<bool>::const_iterator index = edgeSigns.begin();

@@ -48,6 +48,7 @@ add_library(dynqbf-objects
     options/Choice.cpp
     options/OptionHandler.cpp
     options/HelpObserver.cpp
+    Instance.cpp
     Module.cpp
     BDDManager.cpp
     NSFManager.cpp

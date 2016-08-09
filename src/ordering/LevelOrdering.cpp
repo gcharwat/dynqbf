@@ -30,13 +30,13 @@ namespace ordering {
     : Ordering(app, "level", "ordering based on level (depth) in quantifier sequence", newDefault) {
     }
 
-    std::vector<int> LevelOrdering::computeVertexOrder(const HTDHypergraphPtr& instance, const HTDDecompositionPtr& decomposition) const {
-        const htd::ConstCollection<htd::vertex_t> vertices = instance->internalGraph().vertices();
+    std::vector<int> LevelOrdering::computeVertexOrder(const InstancePtr& instance, const HTDDecompositionPtr& decomposition) const {
+        const htd::ConstCollection<htd::vertex_t> vertices = instance->hypergraph->internalGraph().vertices();
         std::vector<htd::vertex_t> verticesSorted(vertices.begin(), vertices.end());
 
-        std::sort(verticesSorted.begin(), verticesSorted.end(), [this] (htd::vertex_t x1, htd::vertex_t x2) -> bool {
-            int x1Level = htd::accessLabel<int>(this->app.getInputHypergraph()->internalGraph().vertexLabel("level", x1));
-            int x2Level = htd::accessLabel<int>(this->app.getInputHypergraph()->internalGraph().vertexLabel("level", x2));
+        std::sort(verticesSorted.begin(), verticesSorted.end(), [instance] (htd::vertex_t x1, htd::vertex_t x2) -> bool {
+            int x1Level = htd::accessLabel<int>(instance->hypergraph->internalGraph().vertexLabel("level", x1));
+            int x2Level = htd::accessLabel<int>(instance->hypergraph->internalGraph().vertexLabel("level", x2));
             if (x1Level < x2Level) {
                 return true; // return true if x1 should be ordered before x2 (ie x1 is less than x2)
             } else if (x1Level < x2Level) {
@@ -45,8 +45,8 @@ namespace ordering {
             return false;
         });
 
-        std::vector<int> orderingIndex(instance->vertexCount() + 1); // "0" vertex is skipped by HTD
-        for (const auto& vertexId : instance->internalGraph().vertices()) {
+        std::vector<int> orderingIndex(instance->hypergraph->vertexCount() + 1); // "0" vertex is skipped by HTD
+        for (const auto& vertexId : instance->hypergraph->internalGraph().vertices()) {
             int index = std::find(verticesSorted.begin(), verticesSorted.end(), vertexId) - verticesSorted.begin();
             orderingIndex[vertexId] = index;
         }

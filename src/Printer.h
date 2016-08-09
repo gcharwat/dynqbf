@@ -31,8 +31,8 @@ public:
     Printer(Application& app, const std::string& optionName, const std::string& optionDescription, bool newDefault = false);
     virtual ~Printer() = 0;
 
-    virtual void inputHypergraph(const HTDHypergraphPtr& hypergraph); // the parsed instance as hypergraph
-    virtual void preprocessedHypergraph(const HTDHypergraphPtr& hypergraph); // the preprocessed instance as hypergraph
+    virtual void inputInstance(const InstancePtr& instance); // the parsed instance
+    virtual void preprocessedInstance(const InstancePtr& instance); // the preprocessed instance
     virtual void decomposerResult(const HTDDecompositionPtr& result); // The tree decomposition
     virtual void vertexOrdering(const std::vector<int>& ordering); // The vertex ordering
 

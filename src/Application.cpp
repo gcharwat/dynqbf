@@ -79,15 +79,16 @@ Application::Application(const std::string& binaryName)
 , optOrdering("o", "ordering", "Use BDD variable ordering <ordering>")
 , optSolver("p", "problem-solver", "Use <problem-solver> to solve problem")
 , optPrinter("output", "module", "Print information during the run using <module>")
-, optPrintInputHypergraph("print-hypergraph", "Print the input hypergraph")
+, optPrintInputInstance("print-instance", "Print the input hypergraph")
 , optPrintDecomposition("print-decomposition", "Print the computed decomposition")
 , optPrintVertexOrdering("print-ordering", "Print the computed vertex order")
 , optOnlyParseInstance("only-parse-instance", "Only construct hypergraph and exit")
 , optOnlyDecomposeInstance("only-decompose", "Only parse input instance, decompose it and exit")
 , optEnumerate("enumerate", "Enumerate models (for outermost existential quantifier, satisfiable instances)")
 , optSeed("seed", "n", "Initialize random number generator with seed <n>")
-, decomposer(0)
-, solverFactory(0) {
+//, decomposer(0)
+//, solverFactory(0) 
+{
 }
 
 int Application::run(int argc, char** argv) {
@@ -98,7 +99,7 @@ int Application::run(int argc, char** argv) {
 
     opts.addOption(optOnlyParseInstance);
     opts.addOption(optOnlyDecomposeInstance);
-    opts.addOption(optPrintInputHypergraph);
+    opts.addOption(optPrintInputInstance);
     opts.addOption(optPrintDecomposition);
     opts.addOption(optPrintVertexOrdering);
     opts.addOption(optEnumerate);
@@ -199,28 +200,28 @@ int Application::run(int argc, char** argv) {
 
     try {
         // Parse instance
-        inputHypergraph = hgInputParser->parse(std::cin);
-        printer->inputHypergraph(inputHypergraph);
+        inputInstance = hgInputParser->parse(std::cin);
+        printer->inputInstance(inputInstance);
         if (optOnlyParseInstance.isUsed()) {
             return 10;
         }
 
         // Preprocess instance
-        inputHypergraph = preprocessor->preprocess(inputHypergraph);
-        printer->preprocessedHypergraph(inputHypergraph);
+        inputInstance = preprocessor->preprocess(inputInstance);
+        printer->preprocessedInstance(inputInstance);
 
         // Decompose instance
-        decomposition = decomposer->decompose(inputHypergraph);
+        decomposition = decomposer->decompose(inputInstance);
         printer->decomposerResult(decomposition);
         if (optOnlyDecomposeInstance.isUsed()) {
             return 10;
         }
 
-        vertexOrdering = ordering->computeVertexOrder(inputHypergraph, decomposition);
+        vertexOrdering = ordering->computeVertexOrder(inputInstance, decomposition);
         printer->vertexOrdering(vertexOrdering);
         
         // Initialize CUDD manager
-        bddManager->init(inputHypergraph->vertexCount());
+        bddManager->init(inputInstance->hypergraph->vertexCount());
 
         // Solve the problem
         printer->beforeComputation();
@@ -262,7 +263,7 @@ int Application::run(int argc, char** argv) {
     printer->result(result);
 
     decomposition.reset();
-    inputHypergraph.reset();
+    inputInstance.reset();
 
     return exitCode;
 }
@@ -273,8 +274,8 @@ void Application::usage() const {
     opts.printHelp();
 }
 
-HTDHypergraphPtr Application::getInputHypergraph() const {
-    return inputHypergraph;
+InstancePtr Application::getInputInstance() const {
+    return inputInstance;
 }
 
 const std::vector<int>& Application::getVertexOrdering() const {
@@ -352,8 +353,8 @@ void Application::setPrinter(Printer& p) {
     printer = &p;
 }
 
-bool Application::printInputHypergraph() const {
-    return optPrintInputHypergraph.isUsed();
+bool Application::printInputInstance() const {
+    return optPrintInputInstance.isUsed();
 }
 
 bool Application::printDecomposition() const {

@@ -31,15 +31,15 @@ namespace ordering {
     : Ordering(app, "min-cut", "min cut ordering (tends to be slow, experimental)", newDefault) {
     }
 
-    std::vector<int> MinCutOrdering::computeVertexOrder(const HTDHypergraphPtr& instance, const HTDDecompositionPtr& decomposition) const {
+    std::vector<int> MinCutOrdering::computeVertexOrder(const InstancePtr& instance, const HTDDecompositionPtr& decomposition) const {
 
-        std::vector<htd::vertex_t> vertices(instance->internalGraph().vertices().begin(), instance->internalGraph().vertices().end());
-        std::vector<htd::Hyperedge> localEdges(instance->internalGraph().hyperedges().begin(), instance->internalGraph().hyperedges().end());
+        std::vector<htd::vertex_t> vertices(instance->hypergraph->internalGraph().vertices().begin(), instance->hypergraph->internalGraph().vertices().end());
+        std::vector<htd::Hyperedge> localEdges(instance->hypergraph->internalGraph().hyperedges().begin(), instance->hypergraph->internalGraph().hyperedges().end());
         std::vector<htd::Hyperedge> commonEdges;
         std::vector<htd::vertex_t> orderingVertices = minCutRec(vertices, localEdges, commonEdges, true);
 
-        std::vector<int> orderingIndex(instance->vertexCount() + 1); // "0" vertex is skipped by HTD
-        for (const auto& vertexId : instance->internalGraph().vertices()) {
+        std::vector<int> orderingIndex(instance->hypergraph->vertexCount() + 1); // "0" vertex is skipped by HTD
+        for (const auto& vertexId : instance->hypergraph->internalGraph().vertices()) {
             int index = std::find(orderingVertices.begin(), orderingVertices.end(), vertexId) - orderingVertices.begin();
             orderingIndex[vertexId] = index;
         }

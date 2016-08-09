@@ -32,7 +32,7 @@ namespace decomposer {
     public:
         HTDTreeDecomposer(Application& app, bool newDefault = false);
 
-        HTDDecompositionPtr decompose(const HTDHypergraphPtr& instance) const override;
+        HTDDecompositionPtr decompose(const InstancePtr& instance) const override;
 
     private:
         static const std::string OPTION_SECTION;

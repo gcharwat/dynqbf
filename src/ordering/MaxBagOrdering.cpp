@@ -33,12 +33,12 @@ namespace ordering {
     : Ordering(app, "max-bag", "vertices together in many bags are close in the ordering (tends to be slow, experimental)", newDefault) {
     }
 
-    std::vector<int> MaxBagOrdering::computeVertexOrder(const HTDHypergraphPtr& instance, const HTDDecompositionPtr& decomposition) const {
+    std::vector<int> MaxBagOrdering::computeVertexOrder(const InstancePtr& instance, const HTDDecompositionPtr& decomposition) const {
 
-        map = new unsigned int*[instance->vertexCount() + 1];
-        for (unsigned int i = 0; i <= instance->vertexCount(); ++i) {
-            map[i] = new unsigned int[instance->vertexCount() + 1];
-            for (unsigned int j = 0; j <= instance->vertexCount(); ++j) {
+        map = new unsigned int*[instance->hypergraph->vertexCount() + 1];
+        for (unsigned int i = 0; i <= instance->hypergraph->vertexCount(); ++i) {
+            map[i] = new unsigned int[instance->hypergraph->vertexCount() + 1];
+            for (unsigned int j = 0; j <= instance->hypergraph->vertexCount(); ++j) {
                 map[i][j] = 0;
             }
         }
@@ -51,7 +51,7 @@ namespace ordering {
             }
         }
 
-        std::vector<htd::vertex_t> orderingVertices(instance->internalGraph().vertices().begin(), instance->internalGraph().vertices().end());
+        std::vector<htd::vertex_t> orderingVertices(instance->hypergraph->internalGraph().vertices().begin(), instance->hypergraph->internalGraph().vertices().end());
 
         int maxCosts = costs(orderingVertices);
 
@@ -81,8 +81,8 @@ namespace ordering {
                         bestSwapTo = to;
                         bestCosts = tmpCosts;
                     } else if (tmpCosts == bestCosts) {
-                        int fromLevel = htd::accessLabel<int>(instance->internalGraph().vertexLabel("level", orderingVertices[from]));
-                        int toLevel = htd::accessLabel<int>(instance->internalGraph().vertexLabel("level", orderingVertices[to]));
+                        int fromLevel = htd::accessLabel<int>(instance->hypergraph->internalGraph().vertexLabel("level", orderingVertices[from]));
+                        int toLevel = htd::accessLabel<int>(instance->hypergraph->internalGraph().vertexLabel("level", orderingVertices[to]));
                         if (fromLevel > toLevel) {
                             bestSwapFrom = from;
                             bestSwapTo = to;
@@ -101,8 +101,8 @@ namespace ordering {
             }
         }
 
-        std::vector<int> orderingIndex(instance->vertexCount() + 1); // "0" vertex is skipped by HTD
-        for (const auto& vertexId : instance->internalGraph().vertices()) {
+        std::vector<int> orderingIndex(instance->hypergraph->vertexCount() + 1); // "0" vertex is skipped by HTD
+        for (const auto& vertexId : instance->hypergraph->internalGraph().vertices()) {
             int index = std::find(orderingVertices.begin(), orderingVertices.end(), vertexId) - orderingVertices.begin();
             orderingIndex[vertexId] = index;
         }

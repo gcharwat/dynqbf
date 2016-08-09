@@ -73,7 +73,7 @@ namespace solver {
             std::vector<Variable> QSatCNFSolverFactory::getVariables() const {
                 std::vector<Variable> variables;
 
-                for (const auto& vertex : app.getInputHypergraph()->internalGraph().vertices()) {
+                for (const auto& vertex : app.getInputInstance()->hypergraph->internalGraph().vertices()) {
                     BDD var = QSatCNFSolverFactory::getBDDVariable("a", 0,{vertex});
                     Variable v = Variable(var.getNode()->index, "a", 0, {
                         vertex

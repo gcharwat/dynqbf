@@ -34,7 +34,6 @@ const std::string NSFManager::NSFMANAGER_SECTION = "NSF Manager";
 
 NSFManager::NSFManager(Application& app)
 : app(app)
-, quantifierSequence()
 , optPrintStats("print-NSF-stats", "Print NSF Manager statistics")
 , optMaxNSFSize("max-NSF-size", "s", "Split until NSF size <s> is reached", 1000)
 , optMaxBDDSize("max-BDD-size", "s", "Always split if a BDD size exceeds <s> (overrules max-NSF-size)", 3000)
@@ -54,17 +53,18 @@ NSFManager::~NSFManager() {
     printStatistics();
 }
 
-void NSFManager::init(std::vector<NTYPE> quantifierSequence) {
-    this->quantifierSequence = quantifierSequence;
+Computation* NSFManager::newComputation(BDD bdd) const {
+    return newComputationRec(1, bdd);
 }
 
-Computation* NSFManager::newComputation(unsigned int level, BDD bdd) const {
-    unsigned int depth = quantifierCount() - level;
-    Computation* c = new Computation(level, depth, quantifier(level));
+Computation* NSFManager::newComputationRec(unsigned int level, BDD bdd) const {
+    unsigned int depth = app.getInputInstance()->quantifierSequence.size() - level;
+    NTYPE quantifier = app.getInputInstance()->quantifier(level);
+    Computation* c = new Computation(level, depth, quantifier);
     if (depth == 0) {
         c->setValue(bdd);
     } else {
-        Computation* cC = newComputation(level + 1, bdd);
+        Computation* cC = newComputationRec(level + 1, bdd);
         c->insert(cC);
     }
     if (level == 1) {
@@ -473,28 +473,28 @@ const BDD NSFManager::evaluateNSF(const std::vector<BDD>& cubesAtlevels, const C
     return ret;
 }
 
-void NSFManager::pushBackQuantifier(const NTYPE quantifier) {
-    quantifierSequence.push_back(quantifier);
-}
-
-void NSFManager::pushFrontQuantifier(const NTYPE quantifier) {
-    quantifierSequence.insert(quantifierSequence.begin(), quantifier);
-}
-
-const NTYPE NSFManager::innermostQuantifier() const {
-    return quantifier(quantifierCount());
-}
-
-const NTYPE NSFManager::quantifier(const unsigned int level) const {
-    if (level < 1 || level > quantifierCount()) {
-        return NTYPE::UNKNOWN;
-    }
-    return quantifierSequence[level - 1];
-}
-
-const unsigned int NSFManager::quantifierCount() const {
-    return quantifierSequence.size();
-}
+//void NSFManager::pushBackQuantifier(const NTYPE quantifier) {
+//    quantifierSequence.push_back(quantifier);
+//}
+//
+//void NSFManager::pushFrontQuantifier(const NTYPE quantifier) {
+//    quantifierSequence.insert(quantifierSequence.begin(), quantifier);
+//}
+//
+//const NTYPE NSFManager::innermostQuantifier() const {
+//    return quantifier(quantifierCount());
+//}
+//
+//const NTYPE NSFManager::quantifier(const unsigned int level) const {
+//    if (level < 1 || level > quantifierCount()) {
+//        return NTYPE::UNKNOWN;
+//    }
+//    return quantifierSequence[level - 1];
+//}
+//
+//const unsigned int NSFManager::quantifierCount() const {
+//    return quantifierSequence.size();
+//}
 
 void NSFManager::printStatistics() const {
     if (!optPrintStats.isUsed()) {

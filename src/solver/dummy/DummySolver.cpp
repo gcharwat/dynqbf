@@ -31,7 +31,7 @@ namespace solver {
         }
 
         Computation* DummySolver::compute(htd::vertex_t root) {
-            Computation* c = app.getNSFManager().newComputation(0, app.getBDDManager().getManager().bddOne());
+            Computation* c = app.getNSFManager().newComputation(app.getBDDManager().getManager().bddOne());
             return c;
         }
 

@@ -33,28 +33,31 @@ namespace preprocessor {
     : Preprocessor(app, "3cnf", "Convert instance to 3-CNF", newDefault) {
     }
 
-    HTDHypergraphPtr CNF3Preprocessor::preprocess(const HTDHypergraphPtr& instance) const {
-        HTDHypergraphPtr preprocessed(new htd::NamedMultiHypergraph<std::string, std::string>(app.getHTDManager()));
+    InstancePtr CNF3Preprocessor::preprocess(const InstancePtr& instance) const {
+        InstancePtr preprocessed(new Instance(app));
+        for (const auto q : instance->getQuantifierSequence()) {
+            preprocessed->pushBackQuantifier(q);
+        }
 
-        if (app.getNSFManager().innermostQuantifier() != NTYPE::EXISTS) {
-            app.getNSFManager().pushBackQuantifier(NTYPE::EXISTS);
+        if (preprocessed->innermostQuantifier() != NTYPE::EXISTS) {
+            preprocessed->pushBackQuantifier(NTYPE::EXISTS);
         }
 
         // TODO: Improve copy efficiency for vertices
-        for (const std::string vertex : instance->vertices()) {
-            preprocessed->addVertex(vertex);
-            int vertexLevel = htd::accessLabel<int>(instance->vertexLabel("level", vertex));
-            preprocessed->setVertexLabel("level", vertex, new htd::Label<int>(vertexLevel));
+        for (const std::string vertex : instance->hypergraph->vertices()) {
+            preprocessed->hypergraph->addVertex(vertex);
+            int vertexLevel = htd::accessLabel<int>(instance->hypergraph->vertexLabel("level", vertex));
+            preprocessed->hypergraph->setVertexLabel("level", vertex, new htd::Label<int>(vertexLevel));
         }
 
         int splitVarIndex = 0;
 
-        for (const htd::NamedVertexHyperedge<std::string> edge : instance->hyperedges()) {
-            const std::vector<bool> &edgeSigns = htd::accessLabel < std::vector<bool>>(instance->edgeLabel("signs", edge.id()));
+        for (const htd::NamedVertexHyperedge<std::string> edge : instance->hypergraph->hyperedges()) {
+            const std::vector<bool> &edgeSigns = htd::accessLabel < std::vector<bool>>(instance->hypergraph->edgeLabel("signs", edge.id()));
             if (edge.size() < 4) {
                 std::vector<std::string> vertices(edge.begin(), edge.end());
-                htd::id_t newEdgeId = preprocessed->addEdge(vertices);
-                preprocessed->setEdgeLabel("signs", newEdgeId, new htd::Label < std::vector<bool>>(edgeSigns));
+                htd::id_t newEdgeId = preprocessed->hypergraph->addEdge(vertices);
+                preprocessed->hypergraph->setEdgeLabel("signs", newEdgeId, new htd::Label < std::vector<bool>>(edgeSigns));
             } else {
                 splitVarIndex++;
                 std::vector<std::string> vertices;
@@ -65,16 +68,16 @@ namespace preprocessor {
                 std::string splitVar = ss.str();
                 vertices.push_back(splitVar);
 
-                preprocessed->addVertex(splitVar);
-                preprocessed->setVertexLabel("level", splitVar, new htd::Label<int>(app.getNSFManager().quantifierCount()));
+                preprocessed->hypergraph->addVertex(splitVar);
+                preprocessed->hypergraph->setVertexLabel("level", splitVar, new htd::Label<int>(instance->quantifierCount()));
 
                 std::vector<bool> signs;
                 signs.push_back(edgeSigns[0]);
                 signs.push_back(edgeSigns[1]);
                 signs.push_back(true);
 
-                htd::id_t newEdgeId = preprocessed->addEdge(vertices);
-                preprocessed->setEdgeLabel("signs", newEdgeId, new htd::Label < std::vector<bool>>(signs));
+                htd::id_t newEdgeId = preprocessed->hypergraph->addEdge(vertices);
+                preprocessed->hypergraph->setEdgeLabel("signs", newEdgeId, new htd::Label < std::vector<bool>>(signs));
 
                 for (unsigned int i = 2; i < edge.size() - 2; i++) {
 
@@ -92,16 +95,16 @@ namespace preprocessor {
                     std::string splitVarInt2 = ssInt2.str();
                     verticesInt.push_back(splitVarInt2);
                     
-                    preprocessed->addVertex(splitVarInt2);
-                    preprocessed->setVertexLabel("level", splitVarInt2, new htd::Label<int>(app.getNSFManager().quantifierCount()));
+                    preprocessed->hypergraph->addVertex(splitVarInt2);
+                    preprocessed->hypergraph->setVertexLabel("level", splitVarInt2, new htd::Label<int>(instance->quantifierCount()));
                     
                     std::vector<bool> signsInt;
                     signsInt.push_back(false);
                     signsInt.push_back(edgeSigns[i]);
                     signsInt.push_back(true);
 
-                    htd::id_t newEdgeIdInt = preprocessed->addEdge(verticesInt);
-                    preprocessed->setEdgeLabel("signs", newEdgeIdInt, new htd::Label<std::vector<bool>>(signsInt));
+                    htd::id_t newEdgeIdInt = preprocessed->hypergraph->addEdge(verticesInt);
+                    preprocessed->hypergraph->setEdgeLabel("signs", newEdgeIdInt, new htd::Label<std::vector<bool>>(signsInt));
 
                 }
                 
@@ -120,8 +123,8 @@ namespace preprocessor {
                 signsEnd.push_back(edgeSigns[edge.size()-2]);
                 signsEnd.push_back(edgeSigns[edge.size()-1]);
 
-                htd::id_t newEdgeIdEnd = preprocessed->addEdge(verticesEnd);
-                preprocessed->setEdgeLabel("signs", newEdgeIdEnd, new htd::Label < std::vector<bool>>(signsEnd));
+                htd::id_t newEdgeIdEnd = preprocessed->hypergraph->addEdge(verticesEnd);
+                preprocessed->hypergraph->setEdgeLabel("signs", newEdgeIdEnd, new htd::Label < std::vector<bool>>(signsEnd));
                 
             }
         }

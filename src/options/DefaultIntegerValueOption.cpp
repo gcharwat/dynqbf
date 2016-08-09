@@ -29,8 +29,10 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 namespace options {
 
     DefaultIntegerValueOption::DefaultIntegerValueOption(const std::string& name, const std::string& placeholder, const std::string& description, int defaultValue)
-    : ValueOption(name, placeholder, description),
-    defaultValue(defaultValue) {
+    : ValueOption(name, placeholder, description)
+    , value(defaultValue) 
+    , defaultValue(defaultValue)
+    {
     }
 
     void DefaultIntegerValueOption::setValue(const std::string& v) {

@@ -73,8 +73,8 @@ namespace decomposer {
         
     }
 
-    HTDDecompositionPtr HTDTreeDecomposer::decompose(const HTDHypergraphPtr& instance) const {
-        if (instance->vertexCount() == 0)
+    HTDDecompositionPtr HTDTreeDecomposer::decompose(const InstancePtr& instance) const {
+        if (instance->hypergraph->vertexCount() == 0)
             throw std::runtime_error("Empty input instance.");
 
         htd::IOrderingAlgorithm * orderingAlgorithm;
@@ -129,7 +129,7 @@ namespace decomposer {
         iterativeAlgorithm.setIterationCount(optOptimizeWidth.getValue());
         iterativeAlgorithm.setNonImprovementLimit(-1);
         
-        htd::ITreeDecomposition * decomp = iterativeAlgorithm.computeDecomposition(instance->internalGraph());
+        htd::ITreeDecomposition * decomp = iterativeAlgorithm.computeDecomposition(instance->hypergraph->internalGraph());
 
         htd::IMutableTreeDecomposition * decompMutable = &(app.getHTDManager()->treeDecompositionFactory().accessMutableTreeDecomposition(*decomp));
         HTDDecompositionPtr decomposition(decompMutable);

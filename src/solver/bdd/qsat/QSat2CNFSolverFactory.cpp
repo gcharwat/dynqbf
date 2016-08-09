@@ -41,7 +41,7 @@ namespace solver {
 
             std::unique_ptr<::Solver> QSat2CNFSolverFactory::newSolver() const {
                 
-                size_t atomCount = app.getInputHypergraph()->vertexCount();
+                size_t atomCount = app.getInputInstance()->hypergraph->vertexCount();
                 
                 MtrNode * root = Mtr_InitGroupTree(0,atomCount*2);
                 (void) Mtr_MakeGroup(root,        0,2*atomCount,MTR_FIXED);
@@ -68,7 +68,7 @@ namespace solver {
                     if (position != 0) {
                         throw std::runtime_error("Invalid variable call (position for atom != 0)");
                     }
-                    size_t atomsCount = app.getInputHypergraph()->vertexCount();
+                    size_t atomsCount = app.getInputInstance()->hypergraph->vertexCount();
                     int vPos = app.getVertexOrdering().at(vertices.at(0));
                     return app.getBDDManager().getManager().bddVar(atomsCount + vPos);
                 } else {
@@ -79,14 +79,14 @@ namespace solver {
             std::vector<Variable> QSat2CNFSolverFactory::getVariables() const {
                 std::vector<Variable> variables;
 
-                for (const auto& vertex : app.getInputHypergraph()->internalGraph().vertices()) {
+                for (const auto& vertex : app.getInputInstance()->hypergraph->internalGraph().vertices()) {
                     BDD var = QSat2CNFSolverFactory::getBDDVariable("d", 0,{vertex});
                     Variable v = Variable(var.getNode()->index, "d", 0, {
                         vertex
                     });
                     variables.push_back(v);
                 }
-                for (const auto& vertex : app.getInputHypergraph()->internalGraph().vertices()) {
+                for (const auto& vertex : app.getInputInstance()->hypergraph->internalGraph().vertices()) {
                     BDD var = QSat2CNFSolverFactory::getBDDVariable("a", 0,{vertex});
                     Variable v = Variable(var.getNode()->index, "a", 0, {
                         vertex

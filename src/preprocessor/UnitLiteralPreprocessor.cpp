@@ -34,12 +34,12 @@ namespace preprocessor {
     : Preprocessor(app, "unit-literal", "apply unit literal elimination", newDefault) {
     }
 
-    HTDHypergraphPtr UnitLiteralPreprocessor::preprocess(const HTDHypergraphPtr& instance) const {
+    InstancePtr UnitLiteralPreprocessor::preprocess(const InstancePtr& instance) const {
         std::vector<htd::vertex_t> unitLiteralsPos;
         std::vector<htd::vertex_t> unitLiteralsNeg;
 
-        for (auto clause : instance->internalGraph().hyperedges()) {
-            const std::vector<bool> &edgeSigns = htd::accessLabel < std::vector<bool>>(instance->edgeLabel("signs", clause.id()));
+        for (auto clause : instance->hypergraph->internalGraph().hyperedges()) {
+            const std::vector<bool> &edgeSigns = htd::accessLabel < std::vector<bool>>(instance->hypergraph->edgeLabel("signs", clause.id()));
             
             bool unit = false;
 
@@ -50,8 +50,8 @@ namespace preprocessor {
             unsigned int minForallLevel = UINT_MAX;
 
             for (unsigned int i = 0; i < clause.size(); i++) {
-                unsigned int variableLevel = htd::accessLabel<int>(instance->internalGraph().vertexLabel("level", clause[i]));
-                NTYPE quantor = app.getNSFManager().quantifier(variableLevel);
+                unsigned int variableLevel = htd::accessLabel<int>(instance->hypergraph->internalGraph().vertexLabel("level", clause[i]));
+                NTYPE quantor = instance->quantifier(variableLevel);
                 if (quantor == NTYPE::EXISTS) {
                     if (existentialVariable == htd::Vertex::UNKNOWN) {
                         existentialVariable = clause[i];
@@ -91,20 +91,23 @@ namespace preprocessor {
 //        }
 //        std::cout << std::endl;
 
-        HTDHypergraphPtr preprocessed(new htd::NamedMultiHypergraph<std::string, std::string>(app.getHTDManager()));
+        InstancePtr preprocessed(new Instance(app));
+        for (const auto q : instance->getQuantifierSequence()) {
+            preprocessed->pushBackQuantifier(q);
+        }
         
-        for (const std::string vertex : instance->vertices()) {
-            htd::vertex_t vertexId = instance->lookupVertex(vertex);
+        for (const std::string vertex : instance->hypergraph->vertices()) {
+            htd::vertex_t vertexId = instance->hypergraph->lookupVertex(vertex);
             if ((std::find(unitLiteralsPos.begin(), unitLiteralsPos.end(), vertexId) == unitLiteralsPos.end()) && 
                 (std::find(unitLiteralsNeg.begin(), unitLiteralsNeg.end(), vertexId) == unitLiteralsNeg.end())) {
-                preprocessed->addVertex(vertex);
-                int vertexLevel = htd::accessLabel<int>(instance->vertexLabel("level", vertex));
-                preprocessed->setVertexLabel("level", vertex, new htd::Label<int>(vertexLevel));
+                preprocessed->hypergraph->addVertex(vertex);
+                int vertexLevel = htd::accessLabel<int>(instance->hypergraph->vertexLabel("level", vertex));
+                preprocessed->hypergraph->setVertexLabel("level", vertex, new htd::Label<int>(vertexLevel));
             }
         }
 
-        for (auto clause : instance->hyperedges()) {
-            const std::vector<bool> &edgeSigns = htd::accessLabel < std::vector<bool>>(instance->edgeLabel("signs", clause.id()));
+        for (auto clause : instance->hypergraph->hyperedges()) {
+            const std::vector<bool> &edgeSigns = htd::accessLabel < std::vector<bool>>(instance->hypergraph->edgeLabel("signs", clause.id()));
 
             bool deleteClause = false;
             std::vector<std::string> newClause;
@@ -113,7 +116,7 @@ namespace preprocessor {
             for (unsigned int i = 0; i < clause.size(); i++) {
                 bool deleteLiteral = false;
                 for (auto unit : unitLiteralsPos) {
-                    if (instance->lookupVertex(clause[i]) == unit) {
+                    if (instance->hypergraph->lookupVertex(clause[i]) == unit) {
                         if (edgeSigns[i] == true) {
                             deleteClause = true;
                         } else {
@@ -123,7 +126,7 @@ namespace preprocessor {
                     }
                 }
                 for (auto unit : unitLiteralsNeg) {
-                    if (instance->lookupVertex(clause[i]) == unit) {
+                    if (instance->hypergraph->lookupVertex(clause[i]) == unit) {
                         if (edgeSigns[i] == false) {
                             deleteClause = true;
                         } else {
@@ -142,8 +145,8 @@ namespace preprocessor {
             }
 
             if (!deleteClause) {
-                htd::id_t newEdgeId = preprocessed->addEdge(newClause);
-                preprocessed->setEdgeLabel("signs", newEdgeId, new htd::Label < std::vector<bool>>(newSigns));
+                htd::id_t newEdgeId = preprocessed->hypergraph->addEdge(newClause);
+                preprocessed->hypergraph->setEdgeLabel("signs", newEdgeId, new htd::Label < std::vector<bool>>(newSigns));
             }
         }
 

@@ -36,9 +36,7 @@ public:
     NSFManager(Application& app);
     ~NSFManager();
 
-    void init(std::vector<NTYPE> quantifierSequence);
-
-    Computation* newComputation(unsigned int level, BDD bdd) const;
+    Computation* newComputation(BDD bdd) const;
     Computation* copyComputation(const Computation& c) const;
 
     void apply(Computation& c, std::function<BDD(const BDD&)> f) const;
@@ -52,12 +50,6 @@ public:
 
     const BDD evaluateNSF(const std::vector<BDD>& cubesAtlevels, const Computation& c, bool keepFirstLevel) const;
 
-    void pushBackQuantifier(const NTYPE quantifier);
-    void pushFrontQuantifier(const NTYPE quantifier);
-    const NTYPE innermostQuantifier() const;
-    const NTYPE quantifier(const unsigned int level) const;
-    const unsigned int quantifierCount() const;
-
     void printStatistics() const;
 
 protected:
@@ -67,12 +59,11 @@ protected:
     void compressConjunctive(Computation &c) const;
 
 private:
+    Computation* newComputationRec(unsigned int level, BDD bdd) const;
     void removeApplyRec(Computation& c, std::vector<std::vector<BDD>> removedVertices, BDD restrict, const BDD& clauses) const;
     void optimizeRec(Computation &c) const;
     void removeRec(Computation& c, const BDD& variable, const unsigned int vl) const;
     bool optimizeNow(bool half) const;
-
-    std::vector<NTYPE> quantifierSequence;
 
     static const std::string NSFMANAGER_SECTION;
 

@@ -211,6 +211,9 @@ void Computation::print() const {
 }
 
 void Computation::printCompact() const {
+    if (isExistentiallyQuantified()) std::cout << "E";
+    else if (isUniversiallyQuantified()) std::cout << "A";
+    else std::cout << "U";
     if (isLeaf()) {
         if (value().IsZero()) {
             std::cout << "[B]";

@@ -28,14 +28,14 @@ namespace printer {
     : Printer(app, "progress", "Print progress", newDefault) {
     }
 
-    void Progress::inputHypergraph(const HTDHypergraphPtr & hypergraph) {
-        Printer::inputHypergraph(hypergraph);
+    void Progress::inputInstance(const InstancePtr & instance) {
+        Printer::inputInstance(instance);
         std::cout << "\rParsing done." << std::flush;
         std::cout << std::endl;
     }
     
-    void Progress::preprocessedHypergraph(const HTDHypergraphPtr& hypergraph) {
-        Printer::inputHypergraph(hypergraph);
+    void Progress::preprocessedInstance(const InstancePtr& instance) {
+        Printer::inputInstance(instance);
         std::cout << "\rPreprocessing done." << std::flush;
         std::cout << std::endl;
     }

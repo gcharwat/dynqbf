@@ -30,7 +30,7 @@ class HGInputParser : public Module {
 public:
     HGInputParser(Application& app, const std::string& optionName, const std::string& optionDescription, bool newDefault = false);
 
-    virtual HTDHypergraphPtr parse(std::istream& inputStream) = 0;
+    virtual InstancePtr parse(std::istream& inputStream) = 0;
 
     virtual void select() override;
 };

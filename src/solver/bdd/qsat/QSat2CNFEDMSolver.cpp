@@ -53,7 +53,7 @@ namespace solver {
                 Computation* cC = NULL;
 
                 if (decomposition->isLeaf(currentNode)) {
-                    cC = nsfMan.newComputation(1, currentClauses(currentNode));
+                    cC = nsfMan.newComputation(currentClauses(currentNode));
                 } else {
                     bool first = true;
 
@@ -72,7 +72,7 @@ namespace solver {
                         for (const auto& vertex : forgottenVertices) {
                             BDD variable = varMap.getBDDVariable("a", 0,{vertex});
                             BDD decision = varMap.getBDDVariable("d", 0,{vertex});
-                            unsigned int vertexLevel = htd::accessLabel<int>(app.getInputHypergraph()->internalGraph().vertexLabel("level", vertex));
+                            unsigned int vertexLevel = htd::accessLabel<int>(app.getInputInstance()->hypergraph->internalGraph().vertexLabel("level", vertex));
                             
                             if (vertexLevel == 2) {
                                 nsfMan.remove(*tmpOuter, variable, vertexLevel);
@@ -134,12 +134,12 @@ namespace solver {
 
             const std::vector<BDD> QSat2CNFEDMSolver::getCubesAtLevels(htd::vertex_t currentNode) const {
                 std::vector<BDD> cubesAtLevels;
-                for (unsigned int i = 0; i < app.getNSFManager().quantifierCount(); i++) {
+                for (unsigned int i = 0; i < app.getInputInstance()->quantifierCount(); i++) {
                     cubesAtLevels.push_back(app.getBDDManager().getManager().bddOne());
                 }
                 const std::vector<htd::vertex_t> currentVertices = app.getDecomposition()->bagContent(currentNode);
                 for (const auto v : currentVertices) {
-                    int levelIndex = (htd::accessLabel<int>(this->app.getInputHypergraph()->internalGraph().vertexLabel("level", v))) - 1;
+                    int levelIndex = (htd::accessLabel<int>(this->app.getInputInstance()->hypergraph->internalGraph().vertexLabel("level", v))) - 1;
                     BDD vertexVar = app.getSolverFactory().getBDDVariable("a", 0,{v});
                     cubesAtLevels[levelIndex] *= vertexVar;
                 }
@@ -160,7 +160,7 @@ namespace solver {
 
                 for (const auto& inducedEdge : inducedEdges) {
                     htd::id_t edgeId = inducedEdge.id();
-                    const std::vector<bool> &edgeSigns = htd::accessLabel < std::vector<bool>>(app.getInputHypergraph()->edgeLabel("signs", edgeId));
+                    const std::vector<bool> &edgeSigns = htd::accessLabel < std::vector<bool>>(app.getInputInstance()->hypergraph->edgeLabel("signs", edgeId));
                     BDD clause = manager.bddZero();
 
                     std::vector<bool>::const_iterator index = edgeSigns.begin();
@@ -200,7 +200,7 @@ namespace solver {
                 NSFManager& nsfManager = app.getNSFManager();
 
                 std::vector<BDD> cubesAtlevels;
-                for (unsigned int i = 0; i < app.getNSFManager().quantifierCount(); i++) {
+                for (unsigned int i = 0; i < app.getInputInstance()->quantifierCount(); i++) {
                     cubesAtlevels.push_back(manager.bddOne());
                 }
                 BDD decide = nsfManager.evaluateNSF(cubesAtlevels, c, false);
@@ -217,7 +217,7 @@ namespace solver {
             BDD QSat2CNFEDMSolver::solutions(const Computation& c) {
                 NSFManager& nsfManager = app.getNSFManager();
                 std::vector<BDD> cubesAtlevels;
-                for (unsigned int i = 0; i < app.getNSFManager().quantifierCount(); i++) {
+                for (unsigned int i = 0; i < app.getInputInstance()->quantifierCount(); i++) {
                     cubesAtlevels.push_back(app.getBDDManager().getManager().bddOne());
                 }
                 return nsfManager.evaluateNSF(cubesAtlevels, c, true);

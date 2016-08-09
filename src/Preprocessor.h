@@ -28,7 +28,7 @@ class Preprocessor : public Module {
 public:
     Preprocessor(Application& app, const std::string& optionName, const std::string& optionDescription, bool newDefault = false);
 
-    virtual HTDHypergraphPtr preprocess(const HTDHypergraphPtr& instance) const = 0;
+    virtual InstancePtr preprocess(const InstancePtr& instance) const = 0;
 
     virtual void select() override;
 };

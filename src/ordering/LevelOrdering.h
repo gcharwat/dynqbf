@@ -29,7 +29,7 @@ namespace ordering {
     public:
         LevelOrdering(Application& app, bool newDefault = false);
 
-        virtual std::vector<int> computeVertexOrder(const HTDHypergraphPtr& instance, const HTDDecompositionPtr& decomposition) const override;
+        virtual std::vector<int> computeVertexOrder(const InstancePtr& instance, const HTDDecompositionPtr& decomposition) const override;
 
     private:
         static const std::string OPTION_SECTION;

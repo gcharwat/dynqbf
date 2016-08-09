@@ -25,9 +25,6 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include <stdexcept>
 #include <vector>
 
-enum NTYPE {
-    UNKNOWN, EXISTS, FORALL
-};
 
 namespace std {
 

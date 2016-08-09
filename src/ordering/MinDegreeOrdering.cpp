@@ -29,15 +29,15 @@ namespace ordering {
     : Ordering(app, "min-degree", "minimum degree ordering (same as TD min-degree heuristic)", newDefault) {
     }
     
-    std::vector<int> MinDegreeOrdering::computeVertexOrder(const HTDHypergraphPtr& instance, const HTDDecompositionPtr& decomposition) const {
+    std::vector<int> MinDegreeOrdering::computeVertexOrder(const InstancePtr& instance, const HTDDecompositionPtr& decomposition) const {
         htd::IOrderingAlgorithm * orderingAlgorithm = new htd::MinDegreeOrderingAlgorithm(app.getHTDManager());
         std::vector<htd::vertex_t> orderingVertices;
         // TODO: Do not recompute ordering
-        orderingAlgorithm->writeOrderingTo(instance->internalGraph(), orderingVertices);
+        orderingAlgorithm->writeOrderingTo(instance->hypergraph->internalGraph(), orderingVertices);
         delete orderingAlgorithm;
         
-        std::vector<int> orderingIndex(instance->vertexCount() + 1); // "0" vertex is skipped by HTD
-        for (const auto& vertexId : instance->internalGraph().vertices()) {
+        std::vector<int> orderingIndex(instance->hypergraph->vertexCount() + 1); // "0" vertex is skipped by HTD
+        for (const auto& vertexId : instance->hypergraph->internalGraph().vertices()) {
             int index = std::find(orderingVertices.begin(), orderingVertices.end(), vertexId) - orderingVertices.begin();
             orderingIndex[vertexId] = index;
         }
