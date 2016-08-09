@@ -80,6 +80,7 @@ Application::Application(const std::string& binaryName)
 , optSolver("p", "problem-solver", "Use <problem-solver> to solve problem")
 , optPrinter("output", "module", "Print information during the run using <module>")
 , optPrintInputInstance("print-instance", "Print the input hypergraph")
+, optPrintPreprocessedInstance("print-preprocessed", "Print the preprocessed hypergraph")
 , optPrintDecomposition("print-decomposition", "Print the computed decomposition")
 , optPrintVertexOrdering("print-ordering", "Print the computed vertex order")
 , optOnlyParseInstance("only-parse-instance", "Only construct hypergraph and exit")
@@ -100,6 +101,7 @@ int Application::run(int argc, char** argv) {
     opts.addOption(optOnlyParseInstance);
     opts.addOption(optOnlyDecomposeInstance);
     opts.addOption(optPrintInputInstance);
+    opts.addOption(optPrintPreprocessedInstance);
     opts.addOption(optPrintDecomposition);
     opts.addOption(optPrintVertexOrdering);
     opts.addOption(optEnumerate);
@@ -161,41 +163,6 @@ int Application::run(int argc, char** argv) {
     }
     srand(seed);
     
-//    Cudd* c = new Cudd();
-//    BDD v1 = c->bddVar();
-//    BDD v2 = c->bddVar();
-//    BDD v3 = c->bddVar();
-//    BDD v4 = c->bddVar();
-//    BDD v5 = c->bddVar();
-//    BDD v6 = c->bddVar();
-//    BDD v7 = c->bddVar();
-//    BDD v8 = c->bddVar();
-//    BDD v9 = c->bddVar();
-//    BDD v10 = c->bddVar();
-//    
-//    BDD b = (v1 + v6) * (v2 + v7) * (v3 + v8) * (v4 + v9) * (v5 + v10) * (v1 + v7 + v2 + v9 + v10);
-//    b.print(0,5);
-//    for (int i = 0; i < 10; i++) { std::cout << c->ReadPerm(i) << " "; } std::cout <<std::endl;
-//    
-//    MtrNode * root = Mtr_InitGroupTree(0,10);
-//    (void) Mtr_MakeGroup(root,0,10,MTR_FIXED);
-//    
-//    (void) Mtr_MakeGroup(root,0,5,MTR_DEFAULT);
-//    (void) Mtr_MakeGroup(root,5,5,MTR_DEFAULT);
-//    
-//    c->SetTree(root);
-//    
-//    c->ReduceHeap(CUDD_REORDER_EXACT, 0);
-//    for (int i = 0; i < 10; i++) { std::cout << c->ReadPerm(i) << " "; } std::cout <<std::endl;
-//
-//    for (int j = 0; j < 100; j++) {
-//        c->ReduceHeap(CUDD_REORDER_RANDOM, 0);
-//        for (int i = 0; i < 10; i++) { std::cout << c->ReadPerm(i) << " "; } std::cout <<std::endl;
-//    }
-//    
-//    return 0;
-    
-    
     RESULT result = RESULT::UNDECIDED;
 
     try {
@@ -203,18 +170,18 @@ int Application::run(int argc, char** argv) {
         inputInstance = hgInputParser->parse(std::cin);
         printer->inputInstance(inputInstance);
         if (optOnlyParseInstance.isUsed()) {
-            return 10;
+            return RETURN_UNFINISHED;
         }
 
         // Preprocess instance
         inputInstance = preprocessor->preprocess(inputInstance);
         printer->preprocessedInstance(inputInstance);
-
+        
         // Decompose instance
         decomposition = decomposer->decompose(inputInstance);
         printer->decomposerResult(decomposition);
         if (optOnlyDecomposeInstance.isUsed()) {
-            return 10;
+            return RETURN_UNFINISHED;
         }
 
         vertexOrdering = ordering->computeVertexOrder(inputInstance, decomposition);
@@ -246,17 +213,17 @@ int Application::run(int argc, char** argv) {
     delete bddManager;
     delete nsfManager;
 
-    int exitCode = 1;
+    int exitCode = RETURN_UNFINISHED;
 
     switch (result) {
         case SAT:
-            exitCode = 10;
+            exitCode = RETURN_SAT;
             break;
         case UNSAT:
-            exitCode = 20;
+            exitCode = RETURN_UNSAT;
             break;
         case UNDECIDED:
-            exitCode = 1;
+            exitCode = RETURN_UNDECIDED;
             break;
     }
 
@@ -355,6 +322,10 @@ void Application::setPrinter(Printer& p) {
 
 bool Application::printInputInstance() const {
     return optPrintInputInstance.isUsed();
+}
+
+bool Application::printPreprocessedInstance() const {
+    return optPrintPreprocessedInstance.isUsed();
 }
 
 bool Application::printDecomposition() const {

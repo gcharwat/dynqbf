@@ -32,10 +32,9 @@ class Debug : public Printer
     public:
         Debug(Application& app, bool newDefault = false);
         
-	virtual void decomposerResult(const HTDDecompositionPtr& result) override;
-        virtual void decomposerResultRec(const std::string& depth, const htd::vertex_t vertex);
+        virtual void beforeComputation() override;
         virtual void solverInvocationResult(const htd::vertex_t vertex, const Computation& computation) override;
-
+        
 };
     
 }

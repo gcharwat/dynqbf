@@ -44,6 +44,22 @@ void Printer::inputInstance(const InstancePtr& instance) {
     
     HTDHypergraph* hypergraph = instance->hypergraph;
 
+    std::cout << "### Input instance ###" << std::endl;
+    std::cout << "#quantifiers: " << instance->quantifierCount() << std::endl;
+    std::cout << " ";
+    for (auto q : instance->quantifierSequence) {
+        switch (q) {
+            case NTYPE::EXISTS: std::cout << "E ";
+                break;
+            case NTYPE::FORALL: std::cout << "A ";
+                break;
+            case NTYPE::UNKNOWN: std::cout << "U ";
+                break;
+            default: std::cout << "?" << std::endl;
+        }
+    }
+    std::cout << std::endl;
+
     std::cout << "#vertices: " << hypergraph->vertexCount() << std::endl;
     for (const auto& vertexId : hypergraph->internalGraph().vertices()) {
         std::cout << " " << vertexId << ": " << hypergraph->vertexName(vertexId);
@@ -57,7 +73,7 @@ void Printer::inputInstance(const InstancePtr& instance) {
         int index = 0;
         std::cout << " " << hyperedge.id() << ": ";
         for (const auto& vertexId : hyperedge.elements()) {
-            std::cout << (edgeSigns[index] ? "+": "-") << hypergraph->vertexName(vertexId) << " ";
+            std::cout << (edgeSigns[index] ? "+" : "-") << hypergraph->vertexName(vertexId) << " ";
             index++;
         }
         std::cout << std::endl;
@@ -65,24 +81,78 @@ void Printer::inputInstance(const InstancePtr& instance) {
 }
 
 void Printer::preprocessedInstance(const InstancePtr& instance) {
-    inputInstance(instance);
+    if (!app.printPreprocessedInstance()) {
+        return;
+    }
+    
+    HTDHypergraph* hypergraph = instance->hypergraph;
+
+    std::cout << "### Preprocessed instance ###" << std::endl;
+    std::cout << "#quantifiers: " << instance->quantifierCount() << std::endl;
+    std::cout << " ";
+    for (auto q : instance->quantifierSequence) {
+        switch (q) {
+            case NTYPE::EXISTS: std::cout << "E ";
+                break;
+            case NTYPE::FORALL: std::cout << "A ";
+                break;
+            case NTYPE::UNKNOWN: std::cout << "U ";
+                break;
+            default: std::cout << "?" << std::endl;
+        }
+    }
+    std::cout << std::endl;
+
+    std::cout << "#vertices: " << hypergraph->vertexCount() << std::endl;
+    for (const auto& vertexId : hypergraph->internalGraph().vertices()) {
+        std::cout << " " << vertexId << ": " << hypergraph->vertexName(vertexId);
+        int vertexLevel = htd::accessLabel<int>(hypergraph->internalGraph().vertexLabel("level", vertexId));
+        NTYPE quantor = instance->quantifier(vertexLevel);
+        std::cout << "; level " << vertexLevel << " " << (quantor == NTYPE::EXISTS ? "E" : "A") << std::endl;
+    }
+    std::cout << "#edges: " << hypergraph->edgeCount() << std::endl;
+    for (const auto& hyperedge : hypergraph->internalGraph().hyperedges()) {
+        const std::vector<bool> &edgeSigns = htd::accessLabel < std::vector<bool>>(hypergraph->edgeLabel("signs", hyperedge.id()));
+        int index = 0;
+        std::cout << " " << hyperedge.id() << ": ";
+        for (const auto& vertexId : hyperedge.elements()) {
+            std::cout << (edgeSigns[index] ? "+" : "-") << hypergraph->vertexName(vertexId) << " ";
+            index++;
+        }
+        std::cout << std::endl;
+    }
 }
 
 void Printer::decomposerResult(const HTDDecompositionPtr& result) {
     if (!app.printDecomposition()) {
         return;
     }
-    std::cout << "Width: " << (result->maximumBagSize() - 1) << std::endl;
-    std::cout << "Height: " << (result->height()) << std::endl;
+    std::cout << "### Tree decomposition ###" << std::endl;
+    std::cout << "Width: " << result->maximumBagSize()-1 << std::endl;
+    decomposerResultRec("", result->root());
+}
+
+void Printer::decomposerResultRec(const std::string& depth, const htd::vertex_t current) {
+    std::cout << depth << current << ": ";
+    for (const auto& v : app.getDecomposition()->bagContent(current)) {
+        std::cout << app.getInputInstance()->hypergraph->vertexName(v) << " ";
+    }
+    std::cout << std::endl;
+
+    for (const auto& c : app.getDecomposition()->children(current)) {
+        decomposerResultRec(depth + " ", c);
+    }
 }
 
 void Printer::vertexOrdering(const std::vector<int>& ordering) {
     if (!app.printVertexOrdering()) {
         return;
     }
+    
+    std::cout << "### Vertex ordering ###" << std::endl;
 
     HTDHypergraph* hypergraph = app.getInputInstance()->hypergraph;
-    
+
     std::vector<htd::vertex_t> verticesSorted(hypergraph->internalGraph().vertices().begin(), hypergraph->internalGraph().vertices().end());
 
     std::sort(verticesSorted.begin(), verticesSorted.end(), [ordering] (htd::vertex_t x1, htd::vertex_t x2) -> bool {
@@ -90,7 +160,6 @@ void Printer::vertexOrdering(const std::vector<int>& ordering) {
         int x2Index = ordering[x2];
         return x1Index < x2Index;
     });
-
 
     std::cout << "[ ";
     for (const auto vertex : verticesSorted) {
@@ -105,7 +174,7 @@ void Printer::solverInvocationResult(const htd::vertex_t vertex, const Computati
 void Printer::solverIntermediateEvent(const htd::vertex_t vertex, const Computation& computation, const std::string& message) {
 }
 
-void Printer::solverIntermediateEvent(const htd::vertex_t vertex, const Computation& c1, const Computation& c2, const std::string& message) {    
+void Printer::solverIntermediateEvent(const htd::vertex_t vertex, const Computation& c1, const Computation& c2, const std::string& message) {
 }
 
 void Printer::beforeComputation() {
@@ -114,10 +183,10 @@ void Printer::beforeComputation() {
 void Printer::resultComputation(const Computation& computation) {
     std::cout << "Computation: ";
     computation.printCompact();
-
 }
 
 void Printer::result(const RESULT result) {
+    std::cout << "### Result ###" << std::endl;
     std::cout << "Solution: ";
     switch (result) {
         case SAT:
@@ -143,9 +212,9 @@ void Printer::select() {
 }
 
 void Printer::models(const BDD bdd, std::vector<Variable> variables) {
-    
+
     HTDHypergraph* hypergraph = app.getInputInstance()->hypergraph;
-    
+
     // only vertices at level 1
     std::list<Variable> lvl1;
     for (Variable v : variables) {
@@ -156,10 +225,10 @@ void Printer::models(const BDD bdd, std::vector<Variable> variables) {
     }
 
     lvl1.sort([this] (Variable v1, Variable v2) -> bool {
-            int ind1 = app.getVertexOrdering()[v1.getVertices()[0]];
-            int ind2 = app.getVertexOrdering()[v2.getVertices()[0]];
-            return (ind1 < ind2);
-        });
+        int ind1 = app.getVertexOrdering()[v1.getVertices()[0]];
+        int ind2 = app.getVertexOrdering()[v2.getVertices()[0]];
+        return (ind1 < ind2);
+    });
 
 
     std::vector<std::string> model;
@@ -189,7 +258,7 @@ void Printer::modelsRec(BDD bdd, std::list<Variable> variables, std::vector<std:
         BDD bdd0 = bdd.Restrict(!(app.getBDDManager().getManager().bddVar(v.getId())));
         if (bdd1 == bdd0) {
             std::vector<std::string> model10 = model;
-//            model10.push_back("±" + vString);
+            //            model10.push_back("±" + vString);
             modelsRec(bdd1, variables, model10);
 
         } else {

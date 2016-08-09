@@ -30,27 +30,10 @@ namespace printer {
     Debug::Debug(Application& app, bool newDefault)
     : Printer(app, "debug", "Debug output writer", newDefault) {
     }
-
-    void Debug::decomposerResult(const HTDDecompositionPtr& result) {
-        if (!app.printDecomposition()) {
-            return;
-        }
-        Printer::decomposerResult(result);
-
-        decomposerResultRec("", result->root());
+    void Debug::beforeComputation() {
+        std::cout << "### Computation ###" << std::endl;
     }
-
-    void Debug::decomposerResultRec(const std::string& depth, const htd::vertex_t current) {
-        std::cout << depth << current << ": ";
-        for (const auto& v : app.getDecomposition()->bagContent(current)) {
-            std::cout << app.getInputInstance()->hypergraph->vertexName(v) << " ";
-        }
-        std::cout << "" << std::endl;
-        for (const auto& c : app.getDecomposition()->children(current)) {
-            decomposerResultRec(depth + " ", c);
-        }
-    }
-
+    
     void Debug::solverInvocationResult(const htd::vertex_t vertex, const Computation& computation) {
         std::cout << "Node " << vertex << ": " << std::endl;
         computation.printCompact();

@@ -45,8 +45,10 @@ public:
     virtual void result(const RESULT result);
 
     virtual void models(const BDD bdd, const std::vector<Variable> variables);
-    void modelsRec(BDD bdd, std::list<Variable> variables, std::vector<std::string> model);
 
     virtual void select() override;
 
+private:
+    void decomposerResultRec(const std::string& depth, const htd::vertex_t current);
+    void modelsRec(BDD bdd, std::list<Variable> variables, std::vector<std::string> model);
 };

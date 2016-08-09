@@ -35,7 +35,7 @@ namespace printer {
     }
     
     void Progress::preprocessedInstance(const InstancePtr& instance) {
-        Printer::inputInstance(instance);
+        Printer::preprocessedInstance(instance);
         std::cout << "\rPreprocessing done." << std::flush;
         std::cout << std::endl;
     }
@@ -45,7 +45,17 @@ namespace printer {
         std::cout << "\rDecomposing done." << std::flush;
         std::cout << std::endl;
     }
+    
+    void Progress::vertexOrdering(const std::vector<int>& ordering) {
+        Printer::vertexOrdering(ordering);
+        std::cout << "\rComputing ordering done." << std::flush;
+        std::cout << std::endl;
+    }
 
+    void Progress::beforeComputation() {
+        std::cout << "### Computation ###" << std::endl;
+    }
+    
     void Progress::solverIntermediateEvent(const htd::vertex_t vertex, const Computation& computation, const std::string& message) {
         int percentSolved = (tdComputedCount * 100) / app.getDecomposition()->vertexCount();
         std::size_t bagSize = app.getDecomposition()->bagSize(vertex);

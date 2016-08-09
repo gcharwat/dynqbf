@@ -32,6 +32,8 @@ namespace printer {
         virtual void inputInstance(const InstancePtr& instance) override;
         virtual void preprocessedInstance(const InstancePtr& instance) override;
         virtual void decomposerResult(const HTDDecompositionPtr& result) override;
+        virtual void vertexOrdering(const std::vector<int>& ordering) override;
+        virtual void beforeComputation() override;
         virtual void solverIntermediateEvent(const htd::vertex_t vertex, const Computation& computation, const std::string& message) override;
         virtual void solverIntermediateEvent(const htd::vertex_t vertex, const Computation& c1, const Computation& c2, const std::string& message) override;
         virtual void solverInvocationResult(const htd::vertex_t vertex, const Computation& computation) override;

@@ -33,6 +33,12 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include <htd/NamedMultiHypergraph.hpp>
 #include <htd/IMutableHypertreeDecomposition.hpp>
 
+#define RETURN_SAT 10
+#define RETURN_UNSAT 20
+#define RETURN_UNDECIDED 1
+#define RETURN_UNFINISHED 2
+
+
 class HGInputParser;
 class Decomposer;
 class Preprocessor;
@@ -44,6 +50,7 @@ class Instance;
 
 typedef std::shared_ptr<Instance> InstancePtr;
 typedef std::shared_ptr<htd::IMutableTreeDecomposition> HTDDecompositionPtr;
+
 
 class Application {
 public:
@@ -78,6 +85,7 @@ public:
     void setPrinter(Printer& printer);
 
     bool printInputInstance() const;
+    bool printPreprocessedInstance() const;
     bool printDecomposition() const;
     bool printVertexOrdering() const;
     bool enumerate() const;
@@ -107,6 +115,7 @@ private:
     options::Choice optSolver;
     options::Choice optPrinter;
     options::Option optPrintInputInstance;
+    options::Option optPrintPreprocessedInstance;
     options::Option optPrintDecomposition;
     options::Option optPrintVertexOrdering;
     options::Option optOnlyParseInstance;

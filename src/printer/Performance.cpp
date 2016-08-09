@@ -34,6 +34,7 @@ namespace printer {
     }
 
     void Performance::inputInstance(const InstancePtr& instance) {
+        Printer::inputInstance(instance);
         intermediateEndClock = std::clock();
         double elapsed_secs = double(intermediateEndClock - intermediateBeginClock) / CLOCKS_PER_SEC;
         std::cout << std::fixed << "Input (parsing time): " << elapsed_secs << std::endl;
@@ -43,6 +44,7 @@ namespace printer {
     }
 
     void Performance::preprocessedInstance(const InstancePtr& instance) {
+        Printer::preprocessedInstance(instance);
         intermediateEndClock = std::clock();
         double elapsed_secs = double(intermediateEndClock - intermediateBeginClock) / CLOCKS_PER_SEC;
         std::cout << std::fixed << "Preprocessing (time): " << elapsed_secs << std::endl;
@@ -52,6 +54,7 @@ namespace printer {
     }
 
     void Performance::decomposerResult(const HTDDecompositionPtr& result) {
+        Printer::decomposerResult(result);
         intermediateEndClock = std::clock();
         double elapsed_secs = double(intermediateEndClock - intermediateBeginClock) / CLOCKS_PER_SEC;
         std::cout << std::fixed << "Decomposition (decomposing time): " << elapsed_secs << std::endl;
@@ -63,6 +66,7 @@ namespace printer {
     }
 
     void Performance::vertexOrdering(const std::vector<int>& ordering) {
+        Printer::vertexOrdering(ordering);
         intermediateEndClock = std::clock();
         double elapsed_secs = double(intermediateEndClock - intermediateBeginClock) / CLOCKS_PER_SEC;
         std::cout << std::fixed << "Ordering (time): " << elapsed_secs << std::endl;
