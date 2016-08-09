@@ -44,37 +44,48 @@ bool Computation::operator==(const Computation& other) const {
     if (isLeaf() && other.isLeaf()) {
         return value() == other.value();
     }
-    // XXX Fix: Condition too strong
-    if (nestedSet().size() != other.nestedSet().size()) {
-        return false;
-    }
+//     XXX Fix: Condition too strong
+//        if (nestedSet().size() != other.nestedSet().size()) {
+//            return false;
+//        }
 
+    std::vector<int> checked(other.nestedSet().size());
+
+    int i;
     for (Computation* lc : nestedSet()) {
         bool match = false;
+        i = 0;
         for (Computation* rc : other.nestedSet()) {
             if ((*lc) == (*rc)) {
                 match = true;
+                checked[i] = 1;
                 break;
             }
+            i++;
         }
         if (match == false) {
             return false;
         }
     }
 
+
     // We would like to assume that lhs and rhs only contain distinct nested computations
     // Currently, this does not hold!
-    for (Computation* rc : nestedSet()) {
-        bool match = false;
-        for (Computation* lc : other.nestedSet()) {
-            if ((*lc) == (*rc)) {
-                match = true;
-                break;
+    i = 0;
+    for (Computation* rc : other.nestedSet()) {
+        if (checked[i] != 1) {
+            bool match = false;
+            for (Computation* lc : nestedSet()) {
+                if ((*lc) == (*rc)) {
+                    match = true;
+                    break;
+                }
+            }
+            if (match == false) {
+                return false;
             }
         }
-        if (match == false) {
-            return false;
-        }
+        i++;
     }
 
     return true; // same
@@ -221,7 +232,7 @@ void Computation::printCompact() const {
             std::cout << "[T]";
         } else {
             std::cout << "[" << _value.nodeCount() << "]";
-            _value.print(0,2);
+            _value.print(0, 2);
         }
     } else {
         std::cout << "{";

@@ -67,9 +67,6 @@ Computation* NSFManager::newComputationRec(unsigned int level, BDD bdd) const {
         Computation* cC = newComputationRec(level + 1, bdd);
         c->insert(cC);
     }
-    if (level == 1) {
-        maxNSFSizeEstimation *= c->leavesCount();
-    }
     return c;
 }
 
@@ -160,58 +157,59 @@ Computation* NSFManager::conjunct(Computation& c1, Computation& c2) const {
 
             for (Computation* cC2 : cl2) {
                 Computation* ncC = conjunct(*cC1, *cC2);
-                bool deleteIt1 = false;
-                bool deleteIt2 = false;
-
-                for (itn = newSet.begin(); itn != newSet.end();) {
-                    Computation* ocC = (*itn);
-
-                    if (nC->depth() > 1 || nC->isUniversiallyQuantified()) {
-                        if (optimizeNow(true)) {
-                            if (*(ocC) <= *(ncC)) {
-                                subsetChecksSuccessful++;
-                                deleteIt2 = true;
-                            }
-                        } else if (optimizeNow(false)) {
-                            if (*(ncC) <= *(ocC)) {
-                                subsetChecksSuccessful++;
-                                deleteIt1 = true;
-                            }
-                        }
-                    } else {
-                        if (optimizeNow(false)) {
-                            if (*(ncC) <= *(ocC)) {
-                                subsetChecksSuccessful++;
-                                deleteIt2 = true;
-                            }
-                        } else if (optimizeNow(true)) {
-                            if (*(ocC) <= *(ncC)) {
-                                subsetChecksSuccessful++;
-                                deleteIt1 = true;
-                            }
-                        }
-                    }
-
-                    if (deleteIt2) {
-                        break;
-                    } else if (deleteIt1) {
-                        delete *itn;
-                        itn = newSet.erase(itn);
-                        deleteIt1 = false;
-                    } else {
-                        itn++;
-                    }
-                }
-                if (deleteIt2) {
-                    delete ncC;
-                } else {
-                    newSet.push_back(ncC);
-                }
+//                bool deleteIt1 = false;
+//                bool deleteIt2 = false;
+//
+//                for (itn = newSet.begin(); itn != newSet.end();) {
+//                    Computation* ocC = (*itn);
+//
+//                    if (nC->depth() > 1 || nC->isUniversiallyQuantified()) {
+//                        if (optimizeNow(true)) {
+//                            if (*(ocC) <= *(ncC)) {
+//                                subsetChecksSuccessful++;
+//                                deleteIt2 = true;
+//                            }
+//                        } else if (optimizeNow(false)) {
+//                            if (*(ncC) <= *(ocC)) {
+//                                subsetChecksSuccessful++;
+//                                deleteIt1 = true;
+//                            }
+//                        }
+//                    } else {
+//                        if (optimizeNow(false)) {
+//                            if (*(ncC) <= *(ocC)) {
+//                                subsetChecksSuccessful++;
+//                                deleteIt2 = true;
+//                            }
+//                        } else if (optimizeNow(true)) {
+//                            if (*(ocC) <= *(ncC)) {
+//                                subsetChecksSuccessful++;
+//                                deleteIt1 = true;
+//                            }
+//                        }
+//                    }
+//
+//                    if (deleteIt2) {
+//                        break;
+//                    } else if (deleteIt1) {
+//                        delete *itn;
+//                        itn = newSet.erase(itn);
+//                        deleteIt1 = false;
+//                    } else {
+//                        itn++;
+//                    }
+//                }
+//                if (deleteIt2) {
+//                    delete ncC;
+//                } else {
+//                    newSet.push_back(ncC);
+//                }
+                nC->insert(ncC);
 
             }
-            for (Computation* newC : newSet) {
-                nC->insert(newC);
-            }
+//            for (Computation* newC : newSet) {
+//                nC->insert(newC);
+//            }
         }
     }
     if (nC->level() == 1) {
