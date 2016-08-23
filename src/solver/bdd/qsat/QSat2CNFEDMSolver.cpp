@@ -131,6 +131,14 @@ namespace solver {
                 app.getPrinter().solverInvocationResult(currentNode, *cC);
                 return cC;
             }
+            
+            void QSat2CNFEDMSolver::manipulateBDD(BDD b) const {
+                // get "a" BDD nodes
+                std::vector<BDD> aNodes;
+                
+                
+                
+            }
 
             const std::vector<BDD> QSat2CNFEDMSolver::getCubesAtLevels(htd::vertex_t currentNode) const {
                 std::vector<BDD> cubesAtLevels;

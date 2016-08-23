@@ -25,6 +25,7 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "../Application.h"
 #include "WidthFitnessFunction.h"
 #include "HeightFitnessFunction.h"
+#include "JoinNodeFitnessFunction.h"
 
 #include <htd/main.hpp>
 
@@ -124,8 +125,9 @@ namespace decomposer {
         htd::ITreeDecompositionAlgorithm * algorithm = app.getHTDManager()->treeDecompositionAlgorithmFactory().getTreeDecompositionAlgorithm();
         algorithm->addManipulationOperation(operation);
         
-        WidthFitnessFunction widthFitnessFunction;
-        htd::IterativeImprovementTreeDecompositionAlgorithm iterativeAlgorithm(app.getHTDManager(), algorithm, widthFitnessFunction);
+//        WidthFitnessFunction widthFitnessFunction;
+        JoinNodeFitnessFunction joinNodeFitnessFunction;
+        htd::IterativeImprovementTreeDecompositionAlgorithm iterativeAlgorithm(app.getHTDManager(), algorithm, joinNodeFitnessFunction);
         iterativeAlgorithm.setIterationCount(optOptimizeWidth.getValue());
         iterativeAlgorithm.setNonImprovementLimit(-1);
         

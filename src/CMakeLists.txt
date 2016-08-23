@@ -66,6 +66,7 @@ add_library(dynqbf-objects
     decomposer/HTDTreeDecomposer.cpp
     decomposer/HeightFitnessFunction.cpp
     decomposer/WidthFitnessFunction.cpp
+    decomposer/JoinNodeFitnessFunction.cpp
     Ordering.cpp
     ordering/InstanceOrdering.cpp
     ordering/LexicographicalOrdering.cpp

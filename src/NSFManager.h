@@ -37,7 +37,6 @@ public:
     ~NSFManager();
 
     Computation* newComputation(BDD bdd) const;
-    Computation* copyComputation(const Computation& c) const;
 
     void apply(Computation& c, std::function<BDD(const BDD&)> f) const;
     Computation* conjunct(Computation& c1, Computation& c2) const;
@@ -60,6 +59,8 @@ protected:
 
 private:
     Computation* newComputationRec(unsigned int level, BDD bdd) const;
+    Computation* copyComputation(const Computation& c) const;
+
     void removeApplyRec(Computation& c, std::vector<std::vector<BDD>> removedVertices, BDD restrict, const BDD& clauses) const;
     void optimizeRec(Computation &c) const;
     void removeRec(Computation& c, const BDD& variable, const unsigned int vl) const;
@@ -79,5 +80,7 @@ private:
     mutable unsigned long subsetChecksSuccessful;
 
     mutable int maxNSFSizeEstimation;
+
+    mutable std::vector<Computation*> computationStore;
 
 };

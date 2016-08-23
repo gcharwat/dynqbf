@@ -152,8 +152,8 @@ Computation* NSFManager::conjunct(Computation& c1, Computation& c2) const {
         }
 
         for (Computation* cC1 : cl1) {
-            std::list<Computation*> newSet;
-            std::list<Computation *>::iterator itn;
+//            std::list<Computation*> newSet;
+//            std::list<Computation *>::iterator itn;
 
             for (Computation* cC2 : cl2) {
                 Computation* ncC = conjunct(*cC1, *cC2);

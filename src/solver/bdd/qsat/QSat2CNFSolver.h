@@ -42,6 +42,9 @@ namespace solver {
 
             private:
                 BDD currentClauses(htd::vertex_t currentNode);
+                
+                void manipulateBDD(BDD b) const;
+                
             };
         }
     }
