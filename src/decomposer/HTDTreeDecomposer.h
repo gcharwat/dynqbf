@@ -42,8 +42,10 @@ namespace decomposer {
         options::Option optNoEmptyRoot;
         options::Option optEmptyLeaves;
         options::Option optPathDecomposition;
-        options::DefaultIntegerValueOption optOptimizeHeight;
-        options::DefaultIntegerValueOption optOptimizeWidth;
+        options::Choice optRootSelectionFitnessFunction;
+        options::DefaultIntegerValueOption optRootSelectionIterations;
+        options::Choice optDecompositionFitnessFunction;
+        options::DefaultIntegerValueOption optDecompositionIterations;
         
     };
 

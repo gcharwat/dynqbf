@@ -19,17 +19,23 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
  */
 
-#include <htd/main.hpp>
+#include "JoinNodeCountFitnessFunction.h"
+#include <math.h> 
 
 namespace decomposer {
 
-    class JoinNodeFitnessFunction : public htd::ITreeDecompositionFitnessFunction {
-    public:
-        JoinNodeFitnessFunction(void);
-        ~JoinNodeFitnessFunction();
+    JoinNodeCountFitnessFunction::JoinNodeCountFitnessFunction(void) {
+    }
 
-        htd::FitnessEvaluation * fitness(const htd::IMultiHypergraph & graph, const htd::ITreeDecomposition & decomposition) const;
+    JoinNodeCountFitnessFunction::~JoinNodeCountFitnessFunction() {
+    }
 
-        JoinNodeFitnessFunction * clone(void) const;
-    };
+    htd::FitnessEvaluation * JoinNodeCountFitnessFunction::fitness(const htd::IMultiHypergraph & graph,
+            const htd::ITreeDecomposition & decomposition) const {
+        return new htd::FitnessEvaluation(1, -(double) (decomposition.joinNodeCount()));
+    }
+
+    JoinNodeCountFitnessFunction * JoinNodeCountFitnessFunction::clone(void) const {
+        return new JoinNodeCountFitnessFunction();
+    }
 }

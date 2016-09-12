@@ -60,13 +60,15 @@ add_library(dynqbf-objects
     preprocessor/NoPreprocessor.cpp
     preprocessor/UnitLiteralPreprocessor.cpp
     preprocessor/CNF3Preprocessor.cpp
+    preprocessor/SplitPreprocessor.cpp
     preprocessor/CombinedPreprocessor.cpp
     Decomposer.cpp
     decomposer/Dummy.cpp
     decomposer/HTDTreeDecomposer.cpp
     decomposer/HeightFitnessFunction.cpp
+    decomposer/JoinNodeChildCountFitnessFunction.cpp
+    decomposer/JoinNodeCountFitnessFunction.cpp
     decomposer/WidthFitnessFunction.cpp
-    decomposer/JoinNodeFitnessFunction.cpp
     Ordering.cpp
     ordering/InstanceOrdering.cpp
     ordering/LexicographicalOrdering.cpp
@@ -82,6 +84,7 @@ add_library(dynqbf-objects
     solver/dummy/SolverFactory.cpp
     solver/bdd/qsat/QSatCNFSolverFactory.cpp
     solver/bdd/qsat/QSatCNFEDMSolver.cpp
+    solver/bdd/qsat/QSatCNFEDMSolver2.cpp
     solver/bdd/qsat/QSatCNFLDMSolver.cpp
     solver/bdd/qsat/QSat2CNFSolverFactory.cpp
     solver/bdd/qsat/QSat2CNFEDMSolver.cpp

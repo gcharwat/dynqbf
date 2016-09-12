@@ -19,17 +19,25 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
  */
 
-#include <htd/main.hpp>
+#pragma once
 
-namespace decomposer {
+#include "../Preprocessor.h"
+#include "../options/Choice.h"
 
-    class JoinNodeFitnessFunction : public htd::ITreeDecompositionFitnessFunction {
+#include <list>
+
+namespace preprocessor {
+
+    class SplitPreprocessor : public Preprocessor {
     public:
-        JoinNodeFitnessFunction(void);
-        ~JoinNodeFitnessFunction();
+        SplitPreprocessor(Application& app, bool newDefault = false);
 
-        htd::FitnessEvaluation * fitness(const htd::IMultiHypergraph & graph, const htd::ITreeDecomposition & decomposition) const;
+        InstancePtr preprocess(const InstancePtr& instance) const override;
 
-        JoinNodeFitnessFunction * clone(void) const;
+    private:    
+        void split(InstancePtr& preprocessed, const std::vector<std::string> &vertices, const std::vector<bool> &edgeSigns) const;
+        mutable int splitVarIndex = 0;
+        
     };
+
 }

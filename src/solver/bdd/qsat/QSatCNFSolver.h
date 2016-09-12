@@ -44,6 +44,22 @@ namespace solver {
                 BDD currentClauses(htd::vertex_t currentNode);
                 bool checkUnsat;
             };
+            
+            class QSatCNFEDMSolver2 : public Solver {
+            public:
+                QSatCNFEDMSolver2(const Application& app, bool checkUnsat);
+
+                Computation* compute(htd::vertex_t vertex) override;
+                RESULT decide(const Computation& c) override;
+                BDD solutions(const Computation& c) override;
+
+                const std::vector<BDD> getCubesAtLevels(htd::vertex_t currentNode) const;
+                bool isUnsat(const Computation& c);
+
+            private:
+                BDD currentClauses(htd::vertex_t currentNode);
+                bool checkUnsat;
+            };
 
             class QSatCNFLDMSolver : public Solver {
             public:

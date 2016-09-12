@@ -26,6 +26,8 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "WidthFitnessFunction.h"
 #include "HeightFitnessFunction.h"
 #include "JoinNodeFitnessFunction.h"
+#include "JoinNodeCountFitnessFunction.h"
+#include "JoinNodeChildCountFitnessFunction.h"
 
 #include <htd/main.hpp>
 
@@ -41,8 +43,10 @@ namespace decomposer {
     , optNoEmptyRoot("no-empty-root", "Do not add an empty root to the tree decomposition")
     , optEmptyLeaves("empty-leaves", "Add empty leaves to the tree decomposition")
     , optPathDecomposition("path-decomposition", "Create a path decomposition")
-    , optOptimizeHeight("opt-height", "h", "Randomly select <h> decomposition nodes as root, choose decomposition with minimum height", 10)
-    , optOptimizeWidth("opt-width", "w", "Generate <w> tree decompositions, choose decomposition with minimum width", 10) {
+    , optRootSelectionFitnessFunction("root-strategy", "f", "Use fitness function <f> for decomposition root node selection")
+    , optRootSelectionIterations("root-strategy-iterations", "i", "Randomly select <i> nodes as root, choose decomposition with best fitness value", 10)
+    , optDecompositionFitnessFunction("decomposition-strategy", "f", "Use fitness function <f> for decomposition selection")
+    , optDecompositionIterations("decomposition-strategy-iterations", "i", "Generate <i> tree decompositions, choose decomposition with best fitness value", 10) {
         optNormalization.addCondition(selected);
         optNormalization.addChoice("none", "no normalization", true);
         optNormalization.addChoice("weak", "weak normalization");
@@ -65,13 +69,25 @@ namespace decomposer {
 
         optPathDecomposition.addCondition(selected);
         app.getOptionHandler().addOption(optPathDecomposition, OPTION_SECTION);
+
+        optRootSelectionFitnessFunction.addCondition(selected);
+        optRootSelectionFitnessFunction.addChoice("none", "do not optimize selected root", true);
+        optRootSelectionFitnessFunction.addChoice("height", "minimize decomposition height");
+        app.getOptionHandler().addOption(optRootSelectionFitnessFunction, OPTION_SECTION);
+
+        optRootSelectionIterations.addCondition(selected);
+        app.getOptionHandler().addOption(optRootSelectionIterations, OPTION_SECTION);
+
+        optDecompositionFitnessFunction.addCondition(selected);
+        optDecompositionFitnessFunction.addChoice("none", "do not optimize decomposition", true);
+        optDecompositionFitnessFunction.addChoice("width", "minimize decomposition width");
+        optDecompositionFitnessFunction.addChoice("join-count", "minimize number of join nodes");
+        optDecompositionFitnessFunction.addChoice("join-child-count", "minimize number of join node children");
+        app.getOptionHandler().addOption(optDecompositionFitnessFunction, OPTION_SECTION);
         
-        optOptimizeHeight.addCondition(selected);
-        app.getOptionHandler().addOption(optOptimizeHeight, OPTION_SECTION);
-        
-        optOptimizeWidth.addCondition(selected);
-        app.getOptionHandler().addOption(optOptimizeWidth, OPTION_SECTION);
-        
+        optDecompositionIterations.addCondition(selected);
+        app.getOptionHandler().addOption(optDecompositionIterations, OPTION_SECTION);
+
     }
 
     HTDDecompositionPtr HTDTreeDecomposer::decompose(const InstancePtr& instance) const {
@@ -98,11 +114,17 @@ namespace decomposer {
         bool emptyLeaves = optEmptyLeaves.isUsed();
         bool emptyRoot = !optNoEmptyRoot.isUsed();
 
-        HeightFitnessFunction heightFitnessFunction;
-        htd::TreeDecompositionOptimizationOperation * operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager(), heightFitnessFunction);
-        
-        operation->setVertexSelectionStrategy(new htd::RandomVertexSelectionStrategy(optOptimizeHeight.getValue()));
-        
+        htd::TreeDecompositionOptimizationOperation * operation;
+        if (optRootSelectionFitnessFunction.getValue() == "height") {
+            HeightFitnessFunction heightFitnessFunction;
+            operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager(), heightFitnessFunction);
+        } else {
+            assert(optRootSelectionFitnessFunction.getValue() == "none");
+            operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager());
+        }
+
+        operation->setVertexSelectionStrategy(new htd::RandomVertexSelectionStrategy(optRootSelectionIterations.getValue()));
+
         // Path decomposition
         if (optPathDecomposition.isUsed()) {
             operation->addManipulationOperations({new htd::JoinNodeReplacementOperation(app.getHTDManager())});
@@ -110,7 +132,7 @@ namespace decomposer {
 
         // Normalize
         if (optNormalization.getValue() == "none") {
-            if (emptyRoot)   operation->addManipulationOperations({new htd::AddEmptyRootOperation(app.getHTDManager())});
+            if (emptyRoot) operation->addManipulationOperations({new htd::AddEmptyRootOperation(app.getHTDManager())});
             if (emptyLeaves) operation->addManipulationOperations({new htd::AddEmptyLeavesOperation(app.getHTDManager())});
         } else if (optNormalization.getValue() == "weak") {
             operation->addManipulationOperations({new htd::WeakNormalizationOperation(app.getHTDManager(), emptyRoot, emptyLeaves, false)});
@@ -121,17 +143,30 @@ namespace decomposer {
         } else {
             /* nothing to do */
         }
-        
+
         htd::ITreeDecompositionAlgorithm * algorithm = app.getHTDManager()->treeDecompositionAlgorithmFactory().getTreeDecompositionAlgorithm();
         algorithm->addManipulationOperation(operation);
-        
-//        WidthFitnessFunction widthFitnessFunction;
-        JoinNodeFitnessFunction joinNodeFitnessFunction;
-        htd::IterativeImprovementTreeDecompositionAlgorithm iterativeAlgorithm(app.getHTDManager(), algorithm, joinNodeFitnessFunction);
-        iterativeAlgorithm.setIterationCount(optOptimizeWidth.getValue());
-        iterativeAlgorithm.setNonImprovementLimit(-1);
-        
-        htd::ITreeDecomposition * decomp = iterativeAlgorithm.computeDecomposition(instance->hypergraph->internalGraph());
+
+        if (optDecompositionFitnessFunction.isUsed() && optDecompositionFitnessFunction.getValue() != "none") {
+            htd::IterativeImprovementTreeDecompositionAlgorithm * iterativeAlgorithm;
+            if (optDecompositionFitnessFunction.getValue() == "width") {
+                WidthFitnessFunction fitnessFunction;
+                iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
+            } else if (optDecompositionFitnessFunction.getValue() == "join-count") {
+                JoinNodeCountFitnessFunction fitnessFunction;
+                iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
+            } else if (optDecompositionFitnessFunction.getValue() == "join-child-count") {
+                JoinNodeChildCountFitnessFunction fitnessFunction;
+                iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
+            } else {
+                throw std::runtime_error("Invalid option");
+            }
+            iterativeAlgorithm->setIterationCount(optDecompositionIterations.getValue());
+            iterativeAlgorithm->setNonImprovementLimit(-1);
+            algorithm = iterativeAlgorithm;
+        }
+
+        htd::ITreeDecomposition * decomp = algorithm->computeDecomposition(instance->hypergraph->internalGraph());
 
         htd::IMutableTreeDecomposition * decompMutable = &(app.getHTDManager()->treeDecompositionFactory().accessMutableTreeDecomposition(*decomp));
         HTDDecompositionPtr decomposition(decompMutable);

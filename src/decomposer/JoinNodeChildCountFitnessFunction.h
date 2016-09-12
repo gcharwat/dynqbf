@@ -23,13 +23,13 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace decomposer {
 
-    class JoinNodeFitnessFunction : public htd::ITreeDecompositionFitnessFunction {
+    class JoinNodeChildCountFitnessFunction : public htd::ITreeDecompositionFitnessFunction {
     public:
-        JoinNodeFitnessFunction(void);
-        ~JoinNodeFitnessFunction();
+        JoinNodeChildCountFitnessFunction(void);
+        ~JoinNodeChildCountFitnessFunction();
 
         htd::FitnessEvaluation * fitness(const htd::IMultiHypergraph & graph, const htd::ITreeDecomposition & decomposition) const;
 
-        JoinNodeFitnessFunction * clone(void) const;
+        JoinNodeChildCountFitnessFunction * clone(void) const;
     };
 }
