@@ -24,8 +24,9 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <algorithm>
 #include <limits.h>
-#include <math.h>
-#include <gmpxx.h>
+//#include <math.h>
+//#include <cstddef>
+//#include <gmpxx.h>
 
 namespace ordering {
 
