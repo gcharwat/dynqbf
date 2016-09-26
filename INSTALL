@@ -3,7 +3,11 @@ COMPILE
 Compilation of dynQBF has been tested with the following versions of the dependencies:
 - CMake (http://cmake.org/), version 2.8.12.2
 - CUDD (http://vlsi.colorado.edu/~fabio/CUDD/), version 3.0.0
+  Note: C++ support must be enabled with:
+      ./configure --enable-obj
 - HTD (https://github.com/mabseher/htd)
+  Note: You should build a static htd library with:
+      cmake -DBUILD_SHARED_LIBS=OFF
 Compilation was tested with the stated version numbers and GCC 4.8.1. Unless the developers of the 
 dependencies introduce incompatible changes, later versions should work too. (Older versions might work if you're lucky.)
 
