@@ -28,6 +28,10 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "JoinNodeFitnessFunction.h"
 #include "JoinNodeCountFitnessFunction.h"
 #include "JoinNodeChildCountFitnessFunction.h"
+#include "JoinNodeChildBagFitnessFunction.h"
+#include "JoinNodeChildBagProductFitnessFunction.h"
+#include "JoinNodeBagFitnessFunction.h"
+#include "VariableLevelFitnessFunction.h"
 
 #include <htd/main.hpp>
 
@@ -73,6 +77,7 @@ namespace decomposer {
         optRootSelectionFitnessFunction.addCondition(selected);
         optRootSelectionFitnessFunction.addChoice("none", "do not optimize selected root", true);
         optRootSelectionFitnessFunction.addChoice("height", "minimize decomposition height");
+        optRootSelectionFitnessFunction.addChoice("variable-level", "prefer innermost variables to be removed first");
         app.getOptionHandler().addOption(optRootSelectionFitnessFunction, OPTION_SECTION);
 
         optRootSelectionIterations.addCondition(selected);
@@ -82,7 +87,11 @@ namespace decomposer {
         optDecompositionFitnessFunction.addChoice("none", "do not optimize decomposition", true);
         optDecompositionFitnessFunction.addChoice("width", "minimize decomposition width");
         optDecompositionFitnessFunction.addChoice("join-count", "minimize number of join nodes");
+        optDecompositionFitnessFunction.addChoice("join-bag-size", "minimize the sum over join node bag sizes");
         optDecompositionFitnessFunction.addChoice("join-child-count", "minimize number of join node children");
+        optDecompositionFitnessFunction.addChoice("join-child-bag-size", "minimize the sum over join node children bag sizes");
+        optDecompositionFitnessFunction.addChoice("join-child-bag-size-product", "minimize the sum over products of join node children bag sizes");
+        
         app.getOptionHandler().addOption(optDecompositionFitnessFunction, OPTION_SECTION);
         
         optDecompositionIterations.addCondition(selected);
@@ -118,6 +127,9 @@ namespace decomposer {
         if (optRootSelectionFitnessFunction.getValue() == "height") {
             HeightFitnessFunction heightFitnessFunction;
             operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager(), heightFitnessFunction);
+        } else if (optRootSelectionFitnessFunction.getValue() == "variable-level") {
+            VariableLevelFitnessFunction variableLevelFitnessFunction(app);
+            operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager(), variableLevelFitnessFunction);
         } else {
             assert(optRootSelectionFitnessFunction.getValue() == "none");
             operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager());
@@ -155,8 +167,17 @@ namespace decomposer {
             } else if (optDecompositionFitnessFunction.getValue() == "join-count") {
                 JoinNodeCountFitnessFunction fitnessFunction;
                 iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
+            }else if (optDecompositionFitnessFunction.getValue() == "join-bag-size") {
+                JoinNodeBagFitnessFunction fitnessFunction;
+                iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
             } else if (optDecompositionFitnessFunction.getValue() == "join-child-count") {
                 JoinNodeChildCountFitnessFunction fitnessFunction;
+                iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
+            } else if (optDecompositionFitnessFunction.getValue() == "join-child-bag-size") {
+                JoinNodeChildBagFitnessFunction fitnessFunction;
+                iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
+            } else if (optDecompositionFitnessFunction.getValue() == "join-child-bag-size-product") {
+                JoinNodeChildBagProductFitnessFunction fitnessFunction;
                 iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
             } else {
                 throw std::runtime_error("Invalid option");
