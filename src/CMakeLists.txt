@@ -88,7 +88,6 @@ add_library(dynqbf-objects
     solver/dummy/SolverFactory.cpp
     solver/bdd/qsat/QSatCNFSolverFactory.cpp
     solver/bdd/qsat/QSatCNFEDMSolver.cpp
-    solver/bdd/qsat/QSatCNFEDMSolver2.cpp
     solver/bdd/qsat/QSatCNFLDMSolver.cpp
     solver/bdd/qsat/QSat2CNFSolverFactory.cpp
     solver/bdd/qsat/QSat2CNFEDMSolver.cpp

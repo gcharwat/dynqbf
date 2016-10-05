@@ -25,7 +25,6 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "../Application.h"
 #include "WidthFitnessFunction.h"
 #include "HeightFitnessFunction.h"
-#include "JoinNodeFitnessFunction.h"
 #include "JoinNodeCountFitnessFunction.h"
 #include "JoinNodeChildCountFitnessFunction.h"
 #include "JoinNodeChildBagFitnessFunction.h"

@@ -55,28 +55,6 @@ namespace decomposer {
             }
         }
         
-        
-        //        for (htd::vertex_t node : decomposition.vertices()) {
-        //            double relativeVertexPosition = decomposition->depth(node) / (double) (decomposition->depth(node) + decomposition->height(node));
-        //            for (htd::vertex_t vertex : decomposition->bagContent(node)) {
-        //                double maxLevel = 2; // TODO get from instance
-        ////                unsigned int variableLevel = htd::accessLabel<int>(graph->->vertexLabel("level", vertex));
-        ////                double relativeVariableLevel = ;
-        //            }
-        //        }
-        ////        
-        //        std::vector<htd::vertex_t> joinNodes;
-        //
-        //        decomposition.copyJoinNodesTo(joinNodes);
-        //
-        //        double joinNodeChildBagSum = 0.0;
-        //        
-        //        for (htd::vertex_t joinNode : joinNodes) {
-        //            for (htd::vertex_t childNode : decomposition.children(joinNode)) {
-        //                joinNodeChildBagSum += decomposition.bagSize(childNode);
-        //            }
-        //        }
-        //            return new htd::FitnessEvaluation(1, -joinNodeChildBagSum);
         return new htd::FitnessEvaluation(1, -positionDistanceSum);
     }
 
