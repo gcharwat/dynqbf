@@ -38,13 +38,16 @@ namespace solver {
                 BDD solutions(const Computation& c) override;
 
                 const std::vector<BDD> getCubesAtLevels(htd::vertex_t currentNode) const;
-                bool isUnsat(const Computation& c);
+                bool isUnsat(const BDD bdd);
 
             private:
                 BDD currentClauses(htd::vertex_t currentNode);
-                
-                void manipulateBDD(BDD b) const;
-                
+
+                std::set<DdNode*> getBEntryNodes(DdNode* d) const;
+                std::set<DdNode*> getANodes(DdNode* d) const;
+                BDD reduceA(BDD input) const;
+                BDD getAPath(const std::vector<BDD>& aVariables, unsigned int limit, unsigned int number) const;
+
             };
         }
     }

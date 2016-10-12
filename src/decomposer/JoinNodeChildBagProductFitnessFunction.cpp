@@ -37,7 +37,7 @@ namespace decomposer {
         decomposition.copyJoinNodesTo(joinNodes);
 
         double joinNodeChildBagSum = 0.0;
-        
+
         for (htd::vertex_t joinNode : joinNodes) {
             double joinNodeChildBagProduct = 1.0;
             for (htd::vertex_t childNode : decomposition.children(joinNode)) {
@@ -45,7 +45,7 @@ namespace decomposer {
             }
             joinNodeChildBagSum += joinNodeChildBagProduct;
         }
-            return new htd::FitnessEvaluation(1, -joinNodeChildBagSum);
+        return new htd::FitnessEvaluation(1, -joinNodeChildBagSum);
 
     }
 

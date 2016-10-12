@@ -50,6 +50,13 @@ namespace solver {
     
                 app.getBDDManager().getManager().SetTree(root);
                 
+                if (app.getInputInstance()->quantifierCount() != 2) {
+                    throw std::runtime_error("Invalid number of quantifiers");
+                } else if (app.getInputInstance()->getQuantifierSequence()[0] != NTYPE::FORALL || 
+                        app.getInputInstance()->getQuantifierSequence()[1] != NTYPE::EXISTS) {
+                    throw std::runtime_error("Invalid quantifiers");
+                }
+                
                 return std::unique_ptr<::Solver>(new QSat2CNFEDMSolver(app));
             }
 
@@ -57,19 +64,15 @@ namespace solver {
                 if (vertices.size() > 1) {
                     throw std::runtime_error("Invalid variable call");
                 }
+                if (position != 0) {
+                    throw std::runtime_error("Invalid variable call (position for variable != 0)");
+                }
 
+                int vPos = app.getVertexOrdering().at(vertices.at(0));
                 if (type == "d") {
-                    if (position != 0) {
-                        throw std::runtime_error("Invalid variable call (position for decision variable != 0)");
-                    }
-                    int vPos = app.getVertexOrdering().at(vertices.at(0));
                     return app.getBDDManager().getManager().bddVar(vPos);
                 } else if (type == "a") {
-                    if (position != 0) {
-                        throw std::runtime_error("Invalid variable call (position for atom != 0)");
-                    }
                     size_t atomsCount = app.getInputInstance()->hypergraph->vertexCount();
-                    int vPos = app.getVertexOrdering().at(vertices.at(0));
                     return app.getBDDManager().getManager().bddVar(atomsCount + vPos);
                 } else {
                     throw std::runtime_error("Invalid variable type " + type);
