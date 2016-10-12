@@ -97,9 +97,9 @@ namespace solver {
                             return bdd *= currentClauses;
                         });
                         app.getPrinter().solverIntermediateEvent(currentNode, *tmpOuter, "introducing clauses - done");
-//                        app.getPrinter().solverIntermediateEvent(currentNode, *tmpOuter, "optimizing");
-//                        nsfMan.optimize(*tmpOuter);
-//                        app.getPrinter().solverIntermediateEvent(currentNode, *tmpOuter, "optimizing - done");
+                        //                        app.getPrinter().solverIntermediateEvent(currentNode, *tmpOuter, "optimizing");
+                        //                        nsfMan.optimize(*tmpOuter);
+                        //                        app.getPrinter().solverIntermediateEvent(currentNode, *tmpOuter, "optimizing - done");
 
                         if (first) {
                             cC = tmpOuter;
@@ -111,9 +111,9 @@ namespace solver {
                             delete tmpOuter;
                             cC = tmpJoin;
                             app.getPrinter().solverIntermediateEvent(currentNode, *cC, "joining - done");
-//                            app.getPrinter().solverIntermediateEvent(currentNode, *cC, "optimizing");
-//                            nsfMan.optimize(*cC);
-//                            app.getPrinter().solverIntermediateEvent(currentNode, *cC, "optimizing - done");
+                            //                            app.getPrinter().solverIntermediateEvent(currentNode, *cC, "optimizing");
+                            //                            nsfMan.optimize(*cC);
+                            //                            app.getPrinter().solverIntermediateEvent(currentNode, *cC, "optimizing - done");
                         }
                     }
                 }
@@ -125,20 +125,18 @@ namespace solver {
 
                 app.getPrinter().solverIntermediateEvent(currentNode, *cC, "reduceA - done");
 
-               
+
                 //                if (checkUnsat) {
-                                    const std::vector<BDD> cubesAtLevels = getCubesAtLevels(currentNode);
-                
-                                    app.getPrinter().solverIntermediateEvent(currentNode, *cC, "checking unsat");
-                                    BDD decide = nsfMan.evaluateNSF(cubesAtLevels, *cC, false);
-                                    app.getPrinter().solverIntermediateEvent(currentNode, *cC, "checking unsat - done");
-                                    if (isUnsat(decide)) {
-                                        throw AbortException("Intermediate unsat check successful", RESULT::UNSAT);
-                                    }
+                const std::vector<BDD> cubesAtLevels = getCubesAtLevels(currentNode);
+
+                app.getPrinter().solverIntermediateEvent(currentNode, *cC, "checking unsat");
+                BDD decide = nsfMan.evaluateNSF(cubesAtLevels, *cC, false);
+                app.getPrinter().solverIntermediateEvent(currentNode, *cC, "checking unsat - done");
+                if (isUnsat(decide)) {
+                    throw AbortException("Intermediate unsat check successful", RESULT::UNSAT);
+                }
                 //                }
 
-                //                app.getBDDManager().getManager().ReduceHeap(CUDD_REORDER_RANDOM, 0);
-                //                for (int i = 0; i < app.getInputHypergraph()->vertexCount()*2; i++) { std::cout << app.getBDDManager().getManager().ReadPerm(i) << " "; } std::cout <<std::endl;
                 app.getPrinter().solverInvocationResult(currentNode, *cC);
                 return cC;
             }
@@ -206,7 +204,7 @@ namespace solver {
             }
 
             BDD QSat2CNFEDMSolver::reduceA(BDD input) const {
-//                input.print(0, 5);
+                //                input.print(0, 5);
 
                 std::set<DdNode*> aNodes = getANodes(input.getNode());
                 std::set<DdNode*> bEntryNodes = getBEntryNodes(input.getNode());
@@ -254,9 +252,9 @@ namespace solver {
                         result += aP;
                         i++;
                     }
-                    
+
                     //                    std::cout << "Reduced: " << std::endl;
-//                    result.print(0, 5);
+                    //                    result.print(0, 5);
                     return result;
                 }
                 return input;
@@ -294,7 +292,7 @@ namespace solver {
                     }
                 }
                 if (undecided) {
-//                    decide.print(0, 5);
+                    //                    decide.print(0, 5);
                     return RESULT::UNDECIDED;
                 }
                 return RESULT::SAT;
