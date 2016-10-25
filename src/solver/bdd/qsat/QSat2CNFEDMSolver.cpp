@@ -162,10 +162,26 @@ namespace solver {
                     }
 
                     std::set<DdNode*> top = getBEntryNodes(Nv);
-                    entryNodes.insert(top.begin(), top.end());
+//                    entryNodes.insert(top.begin(), top.end());
 
                     std::set<DdNode*> bottom = getBEntryNodes(Nnv);
-                    entryNodes.insert(bottom.begin(), bottom.end());
+                    for (DdNode* b : bottom) {
+                        bool eraseB = false;
+                        for (DdNode* t : top) {
+                            if (Cudd_bddLeq(app.getBDDManager().getManager().getManager(), b, t)) {
+                                top.erase(t);
+                                break;
+                            }
+                            if (Cudd_bddLeq(app.getBDDManager().getManager().getManager(), t, b)) {
+                                eraseB = true;
+                                break;
+                            }
+                        }
+                        if (!eraseB) {
+                            entryNodes.insert(b);
+                        }
+                    }
+                    entryNodes.insert(top.begin(), top.end());
                 } else {
                     entryNodes.insert(node);
                 }
@@ -259,7 +275,7 @@ namespace solver {
                 }
                 return input;
             }
-
+            
             BDD QSat2CNFEDMSolver::getAPath(const std::vector<BDD>& aVariables, unsigned int limit, unsigned int number) const {
                 BDD aPath = app.getBDDManager().getManager().bddOne();
 

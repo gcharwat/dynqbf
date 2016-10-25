@@ -48,6 +48,7 @@ namespace solver {
                 BDD reduceA(BDD input) const;
                 BDD getAPath(const std::vector<BDD>& aVariables, unsigned int limit, unsigned int number) const;
 
+                void reduceB(std::set<DdNode*>& bEntryNodes) const;
             };
         }
     }
