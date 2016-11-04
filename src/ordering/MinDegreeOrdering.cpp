@@ -31,16 +31,16 @@ namespace ordering {
     
     std::vector<int> MinDegreeOrdering::computeVertexOrder(const InstancePtr& instance, const HTDDecompositionPtr& decomposition) const {
         htd::IOrderingAlgorithm * orderingAlgorithm = new htd::MinDegreeOrderingAlgorithm(app.getHTDManager());
-        std::vector<htd::vertex_t> orderingVertices;
         // TODO: Do not recompute ordering
-        orderingAlgorithm->writeOrderingTo(instance->hypergraph->internalGraph(), orderingVertices);
-        delete orderingAlgorithm;
+        htd::VertexOrdering* ordering = orderingAlgorithm->computeOrdering(instance->hypergraph->internalGraph());
         
         std::vector<int> orderingIndex(instance->hypergraph->vertexCount() + 1); // "0" vertex is skipped by HTD
         for (const auto& vertexId : instance->hypergraph->internalGraph().vertices()) {
-            int index = std::find(orderingVertices.begin(), orderingVertices.end(), vertexId) - orderingVertices.begin();
+            int index = std::find(ordering->sequence().begin(), ordering->sequence().end(), vertexId) - ordering->sequence().begin();
             orderingIndex[vertexId] = index;
         }
+        delete ordering;
+        delete orderingAlgorithm;
         
         return orderingIndex;
     }
