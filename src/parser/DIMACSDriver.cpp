@@ -45,7 +45,7 @@ namespace parser {
 
         std::string inputFileFormat, dummy;
         unsigned int atoms = 0, clauses = 0;
-        unsigned int firstLevelCount = 0;
+//        unsigned int firstLevelCount = 0;
 
         std::string line;
         std::string lineElement;
@@ -71,7 +71,7 @@ namespace parser {
                         instance->hypergraph->addVertex(lineElement);
                         instance->hypergraph->setVertexLabel("level", lineElement, new htd::Label<int>(instance->quantifierCount()));
                         if (instance->quantifierCount() == 1) {
-                            firstLevelCount++;
+//                            firstLevelCount++;
                         }
                     }
                     break;
@@ -85,7 +85,7 @@ namespace parser {
                         instance->hypergraph->addVertex(lineElement);
                         instance->hypergraph->setVertexLabel("level", lineElement, new htd::Label<int>(instance->quantifierCount()));
                         if (instance->quantifierCount() == 1) {
-                            firstLevelCount++;
+//                            firstLevelCount++;
                         }
                     }
                     break;
@@ -120,7 +120,7 @@ namespace parser {
                             }
                             instance->hypergraph->addVertex(vertexName);
                             instance->hypergraph->setVertexLabel("level", vertexName, new htd::Label<int>(1)); // insert at level 1
-                            firstLevelCount++;
+//                            firstLevelCount++;
                         }
                         atoms.push_back(vertexName);
                         signs.push_back(sign);
