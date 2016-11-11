@@ -331,6 +331,7 @@ bool NSFManager::split(Computation& c) const {
         } else {
             c._value = std::move(c.value().UnivAbstract(cube));
         }
+        return false;
     } else {
         BDD variable = c.removeCache().back();
         c._removeCache.pop_back();
@@ -349,8 +350,9 @@ bool NSFManager::split(Computation& c) const {
         for (Computation* newC : newComps) {
             c.insert(newC);
         }
+        return true;
     }
-    return true;
+
 }
 
 /**
