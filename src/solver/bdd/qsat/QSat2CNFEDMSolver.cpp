@@ -31,6 +31,7 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "cuddObj.hh"
 #include "cuddInt.h"
 #include "cudd.h"
+#include "cuddInteract.c"
 #include "htd/InducedSubgraphLabelingOperation.hpp"
 #include <algorithm>
 
@@ -118,12 +119,22 @@ namespace solver {
                     }
                 }
 
-                app.getPrinter().solverIntermediateEvent(currentNode, *cC, "reduceA");
-                nsfMan.apply(*cC, [this](BDD bdd) -> BDD {
-                    return reduceA(bdd);
-                });
+                //                app.getPrinter().solverIntermediateEvent(currentNode, *cC, "reduceA");
+                //                nsfMan.apply(*cC, [this](BDD bdd) -> BDD {
+                //                    return reduceA(bdd);
+                //                });
+                //
+                //                app.getPrinter().solverIntermediateEvent(currentNode, *cC, "reduceA - done");
 
-                app.getPrinter().solverIntermediateEvent(currentNode, *cC, "reduceA - done");
+
+                optimizeCounter++;
+                if (optimizeCounter % 1 == 0) {
+                    app.getPrinter().solverIntermediateEvent(currentNode, *cC, "subsets");
+                    nsfMan.apply(*cC, [this](BDD bdd) -> BDD {
+                        return removeSubsets(bdd);
+                    });
+                    app.getPrinter().solverIntermediateEvent(currentNode, *cC, "subsets - done");
+                }
 
 
                 //                if (checkUnsat) {
@@ -142,11 +153,65 @@ namespace solver {
             }
 
             std::set<DdNode*> QSat2CNFEDMSolver::getBEntryNodes(DdNode* node) const {
-                std::set<DdNode*> entryNodes;
+//                std::cout << "foo" << std::endl;
+                std::vector<DdNode*> entryNodesVector = getBEntryNodesRec(node);
+                set<DdNode*> s;
+                unsigned size = entryNodesVector.size();
+                for (unsigned i = 0; i < size; ++i) {
+                    s.insert(entryNodesVector[i]);
+                }
 
+                //                ddDagInt(Cudd_Regular(node));
+                ddClearFlag(Cudd_Regular(node));
+//std::cout << s.size() << " bar" << std::endl;
+                return s;
+            }
+
+            //            static int
+            //            ddDagInt(
+            //                    DdNode * n) {
+            //                int tval, eval;
+            //
+            //                if (Cudd_IsComplement(n->next)) {
+            //                    return (0);
+            //                }
+            //                n->next = Cudd_Not(n->next);
+            //                if (cuddIsConstant(n)) {
+            //                    return (1);
+            //                }
+            //                tval = ddDagInt(cuddT(n));
+            //                eval = ddDagInt(Cudd_Regular(cuddE(n)));
+            //                return (1 + tval + eval);
+            //
+            //            } /* end of ddDagInt */
+
+            void QSat2CNFEDMSolver::ddClearFlag(DdNode * f) const {
+                if (!Cudd_IsComplement(f->next)) {
+                    return;
+                }
+                /* Clear visited flag. */
+                f->next = Cudd_Regular(f->next);
+                if (cuddIsConstant(f)) {
+                    return;
+                }
+                ddClearFlag(cuddT(f));
+                ddClearFlag(Cudd_Regular(cuddE(f)));
+                return;
+
+            } /* end of ddClearFlag */
+
+            std::vector<DdNode*> QSat2CNFEDMSolver::getBEntryNodesRec(DdNode* node) const {
+                std::vector<DdNode*> entryNodes;
+                
                 DdNode* N = Cudd_Regular(node);
+                
+                if (Cudd_IsComplement(N->next)) {
+                    return entryNodes;
+                }
+                N->next = Cudd_Not(N->next);
+                
                 if (cuddIsConstant(N)) {
-                    entryNodes.insert(node);
+                    entryNodes.push_back(node);
                     return entryNodes;
                 }
 
@@ -161,35 +226,44 @@ namespace solver {
                         Nnv = Cudd_Not(Nnv);
                     }
 
-                    std::set<DdNode*> top = getBEntryNodes(Nv);
-//                    entryNodes.insert(top.begin(), top.end());
+                    entryNodes = getBEntryNodesRec(Nv);
+                    //                    entryNodes.insert(top.begin(), top.end());
 
-                    std::set<DdNode*> bottom = getBEntryNodes(Nnv);
-                    for (DdNode* b : bottom) {
-                        bool eraseB = false;
-                        for (DdNode* t : top) {
-                            if (Cudd_bddLeq(app.getBDDManager().getManager().getManager(), b, t)) {
-                                top.erase(t);
-                                break;
-                            }
-                            if (Cudd_bddLeq(app.getBDDManager().getManager().getManager(), t, b)) {
-                                eraseB = true;
-                                break;
-                            }
-                        }
-                        if (!eraseB) {
-                            entryNodes.insert(b);
-                        }
-                    }
-                    entryNodes.insert(top.begin(), top.end());
+                    std::vector<DdNode*> bottom = getBEntryNodesRec(Nnv);
+                    // remove duplicates
+                    //                    for (DdNode* b : bottom) {
+                    //                        bool eraseB = false;
+                    //                        for (DdNode* t : top) {
+                    //                            if (Cudd_bddLeq(app.getBDDManager().getManager().getManager(), b, t)) {
+                    //                                top.erase(t);
+                    //                                break;
+                    //                            }
+                    //                            if (Cudd_bddLeq(app.getBDDManager().getManager().getManager(), t, b)) {
+                    //                                eraseB = true;
+                    //                                break;
+                    //                            }
+                    //                        }
+                    //                        if (!eraseB) {
+                    //                            entryNodes.insert(b);
+                    //                        }
+                    //                    }
+                    entryNodes.insert(entryNodes.end(), bottom.begin(), bottom.end());
                 } else {
-                    entryNodes.insert(node);
+                    entryNodes.insert(entryNodes.end(), node);
                 }
                 return entryNodes;
             }
 
             std::set<DdNode*> QSat2CNFEDMSolver::getANodes(DdNode* f) const {
-                std::set<DdNode*> aNodes;
+                std::vector<DdNode*> aNodesVector = getANodesRec(f);
+                set<DdNode*> s;
+                unsigned size = aNodesVector.size();
+                for (unsigned i = 0; i < size; ++i) s.insert(aNodesVector[i]);
+                return s;
+            }
+
+            std::vector<DdNode*> QSat2CNFEDMSolver::getANodesRec(DdNode* f) const {
+                std::vector<DdNode*> aNodes;
 
                 DdNode* g = Cudd_Regular(f);
                 if (cuddIsConstant(g)) {
@@ -199,24 +273,125 @@ namespace solver {
 
 
                 if (g->index < atomCount) {
-                    aNodes.insert(g);
+                    aNodes.push_back(g);
 
                     DdNode* n = cuddT(g);
                     if (!cuddIsConstant(n)) {
-                        std::set<DdNode*> top = getANodes(n);
-                        aNodes.insert(top.begin(), top.end());
+                        std::vector<DdNode*> top = getANodesRec(n);
+                        aNodes.insert(aNodes.end(), top.begin(), top.end());
                     }
 
                     n = cuddE(g);
                     DdNode* N = Cudd_Regular(n);
                     if (!cuddIsConstant(N)) {
-                        std::set<DdNode*> bottom = getANodes(n);
-                        aNodes.insert(bottom.begin(), bottom.end());
+                        std::vector<DdNode*> bottom = getANodesRec(n);
+                        aNodes.insert(aNodes.end(), bottom.begin(), bottom.end());
                     }
 
                 }
 
                 return aNodes;
+            }
+
+            BDD QSat2CNFEDMSolver::removeSubsets(BDD input) const {
+                std::set<DdNode*> bEntryNodes = getBEntryNodes(input.getNode());
+
+                std::list<DdNode*> list(bEntryNodes.begin(), bEntryNodes.end());
+
+                std::list<DdNode*>::iterator it1;
+                std::list<DdNode*>::iterator it2;
+
+                unsigned int comp = 0, del = 0;
+                
+                std::list<DdNode*>::const_iterator end = list.end();
+                for (it1 = list.begin(); it1 != end;) {
+                    DdNode* c1 = *it1;
+                    BDD b1(app.getBDDManager().getManager(), c1);
+                    bool deleteIt1 = false;
+                    it2 = it1;
+                    it2++;
+                    while (it2 != end) {
+                        DdNode& c2 = *(*it2);
+                        BDD b2(app.getBDDManager().getManager(), &c2);
+                        bool deleteIt2 = false;
+
+                        comp++;
+                        if (b1 <= b2) {
+                            del++;
+                            deleteIt2 = true;
+//                            std::cout << "del1" << std::endl;
+                        } else {
+                            comp++;
+                        if (b2 <= b1) {
+                            del++;
+                            deleteIt1 = true;
+//                            std::cout << "del2" << std::endl;
+                        }
+                        }
+                        if (deleteIt2) {
+                            //delete *it2;
+                            it2 = list.erase(it2);
+                            end = list.end();
+                        } else if (deleteIt1) {
+                            //delete *it1;
+                            it1 = list.erase(it1);
+                            c1 = *it1;
+                            end = list.end();
+                            break;
+                        } else {
+                            it2++;
+                        }
+                    }
+                    if (!deleteIt1) {
+                        it1++;
+                    }
+                }
+                
+                std::cout << "comp: " << comp << " del: " << del << std::endl;
+                
+                std::set<DdNode*> aNodes = getANodes(input.getNode());
+
+                std::set<DdHalfWord> aVariableIds;
+                for (DdNode* aNode : aNodes) {
+                    aVariableIds.insert(aNode->index); // Cudd_Regular?
+                }
+                std::vector<BDD> aVariables;
+                for (DdHalfWord index : aVariableIds) {
+                    aVariables.push_back(app.getBDDManager().getManager().bddVar(index));
+                }
+                sort(aVariables.begin(), aVariables.end(),
+                        [](const BDD & a, const BDD & b) -> bool {
+                            return a.getNode()->index < b.getNode()->index;
+                        });
+                unsigned int requiredAVariables = ceil(log2(list.size()));
+                unsigned int actualAVariables = aVariables.size();
+                                std::cout << "|requiredAVariables| = " << requiredAVariables << std::endl;
+                                std::cout << "|actualAVariables| = " << actualAVariables << std::endl;
+
+                //                input.print(0, 5);
+
+                if (actualAVariables > requiredAVariables) {
+
+                    BDD result = app.getBDDManager().getManager().bddZero();
+                    unsigned int i = 0;
+                    for (DdNode* bEntryNode : list) {
+                        BDD b(app.getBDDManager().getManager(), bEntryNode);
+                        BDD aP = getAPath(aVariables, requiredAVariables, i);
+                        result += b*aP;
+                        i++;
+                    }
+                    unsigned int paddingMax = 1 << requiredAVariables;
+                    while (i < paddingMax) {
+                        BDD aP = getAPath(aVariables, requiredAVariables, i);
+                        result += aP;
+                        i++;
+                    }
+
+                    //                    std::cout << "Reduced: " << std::endl;
+                    //                    result.print(0, 5);
+                    return result;
+                }
+                return input;
             }
 
             BDD QSat2CNFEDMSolver::reduceA(BDD input) const {
@@ -275,7 +450,7 @@ namespace solver {
                 }
                 return input;
             }
-            
+
             BDD QSat2CNFEDMSolver::getAPath(const std::vector<BDD>& aVariables, unsigned int limit, unsigned int number) const {
                 BDD aPath = app.getBDDManager().getManager().bddOne();
 
@@ -314,7 +489,7 @@ namespace solver {
                 return RESULT::SAT;
             }
 
-            BDD QSat2CNFEDMSolver::solutions(const Computation& c) {
+            BDD QSat2CNFEDMSolver::solutions(const Computation & c) {
                 // TODO
                 NSFManager& nsfManager = app.getNSFManager();
                 std::vector<BDD> cubesAtlevels;

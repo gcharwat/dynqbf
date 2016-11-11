@@ -44,11 +44,17 @@ namespace solver {
                 BDD currentClauses(htd::vertex_t currentNode);
 
                 std::set<DdNode*> getBEntryNodes(DdNode* d) const;
+                std::vector<DdNode*> getBEntryNodesRec(DdNode* node) const;
+                void ddClearFlag(DdNode * f) const;
                 std::set<DdNode*> getANodes(DdNode* d) const;
+                std::vector<DdNode*> getANodesRec(DdNode* d) const;
+                BDD removeSubsets(BDD input) const;
                 BDD reduceA(BDD input) const;
                 BDD getAPath(const std::vector<BDD>& aVariables, unsigned int limit, unsigned int number) const;
 
                 void reduceB(std::set<DdNode*>& bEntryNodes) const;
+                
+                mutable int optimizeCounter = 0;
             };
         }
     }
