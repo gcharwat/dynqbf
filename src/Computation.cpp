@@ -28,8 +28,7 @@ Computation::Computation(unsigned int level, unsigned int depth, NTYPE type) :
 _level(level),
 _depth(depth),
 _type(type),
-_nestedSet(),
-_removeCache() {
+_nestedSet() {
 }
 
 Computation::~Computation() {
@@ -37,7 +36,6 @@ Computation::~Computation() {
         delete c;
     }
     _nestedSet.clear();
-    _removeCache.clear();
 }
 
 bool Computation::operator==(const Computation& other) const {
@@ -48,7 +46,7 @@ bool Computation::operator==(const Computation& other) const {
 //        if (nestedSet().size() != other.nestedSet().size()) {
 //            return false;
 //        }
-
+    
     std::vector<int> checked(other.nestedSet().size());
 
     int i;
@@ -130,18 +128,6 @@ const std::vector<Computation *>& Computation::nestedSet() const {
 
 void Computation::insert(Computation * nC) {
     _nestedSet.push_back(nC);
-}
-
-const std::vector<BDD>& Computation::removeCache() const {
-    return _removeCache;
-}
-
-std::vector<BDD>& Computation::mutableRemoveCache() {
-    return _removeCache;
-}
-
-void Computation::addToRemoveCache(BDD bdd) {
-    _removeCache.push_back(bdd);
 }
 
 unsigned int Computation::depth() const {

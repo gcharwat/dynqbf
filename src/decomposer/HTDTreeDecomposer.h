@@ -23,6 +23,7 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "../Decomposer.h"
 #include "../options/Choice.h"
+#include "../options/DefaultIntegerValueOption.h"
 
 #include <list>
 

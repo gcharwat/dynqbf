@@ -28,6 +28,7 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "DynQBFConfig.h"
 #include "Application.h"
 #include "BDDManager.h"
+#include "HeuristicNSFManager.h"
 #include "Computation.h"
 #include "AbortException.h"
 
@@ -149,7 +150,7 @@ int Application::run(int argc, char** argv) {
     //printer::Visualization visualizationPrinter(*this);
 
     bddManager = new BDDManager(*this);
-    nsfManager = new NSFManager(*this);
+    nsfManager = new HeuristicNSFManager(*this);
     htdManager = htd::createManagementInstance(htd::Id::FIRST);
     
     time_t seed = time(0);
@@ -346,7 +347,7 @@ BDDManager& Application::getBDDManager() const {
     return *bddManager;
 }
 
-NSFManager& Application::getNSFManager() const {
+BaseNSFManager& Application::getNSFManager() const {
     return *nsfManager;
 }
 

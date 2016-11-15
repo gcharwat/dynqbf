@@ -34,7 +34,8 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "Instance.h"
 
 class Computation {
-    friend class NSFManager;
+    friend class NSFManager; // TODO remove
+    friend class BaseNSFManager;
 public:
     ~Computation();
 
@@ -45,8 +46,6 @@ public:
     const BDD& value() const;
 
     const std::vector<Computation *>& nestedSet() const;
-    
-    const std::vector<BDD>& removeCache() const;
     
     unsigned int depth() const;
     unsigned int level() const;
@@ -69,9 +68,6 @@ protected:
     
     void insert(Computation * computation);
     void remove(Computation * computation);
-
-    std::vector<BDD>& mutableRemoveCache();
-    void addToRemoveCache(BDD bdd);
     
 private:
     unsigned int _level;
@@ -79,7 +75,6 @@ private:
     NTYPE _type;
     BDD _value;
     std::vector<Computation *> _nestedSet;
-    std::vector<BDD> _removeCache;
 };
 
 

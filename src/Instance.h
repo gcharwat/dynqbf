@@ -44,8 +44,11 @@ public:
     const std::vector<NTYPE> getQuantifierSequence() const;
     
     HTDHypergraph* hypergraph;
-    std::vector<NTYPE> quantifierSequence;
+    
 
 protected:
     Application& app;
+    
+private:
+    std::vector<NTYPE> quantifierSequence;
 };

@@ -24,7 +24,7 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "options/OptionHandler.h"
 #include "options/Choice.h"
 #include "Utils.h"
-#include "NSFManager.h"
+#include "BaseNSFManager.h"
 
 #include <mtr.h>
 
@@ -91,7 +91,7 @@ public:
     bool enumerate() const;
 
     BDDManager& getBDDManager() const;
-    NSFManager& getNSFManager() const;
+    BaseNSFManager& getNSFManager() const;
     htd::LibraryInstance* getHTDManager() const;
     Decomposer& getDecomposer() const;
 
@@ -131,6 +131,6 @@ private:
     Printer* printer;
 
     BDDManager* bddManager;
-    NSFManager* nsfManager;
+    BaseNSFManager* nsfManager;
     htd::LibraryInstance* htdManager;
 };

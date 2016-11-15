@@ -58,7 +58,7 @@ Computation* NSFManager::newComputation(BDD bdd) const {
 }
 
 Computation* NSFManager::newComputationRec(unsigned int level, BDD bdd) const {
-    unsigned int depth = app.getInputInstance()->quantifierSequence.size() - level;
+    unsigned int depth = app.getInputInstance()->quantifierCount() - level;
     NTYPE quantifier = app.getInputInstance()->quantifier(level);
     Computation* c = new Computation(level, depth, quantifier);
     if (depth == 0) {

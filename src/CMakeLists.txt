@@ -4,7 +4,7 @@ project (DYNQBF)
         
 # Set project version numbers
 set (DYNQBF_VERSION_MAJOR 0)
-set (DYNQBF_VERSION_MINOR 2)
+set (DYNQBF_VERSION_MINOR 3)
 
 # Configure the header file to pass some of the CMake settings to the source code
 configure_file (
@@ -51,7 +51,8 @@ add_library(dynqbf-objects
     Instance.cpp
     Module.cpp
     BDDManager.cpp
-    NSFManager.cpp
+    BaseNSFManager.cpp
+    HeuristicNSFManager.cpp
     Computation.cpp
     Variable.cpp
     HGInputParser.cpp

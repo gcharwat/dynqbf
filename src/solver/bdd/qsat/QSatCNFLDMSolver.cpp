@@ -48,7 +48,7 @@ namespace solver {
 
                 HTDDecompositionPtr decomposition = app.getDecomposition();
                 const SolverFactory& varMap = (app.getSolverFactory());
-                const NSFManager& nsfMan = app.getNSFManager();
+                const BaseNSFManager& nsfMan = app.getNSFManager();
 
                 Computation* cC = NULL;
 
@@ -182,7 +182,7 @@ namespace solver {
 
             RESULT QSatCNFLDMSolver::decide(const Computation & c) {
                 Cudd manager = app.getBDDManager().getManager();
-                NSFManager& nsfManager = app.getNSFManager();
+                BaseNSFManager& nsfManager = app.getNSFManager();
 
                 std::vector<BDD> cubesAtlevels;
                 for (unsigned int i = 0; i < app.getInputInstance()->quantifierCount(); i++) {
@@ -200,7 +200,7 @@ namespace solver {
             }
 
             BDD QSatCNFLDMSolver::solutions(const Computation& c) {
-                NSFManager& nsfManager = app.getNSFManager();
+                BaseNSFManager& nsfManager = app.getNSFManager();
                 std::vector<BDD> cubesAtlevels;
                 for (unsigned int i = 0; i < app.getInputInstance()->quantifierCount(); i++) {
                     cubesAtlevels.push_back(app.getBDDManager().getManager().bddOne());
