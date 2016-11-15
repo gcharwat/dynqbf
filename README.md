@@ -1,4 +1,4 @@
-dynQBF (version 0.2) 
+dynQBF (version 0.3) 
 ====================
 
 dynQBF is a structure-aware QBF solver. It handles QBF instances
@@ -21,6 +21,21 @@ Source:     https://github.com/gcharwat/dynqbf
 
 Version info 
 --------------
+
+2016-11-10: dynQBF 0.3
+- Heuristic TD and TD root node selection with various fitness functions, see options
+   --root-strategy <f> 
+   --decomposition-strategy <f>
+- Added an experimental implementation for a 2QBF solver that
+  uses only a single BDD, see option 
+   -p cnf2
+- This version adds initial support for preprocessing 
+  - conversion to 3CNF
+  - unit literals
+- Improved option handling, refactored instance handling
+- Improved subset checking (should improve performance)
+- Compatibility and tested with HTD release htd 1.0.0 (beta1) 
+  (see https://github.com/mabseher/htd/releases/tag/v1.0.0-beta1)
 
 2016-05-10: dynQBF 0.2
  - Bug fix for QBFs with more than 2 quantifiers
