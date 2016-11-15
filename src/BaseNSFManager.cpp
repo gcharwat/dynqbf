@@ -26,6 +26,8 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
  * XXX: removeCache handling
  */
 
+#include <algorithm>
+
 #include "Application.h"
 #include "BaseNSFManager.h"
 #include "Computation.h"
@@ -37,12 +39,12 @@ BaseNSFManager::BaseNSFManager(Application& app)
 BaseNSFManager::~BaseNSFManager() {
 }
 
-Computation* BaseNSFManager::newComputation(const BDD& bdd) const {
+Computation* BaseNSFManager::newComputation(const BDD& bdd) {
     return newComputationRec(1, bdd);
 }
 
 /* TODO remove recursion */
-Computation* BaseNSFManager::newComputationRec(unsigned int level, const BDD& bdd) const {
+Computation* BaseNSFManager::newComputationRec(unsigned int level, const BDD& bdd) {
     unsigned int depth = app.getInputInstance()->quantifierCount() - level;
     NTYPE quantifier = app.getInputInstance()->quantifier(level);
     Computation* c = new Computation(level, depth, quantifier);
@@ -55,8 +57,8 @@ Computation* BaseNSFManager::newComputationRec(unsigned int level, const BDD& bd
     return c;
 }
 
-/* TODO mmove to Computation.cpp */
-Computation* BaseNSFManager::copyComputation(const Computation& c) const {
+/* TODO move to Computation.cpp */
+Computation* BaseNSFManager::copyComputation(const Computation& c) {
     Computation* nC = new Computation(c.level(), c.depth(), c.quantifier());
 
     if (c.isLeaf()) {
@@ -70,7 +72,7 @@ Computation* BaseNSFManager::copyComputation(const Computation& c) const {
     return nC;
 }
 
-void BaseNSFManager::apply(Computation& c, std::function<BDD(const BDD&)> f) const {
+void BaseNSFManager::apply(Computation& c, std::function<BDD(const BDD&)> f) {
     if (c.isLeaf()) {
         c._value = std::move(f(c.value()));
     } else {
@@ -80,13 +82,13 @@ void BaseNSFManager::apply(Computation& c, std::function<BDD(const BDD&)> f) con
     }
 }
 
-void BaseNSFManager::apply(Computation& c, const BDD& clauses) const {
+void BaseNSFManager::apply(Computation& c, const BDD& clauses) {
     apply(c, [&clauses](BDD bdd) -> BDD {
         return bdd *= clauses;
     });
 }
 
-Computation* BaseNSFManager::conjunct(Computation& c1, Computation& c2) const {
+Computation* BaseNSFManager::conjunct(Computation& c1, Computation& c2) {
     Computation* nC = new Computation(c1.level(), c1.depth(), c1.quantifier());
 
     if (c1.isLeaf()) {
@@ -102,7 +104,7 @@ Computation* BaseNSFManager::conjunct(Computation& c1, Computation& c2) const {
     return nC;
 }
 
-void BaseNSFManager::remove(Computation& c, const BDD& variable, const unsigned int vl) const {
+void BaseNSFManager::remove(Computation& c, const BDD& variable, const unsigned int vl) {
     if (c.level() == vl) {
         if (c.isLeaf()) {
             if (c.isExistentiallyQuantified()) {
@@ -133,7 +135,7 @@ void BaseNSFManager::remove(Computation& c, const BDD& variable, const unsigned 
     }
 }
 
-void BaseNSFManager::remove(Computation& c, const std::vector<std::vector<BDD>>&removedVertices) const {
+void BaseNSFManager::remove(Computation& c, const std::vector<std::vector<BDD>>& removedVertices) {
     for (unsigned int level = 1; level <= removedVertices.size(); level++) {
         for (BDD b : removedVertices[level - 1]) {
             remove(c, b, level);
@@ -141,18 +143,12 @@ void BaseNSFManager::remove(Computation& c, const std::vector<std::vector<BDD>>&
     }
 }
 
-void BaseNSFManager::removeApply(Computation& c, const std::vector<std::vector<BDD>>& removedVertices, const BDD& clauses) const {
-    apply(c, [&clauses](BDD bdd) -> BDD {
-        return bdd *= clauses;
-    });
-    for (unsigned int level = 1; level <= removedVertices.size(); level++) {
-        for (const BDD b : removedVertices[level - 1]) {
-            remove(c, b, level);
-        }
-    }
+void BaseNSFManager::removeApply(Computation& c, const std::vector<std::vector<BDD>>& removedVertices, const BDD& clauses) {
+    apply(c, clauses);
+    remove(c, removedVertices);
 }
 
-void BaseNSFManager::optimize(Computation &c) const {
+void BaseNSFManager::optimize(Computation &c) {
     if (!c.isLeaf()) {
         for (Computation* cC : c.nestedSet()) {
             optimize(*cC);
@@ -161,54 +157,11 @@ void BaseNSFManager::optimize(Computation &c) const {
     compressConjunctive(c);
 }
 
-//bool BaseNSFManager::split(Computation& c) const {
-//    if (c.removeCache().empty()) {
-//        return false;
-//    }
-//    if (!c.isLeaf() && (maxNSFSizeEstimation > optMaxNSFSize.getValue())) {
-//        return false;
-//    }
-//    if (app.enumerate() && c.level() == 1 && c.quantifier() == NTYPE::EXISTS) {
-//        return false;
-//    }
-//    if (c.isLeaf()) {
-//        BDD cube = app.getBDDManager().getManager().bddOne();
-//        for (BDD b : c.removeCache()) cube *= b;
-//        c._removeCache.clear();
-//        if (c.isExistentiallyQuantified()) {
-//            c._value = std::move(c.value().ExistAbstract(cube, 0));
-//        } else {
-//            c._value = std::move(c.value().UnivAbstract(cube));
-//        }
-//        return false;
-//    } else {
-//        BDD variable = c.removeCache().back();
-//        c._removeCache.pop_back();
-//
-//        std::vector<Computation*> newComps;
-//        for (Computation* cC : c.nestedSet()) {
-//            Computation* cop = copyComputation(*cC);
-//            apply(*cC, [&variable] (BDD b) -> BDD {
-//                return b.Restrict(variable);
-//            });
-//            apply(*cop, [&variable] (BDD b) -> BDD {
-//                return b.Restrict(!variable);
-//            });
-//            newComps.push_back(cop);
-//        }
-//        for (Computation* newC : newComps) {
-//            c.insert(newC);
-//        }
-//        return true;
-//    }
-//
-//}
-
 /**
  * We expect an alternating quantifier sequence!
  * 
  **/
-int BaseNSFManager::compressConjunctive(Computation &c) const {
+int BaseNSFManager::compressConjunctive(Computation &c) {
     int depth = c.depth();
 
     if (depth == 0) {
@@ -216,16 +169,11 @@ int BaseNSFManager::compressConjunctive(Computation &c) const {
     } else {
         int subsetChecksSuccessful = 0;
 
-        std::list<Computation *> list(c.nestedSet().begin(), c.nestedSet().end());
-
-        std::list<Computation*>::iterator it1;
-        std::list<Computation*>::iterator it2;
-
-        // TODO Size
-        // TODO Removal cache
-
-        std::list<Computation *>::const_iterator end = list.end();
-        for (it1 = list.begin(); it1 != end;) {
+        std::vector<Computation*>::iterator it1;
+        std::vector<Computation*>::iterator it2;
+        std::vector<Computation*>::iterator end = c._nestedSet.end();
+        
+        for (it1 = c._nestedSet.begin(); it1 != end;) {
             Computation* c1 = *it1;
             bool deleteIt1 = false;
             it2 = it1;
@@ -236,41 +184,28 @@ int BaseNSFManager::compressConjunctive(Computation &c) const {
                 // to be fixed when q-resolution is implemented
                 bool deleteIt2 = false;
                 if (depth > 1 || c.isUniversiallyQuantified()) {
-                    //                    if (optimizeNow(false)) {
                     if (*(c1) <= c2) {
-                        subsetChecksSuccessful++;
                         deleteIt2 = true;
-                    }
-                    //                    } else if (optimizeNow(true)) {
-                    if (c2 <= *(c1)) {
-                        subsetChecksSuccessful++;
+                    } else if (c2 <= *(c1)) {
                         deleteIt1 = true;
-                        //                        }
                     }
-
                 } else {
-                    //                    if (optimizeNow(true)) {
                     if (c2 <= *(c1)) {
-                        subsetChecksSuccessful++;
                         deleteIt2 = true;
-                    }
-                    //                    } else if (optimizeNow(false)) {
-                    if (*(c1) <= c2) {
-                        subsetChecksSuccessful++;
+                    } else if (*(c1) <= c2) {
                         deleteIt1 = true;
                     }
-                    //                    }
-
                 }
                 if (deleteIt2) {
-                    delete *it2;
-                    it2 = list.erase(it2);
-                    end = list.end();
+                    subsetChecksSuccessful++;
+                    delete *it2;                    
+                    end--;
+                    std::iter_swap(it2, end);
                 } else if (deleteIt1) {
+                    subsetChecksSuccessful++;
                     delete *it1;
-                    it1 = list.erase(it1);
-                    c1 = *it1;
-                    end = list.end();
+                    end--;
+                    std::iter_swap(it1, end);
                     break;
                 } else {
                     it2++;
@@ -280,14 +215,12 @@ int BaseNSFManager::compressConjunctive(Computation &c) const {
                 it1++;
             }
         }
-        c._nestedSet.clear();
-        std::vector<Computation *> tmp(std::make_move_iterator(list.begin()), std::make_move_iterator(list.end()));
-        c._nestedSet = tmp;
+        c._nestedSet.resize(end - c._nestedSet.begin());
         return subsetChecksSuccessful;
     }
 }
 
-const BDD BaseNSFManager::evaluateNSF(const std::vector<BDD>& cubesAtlevels, const Computation& c, bool keepFirstLevel) const {
+const BDD BaseNSFManager::evaluateNSF(const Computation& c, const std::vector<BDD>& cubesAtlevels, bool keepFirstLevel) {
     BDD ret;
     if (c.isLeaf()) {
         ret = c.value();
@@ -295,12 +228,12 @@ const BDD BaseNSFManager::evaluateNSF(const std::vector<BDD>& cubesAtlevels, con
         if (c.isExistentiallyQuantified()) {
             ret = app.getBDDManager().getManager().bddZero();
             for (Computation * cC : c.nestedSet()) {
-                ret += evaluateNSF(cubesAtlevels, *cC, keepFirstLevel);
+                ret += evaluateNSF(*cC, cubesAtlevels, keepFirstLevel);
             }
         } else {
             ret = app.getBDDManager().getManager().bddOne();
             for (Computation * cC : c.nestedSet()) {
-                ret *= evaluateNSF(cubesAtlevels, *cC, keepFirstLevel);
+                ret *= evaluateNSF(*cC, cubesAtlevels, keepFirstLevel);
             }
         }
     }

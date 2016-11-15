@@ -53,18 +53,30 @@ HeuristicNSFManager::~HeuristicNSFManager() {
     printStatistics();
 }
 
-Computation* HeuristicNSFManager::copyComputation(const Computation& c) const {
+Computation* HeuristicNSFManager::newComputation(const BDD& bdd) {
+    return BaseNSFManager::newComputation(bdd);
+}
+
+Computation* HeuristicNSFManager::copyComputation(const Computation& c) {
     Computation* nC = BaseNSFManager::copyComputation(c);
     maxNSFSizeEstimation *= nC->leavesCount();
     return nC;
 }
 
-Computation* HeuristicNSFManager::conjunct(Computation& c1, Computation& c2) const {
+void HeuristicNSFManager::apply(Computation& c, std::function<BDD(const BDD&)> f) {
+    BaseNSFManager::apply(c,f);
+}
+
+void HeuristicNSFManager::apply(Computation& c, const BDD& clauses) {
+    BaseNSFManager::apply(c,clauses);
+}
+
+Computation* HeuristicNSFManager::conjunct(Computation& c1, Computation& c2) {
     if (c1.maxBDDsize() > optMaxBDDSize.getValue()) {
         int maxNSFSizeEstimationTmp = maxNSFSizeEstimation;
         int oldSize = c1.leavesCount();
         maxNSFSizeEstimation = 0;
-        split(c1);
+        //split(c1);
         maxNSFSizeEstimation = maxNSFSizeEstimationTmp / oldSize;
         if (maxNSFSizeEstimation <= 0) {
             maxNSFSizeEstimation = 1;
@@ -75,7 +87,7 @@ Computation* HeuristicNSFManager::conjunct(Computation& c1, Computation& c2) con
         int maxNSFSizeEstimationTmp = maxNSFSizeEstimation;
         int oldSize = c2.leavesCount();
         maxNSFSizeEstimation = 0;
-        split(c2);
+        //split(c2);
         maxNSFSizeEstimation = maxNSFSizeEstimationTmp / oldSize;
         if (maxNSFSizeEstimation <= 0) {
             maxNSFSizeEstimation = 1;
@@ -95,16 +107,7 @@ Computation* HeuristicNSFManager::conjunct(Computation& c1, Computation& c2) con
     return nC;
 }
 
-void HeuristicNSFManager::removeApply(Computation& c, const std::vector<std::vector<BDD>>& removedVertices, const BDD& clauses) const {
-    maxNSFSizeEstimation /= c.leavesCount();
-    if (maxNSFSizeEstimation <= 0) {
-        maxNSFSizeEstimation = 1;
-    }
-    BaseNSFManager::removeApply(c, removedVertices, clauses);
-    maxNSFSizeEstimation *= c.leavesCount();
-}
-
-void HeuristicNSFManager::remove(Computation& c, const BDD& variable, const unsigned int vl) const {
+void HeuristicNSFManager::remove(Computation& c, const BDD& variable, const unsigned int vl) {
     int oldSize = c.leavesCount();
     maxNSFSizeEstimation *= oldSize;
     BaseNSFManager::remove(c, variable, vl);
@@ -116,7 +119,20 @@ void HeuristicNSFManager::remove(Computation& c, const BDD& variable, const unsi
     maxNSFSizeEstimation *= c.leavesCount();    
 }
 
-void HeuristicNSFManager::optimize(Computation &c) const {
+void HeuristicNSFManager::remove(Computation& c, const std::vector<std::vector<BDD>>& removedVertices) {
+    BaseNSFManager::remove(c, removedVertices);
+}
+
+void HeuristicNSFManager::removeApply(Computation& c, const std::vector<std::vector<BDD>>& removedVertices, const BDD& clauses) {
+    maxNSFSizeEstimation /= c.leavesCount();
+    if (maxNSFSizeEstimation <= 0) {
+        maxNSFSizeEstimation = 1;
+    }
+    BaseNSFManager::removeApply(c, removedVertices, clauses);
+    maxNSFSizeEstimation *= c.leavesCount();
+}
+
+void HeuristicNSFManager::optimize(Computation &c) {
 //    rotateCheck++;
 //    if (optimizeNow(false) || optimizeNow(true)) {
         maxNSFSizeEstimation /= c.leavesCount();
@@ -125,8 +141,7 @@ void HeuristicNSFManager::optimize(Computation &c) const {
 //    }
 }
 
-bool HeuristicNSFManager::split(Computation& c) const {
-    return false; // TODo
+//bool HeuristicNSFManager::split(Computation& c) {
 //    if (c.removeCache().empty()) {
 //        return false;
 //    }
@@ -166,44 +181,18 @@ bool HeuristicNSFManager::split(Computation& c) const {
 //        }
 //        return true;
 //    }
-
-}
+//
+//}
 
 /**
  * We expect an alternating quantifier sequence!
  * 
  **/
-int HeuristicNSFManager::compressConjunctive(Computation &c) const {
-    int localSubsetChecksSuccessful= BaseNSFManager::compressConjunctive(c);
+int HeuristicNSFManager::compressConjunctive(Computation &c) {
+    int localSubsetChecksSuccessful = BaseNSFManager::compressConjunctive(c);
     subsetChecksSuccessful += localSubsetChecksSuccessful;
     return localSubsetChecksSuccessful;
 }
-
-
-//void NSFManager::pushBackQuantifier(const NTYPE quantifier) {
-//    quantifierSequence.push_back(quantifier);
-//}
-//
-//void NSFManager::pushFrontQuantifier(const NTYPE quantifier) {
-//    quantifierSequence.insert(quantifierSequence.begin(), quantifier);
-//}
-//
-//const NTYPE NSFManager::innermostQuantifier() const {
-//    return quantifier(quantifierCount());
-//}
-//
-//const NTYPE NSFManager::quantifier(const unsigned int level) const {
-//    if (level < 1 || level > quantifierCount()) {
-//        return NTYPE::UNKNOWN;
-//    }
-//    return quantifierSequence[level - 1];
-//}
-//
-//const unsigned int NSFManager::quantifierCount() const {
-//    return quantifierSequence.size();
-//}
-
-
 
 //bool NSFManager::optimizeNow(bool half) const {
 //    int rotateCheckInterval = optOptimizeInterval.getValue();
@@ -223,6 +212,10 @@ int HeuristicNSFManager::compressConjunctive(Computation &c) const {
 //    return checking;
 //}
 
+const BDD HeuristicNSFManager::evaluateNSF(const Computation& c, const std::vector<BDD>& cubesAtlevels, bool keepFirstLevel) {
+    return BaseNSFManager::evaluateNSF(c, cubesAtlevels, keepFirstLevel);
+}
+
 void HeuristicNSFManager::printStatistics() const {
     if (!optPrintStats.isUsed()) {
         return;
@@ -232,3 +225,17 @@ void HeuristicNSFManager::printStatistics() const {
     std::cout << "Number of successful subset checks: " << subsetChecksSuccessful << std::endl;
     std::cout << "Subset check success rate: " << ((subsetChecksSuccessful * 1.0) / subsetChecks)*100 << std::endl;
 }
+
+//void HeuristicNSFManager::addToRemoveCache(const BDD& variable, const unsigned int vl) {
+//    removeCache[vl - 1].push_back(variable);
+//}
+//
+//BDD HeuristicNSFManager::popFromRemoveCache(const unsigned int vl) {
+//    BDD b = removeCache[vl - 1].back();
+//    removeCache.pop_back();
+//    return b;
+//}
+//
+//bool HeuristicNSFManager::isEmptyAtRemoveCacheLevel(const unsigned int vl) {
+//    return removeCache[vl - 1].empty();
+//}

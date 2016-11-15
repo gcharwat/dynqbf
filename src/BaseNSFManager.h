@@ -34,31 +34,31 @@ class Computation;
 class BaseNSFManager {
 public:
     BaseNSFManager(Application& app);
-    virtual ~BaseNSFManager() = 0;
+    virtual ~BaseNSFManager();
     
-    virtual Computation* newComputation(const BDD& bdd) const;
-    virtual Computation* copyComputation(const Computation& c) const;
+    virtual Computation* newComputation(const BDD& bdd);
+    virtual Computation* copyComputation(const Computation& c);
     
-    virtual void apply(Computation& c, std::function<BDD(const BDD&)> f) const;
-    virtual void apply(Computation& c, const BDD& clauses) const;
+    virtual void apply(Computation& c, std::function<BDD(const BDD&)> f);
+    virtual void apply(Computation& c, const BDD& clauses);
     
-    virtual Computation* conjunct(Computation& c1, Computation& c2) const;
+    virtual Computation* conjunct(Computation& c1, Computation& c2);
     
-    virtual void remove(Computation& c, const BDD& variable, const unsigned int vl) const;
-    virtual void remove(Computation& c, const std::vector<std::vector<BDD>>& removedVertices) const;
-    virtual void removeApply(Computation& c, const std::vector<std::vector<BDD>>& removedVertices, const BDD& clauses) const;
+    virtual void remove(Computation& c, const BDD& variable, const unsigned int vl);
+    virtual void remove(Computation& c, const std::vector<std::vector<BDD>>& removedVertices);
+    virtual void removeApply(Computation& c, const std::vector<std::vector<BDD>>& removedVertices, const BDD& clauses);
     
-    virtual const BDD evaluateNSF(const std::vector<BDD>& cubesAtlevels, const Computation& c, bool keepFirstLevel) const;
+    virtual const BDD evaluateNSF(const Computation& c, const std::vector<BDD>& cubesAtlevels, bool keepFirstLevel);
 
-    virtual void optimize(Computation &c) const;
+    virtual void optimize(Computation &c);
 
 protected:
     Application& app;
 
-    int compressConjunctive(Computation &c) const;
+    virtual int compressConjunctive(Computation &c);
 
 private:
-    Computation* newComputationRec(unsigned int level, const BDD& bdd) const; // OK
+    Computation* newComputationRec(unsigned int level, const BDD& bdd); // OK
 };
 
 

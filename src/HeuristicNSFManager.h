@@ -37,34 +37,33 @@ public:
     HeuristicNSFManager(Application& app);
     ~HeuristicNSFManager();
     
-    virtual Computation* copyComputation(const Computation& c) const override;
-    virtual Computation* conjunct(Computation& c1, Computation& c2) const override;
-    virtual void remove(Computation& c, const BDD& variable, const unsigned int vl) const override;
-
+    Computation* newComputation(const BDD& bdd) override;
+    Computation* copyComputation(const Computation& c) override;
     
-    virtual void removeApply(Computation& c, const std::vector<std::vector<BDD>>& removedVertices, const BDD& clauses) const override;
+    void apply(Computation& c, std::function<BDD(const BDD&)> f) override;
+    void apply(Computation& c, const BDD& clauses) override;
+    
+    Computation* conjunct(Computation& c1, Computation& c2) override;
+    
+    void remove(Computation& c, const BDD& variable, const unsigned int vl) override;
+    void remove(Computation& c, const std::vector<std::vector<BDD>>& removedVertices) override;
+    void removeApply(Computation& c, const std::vector<std::vector<BDD>>& removedVertices, const BDD& clauses) override;
+    
+    const BDD evaluateNSF(const Computation& c, const std::vector<BDD>& cubesAtlevels, bool keepFirstLevel) override;
 
-
-    void optimize(Computation &c) const;
-
-
-//    void printStatistics() const;
+    void optimize(Computation &c) override;
 
 protected:
 
-    bool split(Computation& c) const;
-    int compressConjunctive(Computation &c) const;
-
-private:
+    int compressConjunctive(Computation &c) override;
     void printStatistics() const;
 
-//    void removeApplyRec(Computation& c, std::vector<std::vector<BDD>> removedVertices, BDD restrict, const BDD& clauses) const;
-//    void optimizeRec(Computation &c) const;
-    void removeRec(Computation& c, const BDD& variable, const unsigned int vl) const;
-//    bool optimizeNow(bool half) const;
-
-//    mutable std::vector<Computation*> computationStore;
+private:
     
+//    void addToRemoveCache(const BDD& variable, const unsigned int vl);
+//    BDD popFromRemoveCache(const unsigned int vl);
+//    bool isEmptyAtRemoveCacheLevel(const unsigned int vl);
+
     static const std::string NSFMANAGER_SECTION;
 
     options::Option optPrintStats;
@@ -73,10 +72,11 @@ private:
     options::DefaultIntegerValueOption optOptimizeInterval;
     options::Option optSortBeforeJoining;
     
-    mutable unsigned long subsetChecks;
-    mutable unsigned long subsetChecksSuccessful;
-    mutable int maxNSFSizeEstimation;
+    unsigned long subsetChecks;
+    unsigned long subsetChecksSuccessful;
+    unsigned long maxNSFSizeEstimation;
 
+//    std::deque<htd::vertex_t> removeCache;
 };
 
 

@@ -29,6 +29,7 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "Application.h"
 #include "BDDManager.h"
 #include "HeuristicNSFManager.h"
+#include "BaseNSFManager.h"
 #include "Computation.h"
 #include "AbortException.h"
 

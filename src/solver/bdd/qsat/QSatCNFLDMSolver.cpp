@@ -48,7 +48,7 @@ namespace solver {
 
                 HTDDecompositionPtr decomposition = app.getDecomposition();
                 const SolverFactory& varMap = (app.getSolverFactory());
-                const BaseNSFManager& nsfMan = app.getNSFManager();
+                BaseNSFManager& nsfMan = app.getNSFManager();
 
                 Computation* cC = NULL;
 
@@ -103,7 +103,7 @@ namespace solver {
                     const std::vector<BDD> cubesAtLevels = getCubesAtLevels(currentNode);
 
                     app.getPrinter().solverIntermediateEvent(currentNode, *cC, "checking unsat");
-                    BDD decide = nsfMan.evaluateNSF(cubesAtLevels, *cC, false);
+                    BDD decide = nsfMan.evaluateNSF(*cC, cubesAtLevels, false);
                     app.getPrinter().solverIntermediateEvent(currentNode, *cC, "checking unsat - done");
                     if (decide == app.getBDDManager().getManager().bddZero()) {
                         throw AbortException("Intermediate unsat check successful", RESULT::UNSAT);
@@ -188,7 +188,7 @@ namespace solver {
                 for (unsigned int i = 0; i < app.getInputInstance()->quantifierCount(); i++) {
                     cubesAtlevels.push_back(manager.bddOne());
                 }
-                BDD decide = nsfManager.evaluateNSF(cubesAtlevels, c, false);
+                BDD decide = nsfManager.evaluateNSF(c, cubesAtlevels, false);
                 if (decide == manager.bddZero()) {
                     return RESULT::UNSAT;
                 } else if (decide == manager.bddOne()) {
@@ -205,7 +205,7 @@ namespace solver {
                 for (unsigned int i = 0; i < app.getInputInstance()->quantifierCount(); i++) {
                     cubesAtlevels.push_back(app.getBDDManager().getManager().bddOne());
                 }
-                return nsfManager.evaluateNSF(cubesAtlevels, c, true);
+                return nsfManager.evaluateNSF(c, cubesAtlevels, true);
             }
 
         }
