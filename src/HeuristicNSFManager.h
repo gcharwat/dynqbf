@@ -60,9 +60,18 @@ protected:
 
 private:
     
-//    void addToRemoveCache(const BDD& variable, const unsigned int vl);
-//    BDD popFromRemoveCache(const unsigned int vl);
-//    bool isEmptyAtRemoveCacheLevel(const unsigned int vl);
+    void addToRemoveCache(BDD variable, const unsigned int vl);
+    void addToRemoveCache(const std::vector<std::vector<BDD>>& variables);
+    BDD popFromRemoveCache(const unsigned int vl);
+    bool isEmptyAtRemoveCacheLevel(const unsigned int vl);
+    bool isEmptyRemoveCache();
+    
+    void divideMaxNSFSizeEstimation(int value);
+    void multiplyMaxNSFSizeEstimation(int value);
+    
+    bool isRemoveCacheReducible(Computation& c);
+    void reduceRemoveCache(Computation& c);
+    
 
     static const std::string NSFMANAGER_SECTION;
 
@@ -74,9 +83,9 @@ private:
     
     unsigned long subsetChecks;
     unsigned long subsetChecksSuccessful;
-    unsigned long maxNSFSizeEstimation;
+    long maxNSFSizeEstimation;
 
-//    std::deque<htd::vertex_t> removeCache;
+    std::vector<std::vector<BDD>>* removeCache;
 };
 
 

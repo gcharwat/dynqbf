@@ -47,9 +47,12 @@ HeuristicNSFManager::HeuristicNSFManager(Application& app)
     app.getOptionHandler().addOption(optMaxBDDSize, NSFMANAGER_SECTION);
     app.getOptionHandler().addOption(optSortBeforeJoining, NSFMANAGER_SECTION);
     app.getOptionHandler().addOption(optPrintStats, NSFMANAGER_SECTION);
+    
+    removeCache = new std::vector<std::vector<BDD>>;
 }
 
 HeuristicNSFManager::~HeuristicNSFManager() {
+    delete removeCache;
     printStatistics();
 }
 
@@ -59,7 +62,7 @@ Computation* HeuristicNSFManager::newComputation(const BDD& bdd) {
 
 Computation* HeuristicNSFManager::copyComputation(const Computation& c) {
     Computation* nC = BaseNSFManager::copyComputation(c);
-    maxNSFSizeEstimation *= nC->leavesCount();
+    multiplyMaxNSFSizeEstimation(nC->leavesCount());
     return nC;
 }
 
@@ -72,72 +75,61 @@ void HeuristicNSFManager::apply(Computation& c, const BDD& clauses) {
 }
 
 Computation* HeuristicNSFManager::conjunct(Computation& c1, Computation& c2) {
-    if (c1.maxBDDsize() > optMaxBDDSize.getValue()) {
-        int maxNSFSizeEstimationTmp = maxNSFSizeEstimation;
-        int oldSize = c1.leavesCount();
-        maxNSFSizeEstimation = 0;
-        //split(c1);
-        maxNSFSizeEstimation = maxNSFSizeEstimationTmp / oldSize;
-        if (maxNSFSizeEstimation <= 0) {
-            maxNSFSizeEstimation = 1;
-        }
-        maxNSFSizeEstimation *= c1.leavesCount();
-    }
-    if (c2.maxBDDsize() > optMaxBDDSize.getValue()) {
-        int maxNSFSizeEstimationTmp = maxNSFSizeEstimation;
-        int oldSize = c2.leavesCount();
-        maxNSFSizeEstimation = 0;
-        //split(c2);
-        maxNSFSizeEstimation = maxNSFSizeEstimationTmp / oldSize;
-        if (maxNSFSizeEstimation <= 0) {
-            maxNSFSizeEstimation = 1;
-        }
-        maxNSFSizeEstimation *= c2.leavesCount();
-    }
+//    if (c1.maxBDDsize() > optMaxBDDSize.getValue()) {
+//        int maxNSFSizeEstimationTmp = maxNSFSizeEstimation;
+//        int oldSize = c1.leavesCount();
+//        maxNSFSizeEstimation = 0;
+//        //split(c1);
+//        maxNSFSizeEstimation = maxNSFSizeEstimationTmp / oldSize;
+//        if (maxNSFSizeEstimation <= 0) {
+//            maxNSFSizeEstimation = 1;
+//        }
+//        maxNSFSizeEstimation *= c1.leavesCount();
+//    }
+//    if (c2.maxBDDsize() > optMaxBDDSize.getValue()) {
+//        int maxNSFSizeEstimationTmp = maxNSFSizeEstimation;
+//        int oldSize = c2.leavesCount();
+//        maxNSFSizeEstimation = 0;
+//        //split(c2);
+//        maxNSFSizeEstimation = maxNSFSizeEstimationTmp / oldSize;
+//        if (maxNSFSizeEstimation <= 0) {
+//            maxNSFSizeEstimation = 1;
+//        }
+//        maxNSFSizeEstimation *= c2.leavesCount();
+//    }
 
+    divideMaxNSFSizeEstimation(c1.leavesCount());
+    divideMaxNSFSizeEstimation(c2.leavesCount());
     Computation* nC = BaseNSFManager::conjunct(c1, c2);
     // TODO: propagate SORTBEFOREJOINING
-
-    maxNSFSizeEstimation /= c1.leavesCount();
-    maxNSFSizeEstimation /= c2.leavesCount();
-    if (maxNSFSizeEstimation <= 0) {
-        maxNSFSizeEstimation = 1;
-    }
-    maxNSFSizeEstimation *= nC->leavesCount();
+    multiplyMaxNSFSizeEstimation(nC->leavesCount());
+    
+    reduceRemoveCache(*nC);
     return nC;
 }
 
 void HeuristicNSFManager::remove(Computation& c, const BDD& variable, const unsigned int vl) {
-    int oldSize = c.leavesCount();
-    maxNSFSizeEstimation *= oldSize;
-    BaseNSFManager::remove(c, variable, vl);
-    maxNSFSizeEstimation /= oldSize;
-    maxNSFSizeEstimation /= oldSize;
-    if (maxNSFSizeEstimation <= 0) {
-        maxNSFSizeEstimation = 1;
-    }
-    maxNSFSizeEstimation *= c.leavesCount();    
+    addToRemoveCache(variable, vl);
+    reduceRemoveCache(c);
 }
 
 void HeuristicNSFManager::remove(Computation& c, const std::vector<std::vector<BDD>>& removedVertices) {
-    BaseNSFManager::remove(c, removedVertices);
+    addToRemoveCache(removedVertices);
+    reduceRemoveCache(c);
 }
 
 void HeuristicNSFManager::removeApply(Computation& c, const std::vector<std::vector<BDD>>& removedVertices, const BDD& clauses) {
-    maxNSFSizeEstimation /= c.leavesCount();
-    if (maxNSFSizeEstimation <= 0) {
-        maxNSFSizeEstimation = 1;
-    }
-    BaseNSFManager::removeApply(c, removedVertices, clauses);
-    maxNSFSizeEstimation *= c.leavesCount();
+    addToRemoveCache(removedVertices);
+    reduceRemoveCache(c);
+    apply(c, clauses);
 }
 
 void HeuristicNSFManager::optimize(Computation &c) {
 //    rotateCheck++;
 //    if (optimizeNow(false) || optimizeNow(true)) {
-        maxNSFSizeEstimation /= c.leavesCount();
+        divideMaxNSFSizeEstimation(c.leavesCount());
         BaseNSFManager::optimize(c);
-        maxNSFSizeEstimation *= c.leavesCount();
+        multiplyMaxNSFSizeEstimation(c.leavesCount());
 //    }
 }
 
@@ -226,16 +218,82 @@ void HeuristicNSFManager::printStatistics() const {
     std::cout << "Subset check success rate: " << ((subsetChecksSuccessful * 1.0) / subsetChecks)*100 << std::endl;
 }
 
-//void HeuristicNSFManager::addToRemoveCache(const BDD& variable, const unsigned int vl) {
-//    removeCache[vl - 1].push_back(variable);
-//}
-//
-//BDD HeuristicNSFManager::popFromRemoveCache(const unsigned int vl) {
-//    BDD b = removeCache[vl - 1].back();
-//    removeCache.pop_back();
-//    return b;
-//}
-//
-//bool HeuristicNSFManager::isEmptyAtRemoveCacheLevel(const unsigned int vl) {
-//    return removeCache[vl - 1].empty();
-//}
+bool HeuristicNSFManager::isRemoveCacheReducible(Computation& c) {
+    if (isEmptyRemoveCache()) {
+        return false;
+    } else if (c.maxBDDsize() > optMaxBDDSize.getValue()) {
+        return true;
+    } else if (maxNSFSizeEstimation < optMaxNSFSize.getValue()) {
+        return true;
+    }
+    return false;
+}
+
+void HeuristicNSFManager::reduceRemoveCache(Computation& c) {
+    while(isRemoveCacheReducible(c)) {
+        // TODO add options for removal strategies (orderings) here
+        for (unsigned int vl = removeCache->size(); vl >= 1; vl--) {
+            if (isEmptyAtRemoveCacheLevel(vl)) {
+                continue;
+            }
+            BDD toRemove = popFromRemoveCache(vl);
+            divideMaxNSFSizeEstimation(c.leavesCount());
+            BaseNSFManager::remove(c, toRemove, vl);    
+            multiplyMaxNSFSizeEstimation(c.leavesCount());
+            break;
+        }
+    }
+}
+
+void HeuristicNSFManager::addToRemoveCache(BDD variable, const unsigned int vl) {
+    if (removeCache->size() < vl) {
+        for (unsigned int i = removeCache->size(); i < vl; i++) {
+            std::vector<BDD> bddsAtLevel;
+            removeCache->push_back(bddsAtLevel);
+        }
+    }
+    removeCache->at(vl - 1).push_back(variable);
+}
+
+void HeuristicNSFManager::addToRemoveCache(const std::vector<std::vector<BDD>>& variables) {
+    for (unsigned int vl = 1; vl <= variables.size(); vl++) {
+        for (BDD variable : variables[vl-1]) {
+            addToRemoveCache(variable, vl);
+        }
+    }
+}
+
+BDD HeuristicNSFManager::popFromRemoveCache(const unsigned int vl) {
+    if (isEmptyAtRemoveCacheLevel(vl)) {
+        return app.getBDDManager().getManager().bddOne();
+    }
+    BDD b = removeCache->at(vl - 1).back();
+    removeCache->at(vl - 1).pop_back();
+    return b;
+}
+
+bool HeuristicNSFManager::isEmptyRemoveCache() {
+    for (unsigned int vl = 1; vl <= removeCache->size(); vl++) {
+        if (!isEmptyAtRemoveCacheLevel(vl))
+            return false;
+    }
+    return true;
+}
+
+bool HeuristicNSFManager::isEmptyAtRemoveCacheLevel(const unsigned int vl) {
+    if (removeCache->size() < vl) {
+        return true;
+    }
+    return removeCache->at(vl - 1).empty();
+}
+
+void HeuristicNSFManager::divideMaxNSFSizeEstimation(int value) {
+    maxNSFSizeEstimation /= value;
+    if (maxNSFSizeEstimation < 1) {
+        maxNSFSizeEstimation = 1;
+    }
+}
+    
+void HeuristicNSFManager::multiplyMaxNSFSizeEstimation(int value) {
+    maxNSFSizeEstimation *= value;
+}
