@@ -21,6 +21,7 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <htd/main.hpp>
 #include "../Application.h"
+#include "../Instance.h"
 
 namespace decomposer {
 

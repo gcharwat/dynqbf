@@ -30,16 +30,16 @@ namespace solver {
         : ::Solver(app) {
         }
 
-        Computation* DummySolver::compute(htd::vertex_t root) {
-            Computation* c = app.getNSFManager().newComputation(app.getBDDManager().getManager().bddOne());
+        TmpComputation* DummySolver::compute(htd::vertex_t root) {
+            TmpComputation* c = app.getNSFManager().newComputation(app.getInputInstance()->getQuantifierSequence(), app.getBDDManager().getManager().bddOne());
             return c;
         }
 
-        RESULT DummySolver::decide(const Computation& c) {
+        RESULT DummySolver::decide(const TmpComputation& c) {
             return RESULT::UNDECIDED;
         }
 
-        BDD DummySolver::solutions(const Computation& c) {
+        BDD DummySolver::solutions(const TmpComputation& c) {
             throw std::runtime_error("not implemented");
         }
 

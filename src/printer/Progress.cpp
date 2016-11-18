@@ -56,7 +56,7 @@ namespace printer {
         std::cout << "### Computation ###" << std::endl;
     }
     
-    void Progress::solverIntermediateEvent(const htd::vertex_t vertex, const Computation& computation, const std::string& message) {
+    void Progress::solverIntermediateEvent(const htd::vertex_t vertex, const TmpComputation& computation, const std::string& message) {
         int percentSolved = (tdComputedCount * 100) / app.getDecomposition()->vertexCount();
         std::size_t bagSize = app.getDecomposition()->bagSize(vertex);
         std::size_t introduced = app.getDecomposition()->introducedVertexCount(vertex);
@@ -68,7 +68,7 @@ namespace printer {
         std::cout << message << ".                       " << std::endl;
     }
 
-    void Progress::solverIntermediateEvent(const htd::vertex_t vertex, const Computation& c1, const Computation& c2, const std::string& message) {
+    void Progress::solverIntermediateEvent(const htd::vertex_t vertex, const TmpComputation& c1, const TmpComputation& c2, const std::string& message) {
         int percentSolved = (tdComputedCount * 100) / app.getDecomposition()->vertexCount();
         std::size_t bagSize = app.getDecomposition()->bagSize(vertex);
         std::size_t introduced = app.getDecomposition()->introducedVertexCount(vertex);
@@ -81,7 +81,7 @@ namespace printer {
         std::cout << message << ".                      " << std::endl;
     }
 
-    void Progress::solverInvocationResult(const htd::vertex_t vertex, const Computation& computation) {
+    void Progress::solverInvocationResult(const htd::vertex_t vertex, const TmpComputation& computation) {
         tdComputedCount++;
         int percentSolved = (tdComputedCount * 100) / app.getDecomposition()->vertexCount();
         std::size_t bagSize = app.getDecomposition()->bagSize(vertex);

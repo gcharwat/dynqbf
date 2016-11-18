@@ -25,7 +25,7 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
 //#include "Utils.h"
 #include "Application.h"
-#include "Computation.h"
+#include "TmpComputation.h"
 //#include "options/DefaultIntegerValueOption.h"
 
 class Application;
@@ -36,29 +36,26 @@ public:
     BaseNSFManager(Application& app);
     virtual ~BaseNSFManager();
     
-    virtual Computation* newComputation(const BDD& bdd);
-    virtual Computation* copyComputation(const Computation& c);
+    virtual TmpComputation* newComputation(const BDD& bdd);
+    virtual TmpComputation* copyComputation(const TmpComputation& c);
     
-    virtual void apply(Computation& c, std::function<BDD(const BDD&)> f);
-    virtual void apply(Computation& c, const BDD& clauses);
+    virtual void apply(TmpComputation& c, std::function<BDD(const BDD&)> f);
+    virtual void apply(TmpComputation& c, const BDD& clauses);
     
-    virtual Computation* conjunct(Computation& c1, Computation& c2);
+    virtual Computation* conjunct(TmpComputation& c1, TmpComputation& c2);
     
-    virtual void remove(Computation& c, const BDD& variable, const unsigned int vl);
-    virtual void remove(Computation& c, const std::vector<std::vector<BDD>>& removedVertices);
-    virtual void removeApply(Computation& c, const std::vector<std::vector<BDD>>& removedVertices, const BDD& clauses);
+    virtual void remove(TmpComputation& c, const BDD& variable, const unsigned int vl);
+    virtual void remove(TmpComputation& c, const std::vector<std::vector<BDD>>& removedVertices);
+    virtual void removeApply(TmpComputation& c, const std::vector<std::vector<BDD>>& removedVertices, const BDD& clauses);
     
-    virtual const BDD evaluateNSF(const Computation& c, const std::vector<BDD>& cubesAtlevels, bool keepFirstLevel);
+    virtual const BDD evaluateNSF(const TmpComputation& c, const std::vector<BDD>& cubesAtlevels, bool keepFirstLevel);
 
-    virtual void optimize(Computation &c);
+    virtual void optimize(TmpComputation &c);
 
 protected:
     Application& app;
 
-    virtual int compressConjunctive(Computation &c);
-
-private:
-    Computation* newComputationRec(unsigned int level, const BDD& bdd); // OK
+    virtual int compressConjunctive(TmpComputation &c);
 };
 
 

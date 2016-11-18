@@ -33,11 +33,11 @@ namespace solver {
             public:
                 QSatCNFEDMSolver(const Application& app, bool checkUnsat);
 
-                Computation* compute(htd::vertex_t vertex) override;
-                RESULT decide(const Computation& c) override;
-                BDD solutions(const Computation& c) override;
+                TmpComputation* compute(htd::vertex_t vertex) override;
+                RESULT decide(const TmpComputation& c) override;
+                BDD solutions(const TmpComputation& c) override;
 
-                const std::vector<BDD> getCubesAtLevels(htd::vertex_t currentNode) const;
+                std::vector<BDD> getCubesAtLevels(htd::vertex_t currentNode) const;
 //                bool isUnsat(const Computation& c);
 
             private:
@@ -49,11 +49,11 @@ namespace solver {
             public:
                 QSatCNFLDMSolver(const Application& app, bool checkUnsat);
 
-                Computation* compute(htd::vertex_t vertex) override;
-                RESULT decide(const Computation& c) override;
-                BDD solutions(const Computation& c) override;
+                TmpComputation* compute(htd::vertex_t vertex) override;
+                RESULT decide(const TmpComputation& c) override;
+                BDD solutions(const TmpComputation& c) override;
 
-                const std::vector<BDD> getCubesAtLevels(htd::vertex_t currentNode) const;
+                std::vector<BDD> getCubesAtLevels(htd::vertex_t currentNode) const;
 //                bool isUnsat(const Computation& c);
 
             private:

@@ -40,7 +40,7 @@ namespace solver {
             : ::Solver(app) {
             }
 
-            Computation* QSatBDDSolver::compute(htd::vertex_t currentNode) {
+            TmpComputation* QSatBDDSolver::compute(htd::vertex_t currentNode) {
 
                 BDD bdd = currentClauses();
 
@@ -71,7 +71,7 @@ namespace solver {
                     }
                 }
 
-                Computation* c = app.getNSFManager().newComputation(bdd);
+                TmpComputation* c = app.getNSFManager().newComputation(app.getInputInstance()->getQuantifierSequence(), bdd);
 
                 app.getPrinter().solverInvocationResult(currentNode, *c);
 
@@ -105,42 +105,21 @@ namespace solver {
                 return clauses;
             }
 
-            bool QSatBDDSolver::isUnsat(const Computation & c) {
-
-                if (c.isLeaf()) {
-                    return c.value().IsZero();
-                } else {
-                    for (const Computation* cC : c.nestedSet()) {
-                        bool unsatC = isUnsat(*cC);
-                        if (c.isExistentiallyQuantified() && !unsatC) {
-                            return false;
-                        } else if (c.isUniversiallyQuantified() && unsatC) { // FORALL
-                            return true;
-                        }
-                    }
-                    if (c.isExistentiallyQuantified()) {
-                        return true;
-                    } else {
-                        return false;
-                    }
-                }
-            }
-
-            RESULT QSatBDDSolver::decide(const Computation & c) {
-                if (isUnsat(c)) {
+            RESULT QSatBDDSolver::decide(const TmpComputation & c) {
+                if (c.isUnsat()) {
                     return RESULT::UNSAT;
                 } else {
                     return RESULT::SAT;
                 }
             }
 
-            BDD QSatBDDSolver::solutions(const Computation& c) {
-                if (c.isLeaf()) {
-                    return c.value();
-                } else {
-                    Computation * cC = c.nestedSet()[0];
-                    return solutions(*cC);
+            BDD QSatBDDSolver::solutions(const TmpComputation& c) {
+                TmpComputationManager& nsfManager = app.getNSFManager();
+                std::vector<BDD> cubesAtlevels;
+                for (unsigned int i = 0; i < app.getInputInstance()->quantifierCount(); i++) {
+                    cubesAtlevels.push_back(app.getBDDManager().getManager().bddOne());
                 }
+                return nsfManager.evaluate(c, cubesAtlevels, true);
             }
         }
     }

@@ -33,7 +33,7 @@ class Debug : public Printer
         Debug(Application& app, bool newDefault = false);
         
         virtual void beforeComputation() override;
-        virtual void solverInvocationResult(const htd::vertex_t vertex, const Computation& computation) override;
+        virtual void solverInvocationResult(const htd::vertex_t vertex, const TmpComputation& computation) override;
         
 };
     

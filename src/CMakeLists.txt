@@ -51,9 +51,10 @@ add_library(dynqbf-objects
     Instance.cpp
     Module.cpp
     BDDManager.cpp
-    BaseNSFManager.cpp
-    HeuristicNSFManager.cpp
-    Computation.cpp
+    NSF.cpp
+    TmpComputation.cpp
+    TmpCacheComputation.cpp
+    TmpComputationManager.cpp
     Variable.cpp
     HGInputParser.cpp
     parser/DIMACSDriver.cpp

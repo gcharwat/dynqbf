@@ -37,11 +37,11 @@ public:
     virtual void vertexOrdering(const std::vector<int>& ordering); // The vertex ordering
 
     virtual void beforeComputation();
-    virtual void solverIntermediateEvent(const htd::vertex_t vertex, const Computation& computation, const std::string& message);
-    virtual void solverIntermediateEvent(const htd::vertex_t vertex, const Computation& c1, const Computation& c2, const std::string& message);
-    virtual void solverInvocationResult(const htd::vertex_t vertex, const Computation& computation);
+    virtual void solverIntermediateEvent(const htd::vertex_t vertex, const TmpComputation& computation, const std::string& message);
+    virtual void solverIntermediateEvent(const htd::vertex_t vertex, const TmpComputation& c1, const TmpComputation& c2, const std::string& message);
+    virtual void solverInvocationResult(const htd::vertex_t vertex, const TmpComputation& computation);
     virtual void afterComputation();
-    virtual void resultComputation(const Computation& computation);
+    virtual void resultComputation(const TmpComputation& computation);
     virtual void result(const RESULT result);
 
     virtual void models(const BDD bdd, const std::vector<Variable> variables);

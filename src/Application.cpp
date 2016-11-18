@@ -28,9 +28,7 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "DynQBFConfig.h"
 #include "Application.h"
 #include "BDDManager.h"
-#include "HeuristicNSFManager.h"
-#include "BaseNSFManager.h"
-#include "Computation.h"
+#include "TmpComputationManager.h"
 #include "AbortException.h"
 
 #include "options/MultiValueOption.h"
@@ -151,7 +149,7 @@ int Application::run(int argc, char** argv) {
     //printer::Visualization visualizationPrinter(*this);
 
     bddManager = new BDDManager(*this);
-    nsfManager = new HeuristicNSFManager(*this);
+    nsfManager = new TmpComputationManager(*this);
     htdManager = htd::createManagementInstance(htd::Id::FIRST);
     
     time_t seed = time(0);
@@ -197,7 +195,7 @@ int Application::run(int argc, char** argv) {
         // Solve the problem
         printer->beforeComputation();
         std::unique_ptr<Solver> solver = solverFactory->newSolver();
-        Computation* computation = solver->compute(decomposition->root());
+        TmpComputation* computation = solver->compute(decomposition->root());
         printer->afterComputation();
 
         // Return result
@@ -348,7 +346,7 @@ BDDManager& Application::getBDDManager() const {
     return *bddManager;
 }
 
-BaseNSFManager& Application::getNSFManager() const {
+TmpComputationManager& Application::getNSFManager() const {
     return *nsfManager;
 }
 

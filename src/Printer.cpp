@@ -168,21 +168,21 @@ void Printer::vertexOrdering(const std::vector<int>& ordering) {
     std::cout << "]" << std::endl;
 }
 
-void Printer::solverInvocationResult(const htd::vertex_t vertex, const Computation& computation) {
+void Printer::solverInvocationResult(const htd::vertex_t vertex, const TmpComputation& computation) {
 }
 
-void Printer::solverIntermediateEvent(const htd::vertex_t vertex, const Computation& computation, const std::string& message) {
+void Printer::solverIntermediateEvent(const htd::vertex_t vertex, const TmpComputation& computation, const std::string& message) {
 }
 
-void Printer::solverIntermediateEvent(const htd::vertex_t vertex, const Computation& c1, const Computation& c2, const std::string& message) {
+void Printer::solverIntermediateEvent(const htd::vertex_t vertex, const TmpComputation& c1, const TmpComputation& c2, const std::string& message) {
 }
 
 void Printer::beforeComputation() {
 }
 
-void Printer::resultComputation(const Computation& computation) {
+void Printer::resultComputation(const TmpComputation& computation) {
     std::cout << "Computation: ";
-    computation.printCompact();
+    computation.print();
 }
 
 void Printer::result(const RESULT result) {

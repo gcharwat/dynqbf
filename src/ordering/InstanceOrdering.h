@@ -22,6 +22,7 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 #include "../Ordering.h"
+#include "../Instance.h"
 
 namespace ordering {
 

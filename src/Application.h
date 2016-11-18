@@ -24,7 +24,6 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "options/OptionHandler.h"
 #include "options/Choice.h"
 #include "Utils.h"
-#include "BaseNSFManager.h"
 
 #include <mtr.h>
 
@@ -47,6 +46,7 @@ class SolverFactory;
 class Printer;
 class BDDManager;
 class Instance;
+class TmpComputationManager;
 
 typedef std::shared_ptr<Instance> InstancePtr;
 typedef std::shared_ptr<htd::IMutableTreeDecomposition> HTDDecompositionPtr;
@@ -91,7 +91,7 @@ public:
     bool enumerate() const;
 
     BDDManager& getBDDManager() const;
-    BaseNSFManager& getNSFManager() const;
+    TmpComputationManager& getNSFManager() const;
     htd::LibraryInstance* getHTDManager() const;
     Decomposer& getDecomposer() const;
 
@@ -131,6 +131,6 @@ private:
     Printer* printer;
 
     BDDManager* bddManager;
-    BaseNSFManager* nsfManager;
+    TmpComputationManager* nsfManager;
     htd::LibraryInstance* htdManager;
 };
