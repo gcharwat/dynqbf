@@ -4,7 +4,7 @@ project (DYNQBF)
         
 # Set project version numbers
 set (DYNQBF_VERSION_MAJOR 0)
-set (DYNQBF_VERSION_MINOR 2)
+set (DYNQBF_VERSION_MINOR 3)
 
 # Configure the header file to pass some of the CMake settings to the source code
 configure_file (
@@ -69,6 +69,7 @@ add_library(dynqbf-objects
     decomposer/JoinNodeChildCountFitnessFunction.cpp
     decomposer/JoinNodeChildBagFitnessFunction.cpp
     decomposer/JoinNodeChildBagProductFitnessFunction.cpp
+    decomposer/JoinNodeChildRememberedProductFitnessFunction.cpp
     decomposer/JoinNodeBagFitnessFunction.cpp
     decomposer/JoinNodeCountFitnessFunction.cpp
     decomposer/WidthFitnessFunction.cpp

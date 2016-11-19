@@ -29,6 +29,7 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "JoinNodeChildCountFitnessFunction.h"
 #include "JoinNodeChildBagFitnessFunction.h"
 #include "JoinNodeChildBagProductFitnessFunction.h"
+#include "JoinNodeChildRememberedProductFitnessFunction.h"
 #include "JoinNodeBagFitnessFunction.h"
 #include "VariableLevelFitnessFunction.h"
 
@@ -89,6 +90,7 @@ namespace decomposer {
         optDecompositionFitnessFunction.addChoice("join-bag-size", "minimize the sum over join node bag sizes");
         optDecompositionFitnessFunction.addChoice("join-child-count", "minimize number of join node children");
         optDecompositionFitnessFunction.addChoice("join-child-bag-size", "minimize the sum over join node children bag sizes");
+        optDecompositionFitnessFunction.addChoice("join-child-remembered-product", "minimize the sum over products of elements remembered from child bags");
         optDecompositionFitnessFunction.addChoice("join-child-bag-size-product", "minimize the sum over products of join node children bag sizes");
         
         app.getOptionHandler().addOption(optDecompositionFitnessFunction, OPTION_SECTION);
@@ -177,6 +179,9 @@ namespace decomposer {
                 iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
             } else if (optDecompositionFitnessFunction.getValue() == "join-child-bag-size-product") {
                 JoinNodeChildBagProductFitnessFunction fitnessFunction;
+                iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
+            } else if (optDecompositionFitnessFunction.getValue() == "join-child-remembered-product") {
+                JoinNodeChildRememberedProductFitnessFunction fitnessFunction;
                 iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
             } else {
                 throw std::runtime_error("Invalid option");
