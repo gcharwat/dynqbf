@@ -23,36 +23,37 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <map>
 
-#include "Utils.h"
-#include "Application.h"
-#include "options/DefaultIntegerValueOption.h"
-#include "cuddObj.hh"
-#include "Instance.h"
+#include <cuddObj.hh>
+
+#include "../Utils.h"
+#include "../Application.h"
+#include "../options/DefaultIntegerValueOption.h"
+#include "../Instance.h"
+#include "Computation.h"
+#include "CacheComputation.h"
 
 class Application;
-class TmpComputation;
-class TmpCacheComputation;
 
-class TmpComputationManager {
+class ComputationManager {
 public:
-    TmpComputationManager(Application& app);
-    ~TmpComputationManager();
-    
-    TmpComputation* newComputation(const std::vector<NTYPE>& quantifierSequence, const BDD& bdd);
-    TmpComputation* copyComputation(const TmpComputation& c);
-    
-    void apply(TmpComputation& c, std::function<BDD(const BDD&)> f);
-    void apply(TmpComputation& c, const BDD& clauses);
-    
-    void conjunct(TmpComputation& c, const TmpComputation& other);
-    
-    void remove(TmpComputation& c, const BDD& variable, const unsigned int vl);
-    void remove(TmpComputation& c, const std::vector<std::vector<BDD>>& removedVertices);
-    void removeApply(TmpComputation& c, const std::vector<std::vector<BDD>>& removedVertices, const BDD& clauses);
-    
-    const BDD evaluate(const TmpComputation& c, std::vector<BDD>& cubesAtlevels, bool keepFirstLevel);
+    ComputationManager(Application& app);
+    ~ComputationManager();
 
-    void optimize(TmpComputation &c);
+    Computation* newComputation(const std::vector<NTYPE>& quantifierSequence, const BDD& bdd);
+    Computation* copyComputation(const Computation& c);
+
+    void apply(Computation& c, std::function<BDD(const BDD&)> f);
+    void apply(Computation& c, const BDD& clauses);
+
+    void conjunct(Computation& c, const Computation& other);
+
+    void remove(Computation& c, const BDD& variable, const unsigned int vl);
+    void remove(Computation& c, const std::vector<std::vector<BDD>>&removedVertices);
+    void removeApply(Computation& c, const std::vector<std::vector<BDD>>&removedVertices, const BDD& clauses);
+
+    const BDD evaluate(const Computation& c, std::vector<BDD>& cubesAtlevels, bool keepFirstLevel);
+
+    void optimize(Computation &c);
 
 protected:
 
@@ -60,10 +61,10 @@ protected:
 
 private:
     Application& app;
-    
+
     void divideMaxNSFSizeEstimation(int value);
     void multiplyMaxNSFSizeEstimation(int value);
-    
+
     static const std::string NSFMANAGER_SECTION;
 
     options::Option optPrintStats;
@@ -71,11 +72,11 @@ private:
     options::DefaultIntegerValueOption optMaxBDDSize;
     options::DefaultIntegerValueOption optOptimizeInterval;
     options::Option optSortBeforeJoining;
-    
+
     unsigned long subsetChecks;
     unsigned long subsetChecksSuccessful;
     long maxNSFSizeEstimation;
-    
+
     unsigned int optIntervalCounter;
 
 };

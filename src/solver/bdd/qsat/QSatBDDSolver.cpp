@@ -40,7 +40,7 @@ namespace solver {
             : ::Solver(app) {
             }
 
-            TmpComputation* QSatBDDSolver::compute(htd::vertex_t currentNode) {
+            Computation* QSatBDDSolver::compute(htd::vertex_t currentNode) {
 
                 BDD bdd = currentClauses();
 
@@ -71,7 +71,7 @@ namespace solver {
                     }
                 }
 
-                TmpComputation* c = app.getNSFManager().newComputation(app.getInputInstance()->getQuantifierSequence(), bdd);
+                Computation* c = app.getNSFManager().newComputation(app.getInputInstance()->getQuantifierSequence(), bdd);
 
                 app.getPrinter().solverInvocationResult(currentNode, *c);
 
@@ -105,7 +105,7 @@ namespace solver {
                 return clauses;
             }
 
-            RESULT QSatBDDSolver::decide(const TmpComputation & c) {
+            RESULT QSatBDDSolver::decide(const Computation & c) {
                 if (c.isUnsat()) {
                     return RESULT::UNSAT;
                 } else {
@@ -113,8 +113,8 @@ namespace solver {
                 }
             }
 
-            BDD QSatBDDSolver::solutions(const TmpComputation& c) {
-                TmpComputationManager& nsfManager = app.getNSFManager();
+            BDD QSatBDDSolver::solutions(const Computation& c) {
+                ComputationManager& nsfManager = app.getNSFManager();
                 std::vector<BDD> cubesAtlevels;
                 for (unsigned int i = 0; i < app.getInputInstance()->quantifierCount(); i++) {
                     cubesAtlevels.push_back(app.getBDDManager().getManager().bddOne());

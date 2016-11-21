@@ -22,6 +22,7 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include <sstream>
 #include <iostream>
 #include <list>
+#include <algorithm>
 
 #include "QSatCNFSolver.h"
 #include "../../../Application.h"
@@ -32,7 +33,6 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "cuddInt.h"
 #include "cudd.h"
 #include "htd/InducedSubgraphLabelingOperation.hpp"
-#include <algorithm>
 
 #include "../../../Utils.h"
 
@@ -45,26 +45,26 @@ namespace solver {
             , checkUnsat(checkUnsat) {
             }
 
-            TmpComputation* QSatCNFEDMSolver::compute(htd::vertex_t currentNode) {
+            Computation* QSatCNFEDMSolver::compute(htd::vertex_t currentNode) {
 
                 HTDDecompositionPtr decomposition = app.getDecomposition();
                 const SolverFactory& varMap = (app.getSolverFactory());
-                TmpComputationManager& nsfMan = app.getNSFManager();
+                ComputationManager& nsfMan = app.getNSFManager();
 
-                TmpComputation* cC = NULL;
+                Computation* cC = NULL;
 
                 if (decomposition->isLeaf(currentNode)) {
                     cC = nsfMan.newComputation(app.getInputInstance()->getQuantifierSequence(), currentClauses(currentNode));
                 } else {
                     bool first = true;
 
-                    std::vector<TmpComputation*> childComputations;
+                    std::vector<Computation*> childComputations;
                     for (const auto& child : decomposition->children(currentNode)) {
                         childComputations.push_back(compute(child));
                     }
                     for (unsigned int childIndex = 0; childIndex < decomposition->childCount(currentNode); childIndex++) {
                         htd::vertex_t child = decomposition->children(currentNode)[childIndex];
-                        TmpComputation* tmpOuter = childComputations[childIndex];
+                        Computation* tmpOuter = childComputations[childIndex];
 
                         app.getPrinter().solverIntermediateEvent(currentNode, *tmpOuter, "removing variables");
 
@@ -190,9 +190,9 @@ namespace solver {
 //                }
 //            }
 
-            RESULT QSatCNFEDMSolver::decide(const TmpComputation & c) {
+            RESULT QSatCNFEDMSolver::decide(const Computation & c) {
                 Cudd manager = app.getBDDManager().getManager();
-                TmpComputationManager& nsfManager = app.getNSFManager();
+                ComputationManager& nsfManager = app.getNSFManager();
 
                 std::vector<BDD> cubesAtlevels;
                 for (unsigned int i = 0; i < app.getInputInstance()->quantifierCount(); i++) {
@@ -209,8 +209,8 @@ namespace solver {
                 }
             }
 
-            BDD QSatCNFEDMSolver::solutions(const TmpComputation& c) {
-                TmpComputationManager& nsfManager = app.getNSFManager();
+            BDD QSatCNFEDMSolver::solutions(const Computation& c) {
+                ComputationManager& nsfManager = app.getNSFManager();
                 std::vector<BDD> cubesAtlevels;
                 for (unsigned int i = 0; i < app.getInputInstance()->quantifierCount(); i++) {
                     cubesAtlevels.push_back(app.getBDDManager().getManager().bddOne());

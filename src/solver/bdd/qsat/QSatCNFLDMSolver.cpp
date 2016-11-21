@@ -44,26 +44,26 @@ namespace solver {
                 std::cout << "Warning: Not tested/optimized" << std::endl;
             }
 
-            TmpComputation* QSatCNFLDMSolver::compute(htd::vertex_t currentNode) {
+            Computation* QSatCNFLDMSolver::compute(htd::vertex_t currentNode) {
 
                 HTDDecompositionPtr decomposition = app.getDecomposition();
                 const SolverFactory& varMap = (app.getSolverFactory());
-                TmpComputationManager& nsfMan = app.getNSFManager();
+                ComputationManager& nsfMan = app.getNSFManager();
 
-                TmpComputation* cC = NULL;
+                Computation* cC = NULL;
 
                 if (decomposition->isLeaf(currentNode)) {
                     cC = nsfMan.newComputation(app.getInputInstance()->getQuantifierSequence(), app.getBDDManager().getManager().bddOne());
                 } else {
                     bool first = true;
 
-                    std::vector<TmpComputation*> childComputations;
+                    std::vector<Computation*> childComputations;
                     for (const auto& child : decomposition->children(currentNode)) {
                         childComputations.push_back(compute(child));
                     }
                     for (unsigned int childIndex = 0; childIndex < decomposition->childCount(currentNode); childIndex++) {
                         htd::vertex_t child = decomposition->children(currentNode)[childIndex];
-                        TmpComputation* tmpOuter = childComputations[childIndex];
+                        Computation* tmpOuter = childComputations[childIndex];
 
                         app.getPrinter().solverIntermediateEvent(currentNode, *tmpOuter, "removing variables and introducing clauses");
 
@@ -178,9 +178,9 @@ namespace solver {
 //                }
 //            }
 
-            RESULT QSatCNFLDMSolver::decide(const TmpComputation & c) {
+            RESULT QSatCNFLDMSolver::decide(const Computation & c) {
                 Cudd manager = app.getBDDManager().getManager();
-                TmpComputationManager& nsfManager = app.getNSFManager();
+                ComputationManager& nsfManager = app.getNSFManager();
 
                 std::vector<BDD> cubesAtlevels;
                 for (unsigned int i = 0; i < app.getInputInstance()->quantifierCount(); i++) {
@@ -197,8 +197,8 @@ namespace solver {
                 }
             }
 
-            BDD QSatCNFLDMSolver::solutions(const TmpComputation& c) {
-                TmpComputationManager& nsfManager = app.getNSFManager();
+            BDD QSatCNFLDMSolver::solutions(const Computation& c) {
+                ComputationManager& nsfManager = app.getNSFManager();
                 std::vector<BDD> cubesAtlevels;
                 for (unsigned int i = 0; i < app.getInputInstance()->quantifierCount(); i++) {
                     cubesAtlevels.push_back(app.getBDDManager().getManager().bddOne());

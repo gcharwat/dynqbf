@@ -29,9 +29,9 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "cuddObj.hh"
 #include "htd/main.hpp"
 
-#include "Application.h"
-#include "BDDManager.h"
-#include "Instance.h"
+#include "../Application.h" // TODO Remove
+#include "../BDDManager.h"
+#include "../Instance.h"
 
 class NSF {
 public:
@@ -39,7 +39,7 @@ public:
 
     NSF(const NSF& other);
     NSF(unsigned int level, unsigned int depth, NTYPE type); // TODO: should not be public
-    
+
     bool operator==(const NSF& other) const;
     bool operator!=(const NSF& other) const;
     bool operator<=(const NSF& other) const;
@@ -50,7 +50,7 @@ public:
     const std::vector<NSF *>& nestedSet() const;
     void insertNSF(NSF * nsf);
     void removeNSF(NSF * nsf);
-    
+
     unsigned int depth() const;
     unsigned int level() const;
     NTYPE quantifier() const;
@@ -64,28 +64,28 @@ public:
 
     void print() const;
     void printCompact() const;
-    
-    
+
+
     void apply(std::function<BDD(const BDD&)> f);
     void apply(const BDD& clauses);
-    
+
     void conjunct(const NSF& other);
-    
+
     void remove(const BDD& variable, const unsigned int vl);
-    void remove(const std::vector<std::vector<BDD>>& removedVertices);
-    void removeApply(const std::vector<std::vector<BDD>>& removedVertices, const BDD& clauses);
-    
+    void remove(const std::vector<std::vector<BDD>>&removedVertices);
+    void removeApply(const std::vector<std::vector<BDD>>&removedVertices, const BDD& clauses);
+
     const BDD evaluate(const Application& app, const std::vector<BDD>& cubesAtlevels, const bool keepFirstLevel) const;
     bool isUnsat() const;
 
     void optimize();
 
 protected:
-    
-    
+
+
     int compressConjunctive();
 
-    
+
 private:
     unsigned int _level;
     unsigned int _depth;

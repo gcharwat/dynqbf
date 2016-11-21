@@ -34,7 +34,7 @@ namespace printer {
         std::cout << "### Computation ###" << std::endl;
     }
     
-    void Debug::solverInvocationResult(const htd::vertex_t vertex, const TmpComputation& computation) {
+    void Debug::solverInvocationResult(const htd::vertex_t vertex, const Computation& computation) {
         std::cout << "Node " << vertex << ": " << std::endl;
         computation.print();
         std::cout << std::endl;

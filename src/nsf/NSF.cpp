@@ -247,7 +247,7 @@ void NSF::printCompact() const {
 
 void NSF::apply(std::function<BDD(const BDD&)> f) {
     if (isLeaf()) {
-//        _value = std::move(f(value()));
+        //        _value = std::move(f(value()));
         _value = f(_value);
     } else {
         for (NSF* n : nestedSet()) {

@@ -46,7 +46,7 @@ class SolverFactory;
 class Printer;
 class BDDManager;
 class Instance;
-class TmpComputationManager;
+class ComputationManager;
 
 typedef std::shared_ptr<Instance> InstancePtr;
 typedef std::shared_ptr<htd::IMutableTreeDecomposition> HTDDecompositionPtr;
@@ -91,7 +91,7 @@ public:
     bool enumerate() const;
 
     BDDManager& getBDDManager() const;
-    TmpComputationManager& getNSFManager() const;
+    ComputationManager& getNSFManager() const;
     htd::LibraryInstance* getHTDManager() const;
     Decomposer& getDecomposer() const;
 
@@ -131,6 +131,6 @@ private:
     Printer* printer;
 
     BDDManager* bddManager;
-    TmpComputationManager* nsfManager;
+    ComputationManager* nsfManager;
     htd::LibraryInstance* htdManager;
 };

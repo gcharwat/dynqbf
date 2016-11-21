@@ -24,9 +24,9 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 
 #include "cuddObj.hh"
-#include "TmpComputation.h"
 #include "Application.h"
-#include "TmpComputationManager.h"
+#include "nsf/Computation.h"
+#include "nsf/ComputationManager.h"
 
 class Application;
 
@@ -40,11 +40,11 @@ public:
     Solver(const Application& app);
 
     // Return the computation for the current decomposition vertex
-    virtual TmpComputation* compute(htd::vertex_t) = 0;
+    virtual Computation* compute(htd::vertex_t) = 0;
 
-    virtual RESULT decide(const TmpComputation& c) = 0;
+    virtual RESULT decide(const Computation& c) = 0;
 
-    virtual BDD solutions(const TmpComputation& c) = 0;
+    virtual BDD solutions(const Computation& c) = 0;
 
 protected:
     const Application& app;

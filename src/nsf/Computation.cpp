@@ -21,11 +21,9 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
 
-#include "TmpComputation.h"
-#include "SolverFactory.h"
-#include "TmpCacheComputation.h"
+#include "Computation.h"
 
-TmpComputation::TmpComputation(const std::vector<NTYPE>& quantifierSequence, const BDD& bdd) {
+Computation::Computation(const std::vector<NTYPE>& quantifierSequence, const BDD& bdd) {
     unsigned int level = quantifierSequence.size();
     unsigned int depth = 0;
     NSF* current = new NSF(level, depth, quantifierSequence.at(level - 1));
@@ -40,62 +38,62 @@ TmpComputation::TmpComputation(const std::vector<NTYPE>& quantifierSequence, con
     _nsf = current;
 }
 
-TmpComputation::TmpComputation(const TmpComputation& other) {
+Computation::Computation(const Computation& other) {
     _nsf = new NSF(*(other._nsf));
 }
 
-TmpComputation::~TmpComputation() {
+Computation::~Computation() {
     delete _nsf;
 }
 
-void TmpComputation::apply(std::function<BDD(const BDD&)> f) {
+void Computation::apply(std::function<BDD(const BDD&)> f) {
     _nsf->apply(f);
 }
 
-void TmpComputation::apply(const BDD& clauses) {
+void Computation::apply(const BDD& clauses) {
     _nsf->apply(clauses);
 }
 
-void TmpComputation::conjunct(const TmpComputation& other) {
+void Computation::conjunct(const Computation& other) {
     _nsf->conjunct(*(other._nsf));
 }
 
-void TmpComputation::remove(const BDD& variable, const unsigned int vl) {
+void Computation::remove(const BDD& variable, const unsigned int vl) {
     _nsf->remove(variable, vl);
 }
 
-void TmpComputation::remove(const std::vector<std::vector<BDD>>&removedVertices) {
+void Computation::remove(const std::vector<std::vector<BDD>>&removedVertices) {
     _nsf->remove(removedVertices);
 }
 
-void TmpComputation::removeApply(const std::vector<std::vector<BDD>>&removedVertices, const BDD& clauses) {
+void Computation::removeApply(const std::vector<std::vector<BDD>>&removedVertices, const BDD& clauses) {
     _nsf->removeApply(removedVertices, clauses);
 }
 
-void TmpComputation::optimize() {
+void Computation::optimize() {
     _nsf->optimize();
 }
 
-const unsigned int TmpComputation::maxBDDsize() const {
+const unsigned int Computation::maxBDDsize() const {
     return _nsf->maxBDDsize();
 }
 
-const unsigned int TmpComputation::leavesCount() const {
+const unsigned int Computation::leavesCount() const {
     return _nsf->leavesCount();
 }
 
-const unsigned int TmpComputation::nsfCount() const {
+const unsigned int Computation::nsfCount() const {
     return _nsf->nsfCount();
 }
 
-const BDD TmpComputation::evaluate(Application& app, std::vector<BDD>& cubesAtlevels, bool keepFirstLevel) const {
+const BDD Computation::evaluate(Application& app, std::vector<BDD>& cubesAtlevels, bool keepFirstLevel) const {
     return _nsf->evaluate(app, cubesAtlevels, keepFirstLevel);
 }
 
-bool TmpComputation::isUnsat() const {
+bool Computation::isUnsat() const {
     return _nsf->isUnsat();
 }
 
-void TmpComputation::print() const {
+void Computation::print() const {
     _nsf->print();
 }

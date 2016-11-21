@@ -20,41 +20,41 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "NSF.h"
-#include "TmpComputation.h"
+#include "Computation.h"
 
 #pragma once
 
-class TmpCacheComputation : public TmpComputation {
+class CacheComputation : public Computation {
 public:
-    TmpCacheComputation(const std::vector<NTYPE>& quantifierSequence, const BDD& bdd, unsigned int maxNSFsize, unsigned int maxBDDsize);
-    TmpCacheComputation(const TmpCacheComputation& other);
-    
-    ~TmpCacheComputation();
-    
-    virtual void conjunct(const TmpComputation& other) override;
-    
+    CacheComputation(const std::vector<NTYPE>& quantifierSequence, const BDD& bdd, unsigned int maxNSFsize, unsigned int maxBDDsize);
+    CacheComputation(const CacheComputation& other);
+
+    ~CacheComputation();
+
+    virtual void conjunct(const Computation& other) override;
+
     virtual void remove(const BDD& variable, const unsigned int vl) override;
-    virtual void remove(const std::vector<std::vector<BDD>>& removedVertices) override;
-    virtual void removeApply(const std::vector<std::vector<BDD>>& removedVertices, const BDD& clauses) override;
+    virtual void remove(const std::vector<std::vector<BDD>>&removedVertices) override;
+    virtual void removeApply(const std::vector<std::vector<BDD>>&removedVertices, const BDD& clauses) override;
 
     virtual const BDD evaluate(Application& app, std::vector<BDD>& cubesAtlevels, bool keepFirstLevel) const override;
-    
+
     virtual void optimize() override;
-    
+
     virtual void print() const override;
 
 private:
-    
+
     void addToRemoveCache(BDD variable, const unsigned int vl);
-    void addToRemoveCache(const std::vector<std::vector<BDD>>& variables);
+    void addToRemoveCache(const std::vector<std::vector<BDD>>&variables);
     BDD popFromRemoveCache(const unsigned int vl);
     bool isEmptyAtRemoveCacheLevel(const unsigned int vl);
     bool isEmptyRemoveCache();
-    
+
     bool isRemoveCacheReducible();
     void reduceRemoveCache();
-    
-    std::vector<std::vector<BDD>>* _removeCache;
+
+    std::vector<std::vector<BDD>>*_removeCache;
     unsigned int maxNSFsize;
     unsigned int maxBDDsize;
 };

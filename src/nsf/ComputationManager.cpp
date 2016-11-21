@@ -26,14 +26,13 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
  * XXX: removeCache handling
  */
 
-#include "Application.h"
-#include "TmpComputationManager.h"
-//#include "Computation.h"
-#include "TmpCacheComputation.h"
+#include "../Application.h"
+#include "ComputationManager.h"
+#include "CacheComputation.h"
 
-const std::string TmpComputationManager::NSFMANAGER_SECTION = "NSF Manager";
+const std::string ComputationManager::NSFMANAGER_SECTION = "NSF Manager";
 
-TmpComputationManager::TmpComputationManager(Application& app)
+ComputationManager::ComputationManager(Application& app)
 : app(app)
 , optPrintStats("print-NSF-stats", "Print NSF Manager statistics")
 , optMaxNSFSize("max-NSF-size", "s", "Split until NSF size <s> is reached", 1000)
@@ -51,90 +50,90 @@ TmpComputationManager::TmpComputationManager(Application& app)
     app.getOptionHandler().addOption(optPrintStats, NSFMANAGER_SECTION);
 }
 
-TmpComputationManager::~TmpComputationManager() {
+ComputationManager::~ComputationManager() {
     printStatistics();
 }
 
-TmpComputation* TmpComputationManager::newComputation(const std::vector<NTYPE>& quantifierSequence, const BDD& bdd) {
+Computation* ComputationManager::newComputation(const std::vector<NTYPE>& quantifierSequence, const BDD& bdd) {
     // TODO: dynamically return Computation with or without cache
-    return new TmpCacheComputation(quantifierSequence, bdd, optMaxNSFSize.getValue(), optMaxBDDSize.getValue());
-    //return new TmpComputation(quantifierSequence, bdd);
+    return new CacheComputation(quantifierSequence, bdd, optMaxNSFSize.getValue(), optMaxBDDSize.getValue());
+    //return new Computation(quantifierSequence, bdd);
 }
 
-TmpComputation* TmpComputationManager::copyComputation(const TmpComputation& c) {
-    TmpComputation* nC = new TmpComputation(c);
-//    multiplyMaxNSFSizeEstimation(nC->leavesCount());
+Computation* ComputationManager::copyComputation(const Computation& c) {
+    Computation* nC = new Computation(c);
+    //    multiplyMaxNSFSizeEstimation(nC->leavesCount());
     return nC;
 }
 
-void TmpComputationManager::apply(TmpComputation& c, std::function<BDD(const BDD&)> f) {
+void ComputationManager::apply(Computation& c, std::function<BDD(const BDD&)> f) {
     c.apply(f);
 }
 
-void TmpComputationManager::apply(TmpComputation& c, const BDD& clauses) {
+void ComputationManager::apply(Computation& c, const BDD& clauses) {
     c.apply(clauses);
 }
 
-void TmpComputationManager::conjunct(TmpComputation& c, const TmpComputation& other) {
+void ComputationManager::conjunct(Computation& c, const Computation& other) {
     c.conjunct(other);
-////    if (c1.maxBDDsize() > optMaxBDDSize.getValue()) {
-////        int maxNSFSizeEstimationTmp = maxNSFSizeEstimation;
-////        int oldSize = c1.leavesCount();
-////        maxNSFSizeEstimation = 0;
-////        //split(c1);
-////        maxNSFSizeEstimation = maxNSFSizeEstimationTmp / oldSize;
-////        if (maxNSFSizeEstimation <= 0) {
-////            maxNSFSizeEstimation = 1;
-////        }
-////        maxNSFSizeEstimation *= c1.leavesCount();
-////    }
-////    if (c2.maxBDDsize() > optMaxBDDSize.getValue()) {
-////        int maxNSFSizeEstimationTmp = maxNSFSizeEstimation;
-////        int oldSize = c2.leavesCount();
-////        maxNSFSizeEstimation = 0;
-////        //split(c2);
-////        maxNSFSizeEstimation = maxNSFSizeEstimationTmp / oldSize;
-////        if (maxNSFSizeEstimation <= 0) {
-////            maxNSFSizeEstimation = 1;
-////        }
-////        maxNSFSizeEstimation *= c2.leavesCount();
-////    }
-//
-//    divideMaxNSFSizeEstimation(c1.leavesCount());
-//    divideMaxNSFSizeEstimation(c2.leavesCount());
-//    Computation* nC = BaseNSFManager::conjunct(c1, c2);
-//    // TODO: propagate SORTBEFOREJOINING
-//    multiplyMaxNSFSizeEstimation(nC->leavesCount());
-//    
-//    reduceRemoveCache(*nC);
-//    return nC;
+    ////    if (c1.maxBDDsize() > optMaxBDDSize.getValue()) {
+    ////        int maxNSFSizeEstimationTmp = maxNSFSizeEstimation;
+    ////        int oldSize = c1.leavesCount();
+    ////        maxNSFSizeEstimation = 0;
+    ////        //split(c1);
+    ////        maxNSFSizeEstimation = maxNSFSizeEstimationTmp / oldSize;
+    ////        if (maxNSFSizeEstimation <= 0) {
+    ////            maxNSFSizeEstimation = 1;
+    ////        }
+    ////        maxNSFSizeEstimation *= c1.leavesCount();
+    ////    }
+    ////    if (c2.maxBDDsize() > optMaxBDDSize.getValue()) {
+    ////        int maxNSFSizeEstimationTmp = maxNSFSizeEstimation;
+    ////        int oldSize = c2.leavesCount();
+    ////        maxNSFSizeEstimation = 0;
+    ////        //split(c2);
+    ////        maxNSFSizeEstimation = maxNSFSizeEstimationTmp / oldSize;
+    ////        if (maxNSFSizeEstimation <= 0) {
+    ////            maxNSFSizeEstimation = 1;
+    ////        }
+    ////        maxNSFSizeEstimation *= c2.leavesCount();
+    ////    }
+    //
+    //    divideMaxNSFSizeEstimation(c1.leavesCount());
+    //    divideMaxNSFSizeEstimation(c2.leavesCount());
+    //    Computation* nC = BaseNSFManager::conjunct(c1, c2);
+    //    // TODO: propagate SORTBEFOREJOINING
+    //    multiplyMaxNSFSizeEstimation(nC->leavesCount());
+    //    
+    //    reduceRemoveCache(*nC);
+    //    return nC;
 }
 
-void TmpComputationManager::remove(TmpComputation& c, const BDD& variable, const unsigned int vl) {
+void ComputationManager::remove(Computation& c, const BDD& variable, const unsigned int vl) {
     c.remove(variable, vl);
 }
 
-void TmpComputationManager::remove(TmpComputation& c, const std::vector<std::vector<BDD>>& removedVertices) {
+void ComputationManager::remove(Computation& c, const std::vector<std::vector<BDD>>&removedVertices) {
     c.remove(removedVertices);
 }
 
-void TmpComputationManager::removeApply(TmpComputation& c, const std::vector<std::vector<BDD>>& removedVertices, const BDD& clauses) {
+void ComputationManager::removeApply(Computation& c, const std::vector<std::vector<BDD>>&removedVertices, const BDD& clauses) {
     c.removeApply(removedVertices, clauses);
 }
 
-void TmpComputationManager::optimize(TmpComputation &c) {
+void ComputationManager::optimize(Computation &c) {
     optIntervalCounter++;
     optIntervalCounter %= optOptimizeInterval.getValue();
-    
+
     if (optIntervalCounter == 0) {
         c.optimize();
     }
-////    rotateCheck++;
-////    if (optimizeNow(false) || optimizeNow(true)) {
-//        divideMaxNSFSizeEstimation(c.leavesCount());
-//        BaseNSFManager::optimize(c);
-//        multiplyMaxNSFSizeEstimation(c.leavesCount());
-////    }
+    ////    rotateCheck++;
+    ////    if (optimizeNow(false) || optimizeNow(true)) {
+    //        divideMaxNSFSizeEstimation(c.leavesCount());
+    //        BaseNSFManager::optimize(c);
+    //        multiplyMaxNSFSizeEstimation(c.leavesCount());
+    ////    }
 }
 
 //bool HeuristicNSFManager::split(Computation& c) {
@@ -184,7 +183,7 @@ void TmpComputationManager::optimize(TmpComputation &c) {
  * We expect an alternating quantifier sequence!
  * 
  **/
-//int TmpComputationManager::compressConjunctive(Computation &c) {
+//int ComputationManager::compressConjunctive(Computation &c) {
 //    int localSubsetChecksSuccessful = BaseNSFManager::compressConjunctive(c);
 //    subsetChecksSuccessful += localSubsetChecksSuccessful;
 //    return localSubsetChecksSuccessful;
@@ -208,11 +207,11 @@ void TmpComputationManager::optimize(TmpComputation &c) {
 //    return checking;
 //}
 
-const BDD TmpComputationManager::evaluate(const TmpComputation& c, std::vector<BDD>& cubesAtlevels, bool keepFirstLevel) {
+const BDD ComputationManager::evaluate(const Computation& c, std::vector<BDD>& cubesAtlevels, bool keepFirstLevel) {
     return c.evaluate(app, cubesAtlevels, keepFirstLevel);
 }
 
-void TmpComputationManager::printStatistics() const {
+void ComputationManager::printStatistics() const {
     if (!optPrintStats.isUsed()) {
         return;
     }
@@ -222,13 +221,13 @@ void TmpComputationManager::printStatistics() const {
     std::cout << "Subset check success rate: " << ((subsetChecksSuccessful * 1.0) / subsetChecks)*100 << std::endl;
 }
 
-void TmpComputationManager::divideMaxNSFSizeEstimation(int value) {
+void ComputationManager::divideMaxNSFSizeEstimation(int value) {
     maxNSFSizeEstimation /= value;
     if (maxNSFSizeEstimation < 1) {
         maxNSFSizeEstimation = 1;
     }
 }
-    
-void TmpComputationManager::multiplyMaxNSFSizeEstimation(int value) {
+
+void ComputationManager::multiplyMaxNSFSizeEstimation(int value) {
     maxNSFSizeEstimation *= value;
 }

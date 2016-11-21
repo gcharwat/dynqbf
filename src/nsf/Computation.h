@@ -24,33 +24,33 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-class TmpComputation {
+class Computation {
 public:
-    TmpComputation(const std::vector<NTYPE>& quantifierSequence, const BDD& bdd);
-    TmpComputation(const TmpComputation& other);
-    
-    virtual ~TmpComputation();
-    
+    Computation(const std::vector<NTYPE>& quantifierSequence, const BDD& bdd);
+    Computation(const Computation& other);
+
+    virtual ~Computation();
+
     virtual void apply(std::function<BDD(const BDD&)> f);
     virtual void apply(const BDD& clauses);
-    
-    virtual void conjunct(const TmpComputation& other);
-    
+
+    virtual void conjunct(const Computation& other);
+
     virtual void remove(const BDD& variable, const unsigned int vl);
-    virtual void remove(const std::vector<std::vector<BDD>>& removedVertices);
-    virtual void removeApply(const std::vector<std::vector<BDD>>& removedVertices, const BDD& clauses);
-    
+    virtual void remove(const std::vector<std::vector<BDD>>&removedVertices);
+    virtual void removeApply(const std::vector<std::vector<BDD>>&removedVertices, const BDD& clauses);
+
     virtual const BDD evaluate(Application& app, std::vector<BDD>& cubesAtlevels, bool keepFirstLevel) const;
     bool isUnsat() const;
 
     virtual void optimize();
-    
+
     const unsigned int maxBDDsize() const;
     const unsigned int leavesCount() const;
     const unsigned int nsfCount() const;
 
     virtual void print() const;
-    
+
 protected:
-    NSF* _nsf;    
+    NSF* _nsf;
 };
