@@ -45,7 +45,7 @@ public:
     void apply(Computation& c, std::function<BDD(const BDD&)> f);
     void apply(Computation& c, const BDD& clauses);
 
-    void conjunct(Computation& c, const Computation& other);
+    void conjunct(Computation& c, Computation& other);
 
     void remove(Computation& c, const BDD& variable, const unsigned int vl);
     void remove(Computation& c, const std::vector<std::vector<BDD>>&removedVertices);
@@ -78,6 +78,7 @@ private:
     long maxNSFSizeEstimation;
 
     unsigned int optIntervalCounter;
+    bool left = true;
 
 };
 

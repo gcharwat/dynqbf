@@ -74,8 +74,13 @@ void ComputationManager::apply(Computation& c, const BDD& clauses) {
     c.apply(clauses);
 }
 
-void ComputationManager::conjunct(Computation& c, const Computation& other) {
+void ComputationManager::conjunct(Computation& c, Computation& other) {
+    if (optSortBeforeJoining.isUsed()) {
+        c.sortByIncreasingSize();
+        other.sortByIncreasingSize();
+    }
     c.conjunct(other);
+    
     ////    if (c1.maxBDDsize() > optMaxBDDSize.getValue()) {
     ////        int maxNSFSizeEstimationTmp = maxNSFSizeEstimation;
     ////        int oldSize = c1.leavesCount();
@@ -126,7 +131,8 @@ void ComputationManager::optimize(Computation &c) {
     optIntervalCounter %= optOptimizeInterval.getValue();
 
     if (optIntervalCounter == 0) {
-        c.optimize();
+        c.optimize(left);
+        left = !left;
     }
     ////    rotateCheck++;
     ////    if (optimizeNow(false) || optimizeNow(true)) {
@@ -135,49 +141,6 @@ void ComputationManager::optimize(Computation &c) {
     //        multiplyMaxNSFSizeEstimation(c.leavesCount());
     ////    }
 }
-
-//bool HeuristicNSFManager::split(Computation& c) {
-//    if (c.removeCache().empty()) {
-//        return false;
-//    }
-//    if (!c.isLeaf() && (maxNSFSizeEstimation > optMaxNSFSize.getValue())) {
-//        return false;
-//    }
-//    if (app.enumerate() && c.level() == 1 && c.quantifier() == NTYPE::EXISTS) {
-//        return false;
-//    }
-//    if (c.isLeaf()) {
-//        BDD cube = app.getBDDManager().getManager().bddOne();
-//        for (BDD b : c.removeCache()) cube *= b;
-//        c._removeCache.clear();
-//        if (c.isExistentiallyQuantified()) {
-//            c._value = std::move(c.value().ExistAbstract(cube, 0));
-//        } else {
-//            c._value = std::move(c.value().UnivAbstract(cube));
-//        }
-//        return false;
-//    } else {
-//        BDD variable = c.removeCache().back();
-//        c._removeCache.pop_back();
-//
-//        std::vector<Computation*> newComps;
-//        for (Computation* cC : c.nestedSet()) {
-//            Computation* cop = copyComputation(*cC);
-//            apply(*cC, [&variable] (BDD b) -> BDD {
-//                return b.Restrict(variable);
-//            });
-//            apply(*cop, [&variable] (BDD b) -> BDD {
-//                return b.Restrict(!variable);
-//            });
-//            newComps.push_back(cop);
-//        }
-//        for (Computation* newC : newComps) {
-//            c.insert(newC);
-//        }
-//        return true;
-//    }
-//
-//}
 
 /**
  * We expect an alternating quantifier sequence!

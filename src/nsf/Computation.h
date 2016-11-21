@@ -44,6 +44,8 @@ public:
     bool isUnsat() const;
 
     virtual void optimize();
+    virtual void optimize(bool left);
+    void sortByIncreasingSize();
 
     const unsigned int maxBDDsize() const;
     const unsigned int leavesCount() const;

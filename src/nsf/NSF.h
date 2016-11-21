@@ -70,6 +70,7 @@ public:
     void apply(const BDD& clauses);
 
     void conjunct(const NSF& other);
+    //    void conjunctOptimize(const NSF& other);
 
     void remove(const BDD& variable, const unsigned int vl);
     void remove(const std::vector<std::vector<BDD>>&removedVertices);
@@ -79,12 +80,14 @@ public:
     bool isUnsat() const;
 
     void optimize();
+    void optimize(bool left);
+    void sortByIncreasingSize();
 
 protected:
 
-
     int compressConjunctive();
-
+    int compressConjunctiveLeft();
+    int compressConjunctiveRight();
 
 private:
     unsigned int _level;

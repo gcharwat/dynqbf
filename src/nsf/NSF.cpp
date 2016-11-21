@@ -264,9 +264,10 @@ void NSF::apply(const BDD& clauses) {
 
 void NSF::conjunct(const NSF& other) {
     if (isLeaf()) {
-        _value *= other.value();
+        _value = std::move(_value * other._value);
     } else {
         std::vector<NSF*> newNestedSet;
+        newNestedSet.reserve(nestedSet().size() * other.nestedSet().size());
         for (NSF* n1 : nestedSet()) {
             for (NSF* n2 : other.nestedSet()) {
                 NSF* new1 = new NSF(*n1);
@@ -331,6 +332,19 @@ void NSF::optimize() {
     compressConjunctive();
 }
 
+void NSF::optimize(bool left) {
+    if (!isLeaf()) {
+        for (NSF* n : nestedSet()) {
+            n->optimize();
+        }
+    }
+    if (left) {
+        compressConjunctiveLeft();
+    } else {
+        compressConjunctiveRight();
+    }
+}
+
 /**
  * We expect an alternating quantifier sequence!
  * 
@@ -390,6 +404,113 @@ int NSF::compressConjunctive() {
         _nestedSet.resize(end - _nestedSet.begin());
         return subsetChecksSuccessful;
     }
+}
+
+/**
+ * We expect an alternating quantifier sequence!
+ * 
+ **/
+int NSF::compressConjunctiveRight() {
+    if (depth() == 0) {
+        return 0;
+    } else {
+        int subsetChecksSuccessful = 0;
+
+        std::vector<NSF*>::iterator it1;
+        std::vector<NSF*>::iterator it2;
+        std::vector<NSF*>::iterator end = _nestedSet.end();
+
+        for (it1 = _nestedSet.begin(); it1 != end;) {
+            NSF* c1 = *it1;
+            bool deleteIt1 = false;
+            it2 = it1;
+            it2++;
+            while (it2 != end) {
+                NSF& c2 = *(*it2);
+                // TODO special handling for innermost quantifier
+                // to be fixed when q-resolution is implemented
+                if (depth() > 1 || isUniversiallyQuantified()) {
+                    if (c2 <= *(c1)) {
+                        deleteIt1 = true;
+                    }
+                } else {
+                    if (*(c1) <= c2) {
+                        deleteIt1 = true;
+                    }
+                }
+                if (deleteIt1) {
+                    subsetChecksSuccessful++;
+                    delete *it1;
+                    end--;
+                    std::iter_swap(it1, end);
+                    break;
+                } else {
+                    it2++;
+                }
+            }
+            if (!deleteIt1) {
+                it1++;
+            }
+        }
+        _nestedSet.resize(end - _nestedSet.begin());
+        return subsetChecksSuccessful;
+    }
+}
+
+/**
+ * We expect an alternating quantifier sequence!
+ * 
+ **/
+int NSF::compressConjunctiveLeft() {
+    if (depth() == 0) {
+        return 0;
+    } else {
+        int subsetChecksSuccessful = 0;
+
+        std::vector<NSF*>::iterator it1;
+        std::vector<NSF*>::iterator it2;
+        std::vector<NSF*>::iterator end = _nestedSet.end();
+
+        for (it1 = _nestedSet.begin(); it1 != end;) {
+            NSF* c1 = *it1;
+            it2 = it1;
+            it2++;
+            while (it2 != end) {
+                NSF& c2 = *(*it2);
+                // TODO special handling for innermost quantifier
+                // to be fixed when q-resolution is implemented
+                bool deleteIt2 = false;
+                if (depth() > 1 || isUniversiallyQuantified()) {
+                    if (*(c1) <= c2) {
+                        deleteIt2 = true;
+                    }
+                } else {
+                    if (c2 <= *(c1)) {
+                        deleteIt2 = true;
+                    }
+                }
+                if (deleteIt2) {
+                    subsetChecksSuccessful++;
+                    delete *it2;
+                    end--;
+                    std::iter_swap(it2, end);
+                } else {
+                    it2++;
+                }
+            }
+            it1++;
+        }
+        _nestedSet.resize(end - _nestedSet.begin());
+        return subsetChecksSuccessful;
+    }
+}
+
+void NSF::sortByIncreasingSize() {
+    std::sort(_nestedSet.begin(), _nestedSet.end(), [] (const NSF* c1, const NSF * c2) -> bool {
+        long unsigned int c1Size = (c1->isLeaf() ? c1->maxBDDsize() : c1->nestedSet().size());
+        long unsigned int c2Size = (c2->isLeaf() ? c2->maxBDDsize() : c2->nestedSet().size());
+        return (c1Size < c2Size);
+    });
 }
 
 const BDD NSF::evaluate(const Application& app, const std::vector<BDD>& cubesAtlevels, const bool keepFirstLevel) const {

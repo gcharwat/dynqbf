@@ -74,6 +74,14 @@ void Computation::optimize() {
     _nsf->optimize();
 }
 
+void Computation::optimize(bool left) {
+    _nsf->optimize(left);
+}
+
+void Computation::sortByIncreasingSize() {
+    _nsf->sortByIncreasingSize();
+}
+
 const unsigned int Computation::maxBDDsize() const {
     return _nsf->maxBDDsize();
 }
