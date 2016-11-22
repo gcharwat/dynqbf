@@ -241,6 +241,7 @@ int Application::run(int argc, char** argv) {
 void Application::usage() const {
     std::cerr << "Version:          " << DYNQBF_VERSION_MAJOR << "." << DYNQBF_VERSION_MINOR << "." << DYNQBF_VERSION_PATCH << std::endl; 
     std::cerr << "Github Commit ID: " << DYNQBF_GIT_COMMIT_ID << std::endl;
+    std::cerr << " with HTD Commit: " << HTD_GIT_COMMIT_ID << std::endl;
     std::cerr << "Built on:         " << __DATE__ << " at " << __TIME__ << std::endl;
     std::cerr << "Usage: " << binaryName << " [options] < instance" << std::endl;
     opts.printHelp();
