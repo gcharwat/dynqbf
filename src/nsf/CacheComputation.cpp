@@ -126,6 +126,7 @@ void CacheComputation::addToRemoveCache(BDD variable, const unsigned int vl) {
     // always immediately remove innermost variables
     if (vl == _removeCache->size()) {
         Computation::remove(variable, vl);
+        return;
     }
     if (_removeCache->size() < vl) {
         for (unsigned int i = _removeCache->size(); i < vl; i++) {

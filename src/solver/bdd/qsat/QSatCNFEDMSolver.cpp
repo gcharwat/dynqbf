@@ -184,7 +184,7 @@ namespace solver {
             //                }
             //            }
 
-            RESULT QSatCNFEDMSolver::decide(const Computation & c) {
+            RESULT QSatCNFEDMSolver::decide(const Computation& c) {
                 Cudd manager = app.getBDDManager().getManager();
                 ComputationManager& nsfManager = app.getNSFManager();
 
