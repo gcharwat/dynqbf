@@ -94,9 +94,6 @@ namespace solver {
                             return bdd *= currentClauses;
                         });
                         app.getPrinter().solverIntermediateEvent(currentNode, *tmpOuter, "introducing clauses - done");
-//                        app.getPrinter().solverIntermediateEvent(currentNode, *tmpOuter, "optimizing");
-//                        nsfMan.optimize(*tmpOuter);
-//                        app.getPrinter().solverIntermediateEvent(currentNode, *tmpOuter, "optimizing - done");
 
                         if (first) {
                             cC = tmpOuter;
@@ -106,9 +103,6 @@ namespace solver {
                             nsfMan.conjunct(*cC, *tmpOuter);
                             delete tmpOuter;
                             app.getPrinter().solverIntermediateEvent(currentNode, *cC, "joining - done");
-//                            app.getPrinter().solverIntermediateEvent(currentNode, *cC, "optimizing");
-//                            nsfMan.optimize(*cC);
-//                            app.getPrinter().solverIntermediateEvent(currentNode, *cC, "optimizing - done");
                         }
                     }
                 }
@@ -170,25 +164,25 @@ namespace solver {
                 return clauses;
             }
 
-//            bool QSatCNFEDMSolver::isUnsat(const Computation & c) {
-//                if (c.isLeaf()) {
-//                    return c.value().IsZero();
-//                } else {
-//                    for (const Computation* cC : c.nestedSet()) {
-//                        bool unsatC = isUnsat(*cC);
-//                        if (c.isExistentiallyQuantified() && !unsatC) {
-//                            return false;
-//                        } else if (c.isUniversiallyQuantified() && unsatC) { // FORALL
-//                            return true;
-//                        }
-//                    }
-//                    if (c.isExistentiallyQuantified()) {
-//                        return true;
-//                    } else {
-//                        return false;
-//                    }
-//                }
-//            }
+            //            bool QSatCNFEDMSolver::isUnsat(const Computation & c) {
+            //                if (c.isLeaf()) {
+            //                    return c.value().IsZero();
+            //                } else {
+            //                    for (const Computation* cC : c.nestedSet()) {
+            //                        bool unsatC = isUnsat(*cC);
+            //                        if (c.isExistentiallyQuantified() && !unsatC) {
+            //                            return false;
+            //                        } else if (c.isUniversiallyQuantified() && unsatC) { // FORALL
+            //                            return true;
+            //                        }
+            //                    }
+            //                    if (c.isExistentiallyQuantified()) {
+            //                        return true;
+            //                    } else {
+            //                        return false;
+            //                    }
+            //                }
+            //            }
 
             RESULT QSatCNFEDMSolver::decide(const Computation & c) {
                 Cudd manager = app.getBDDManager().getManager();
