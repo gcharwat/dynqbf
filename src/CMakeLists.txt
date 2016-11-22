@@ -5,6 +5,22 @@ project (DYNQBF)
 # Set project version numbers
 set (DYNQBF_VERSION_MAJOR 0)
 set (DYNQBF_VERSION_MINOR 3)
+set (DYNQBF_VERSION_PATCH 1)
+
+find_package(Git)
+if(GIT_FOUND)
+    execute_process(COMMAND ${GIT_EXECUTABLE} update-index --refresh WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
+    execute_process(COMMAND ${GIT_EXECUTABLE} describe --tags --always WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}" RESULT_VARIABLE DYNQBF_GIT_RETURN_VALUE OUTPUT_VARIABLE DYNQBF_GIT_CURRENT_COMMIT_ID)
+    if(NOT ${DYNQBF_GIT_RETURN_VALUE} EQUAL 0)
+        set(DYNQBF_GIT_COMMIT_ID "")
+        message(WARNING "Could not derive Git commit ID. Build will not contain Git revision info.")
+    endif()
+
+    string(REPLACE "\n" "" DYNQBF_GIT_COMMIT_ID "${DYNQBF_GIT_CURRENT_COMMIT_ID}")
+else()
+    set(DYNQBF_GIT_COMMIT_ID "")
+    message(WARNING "Could not find Git installation. Build will not contain Git revision info.")
+endif()
 
 # Configure the header file to pass some of the CMake settings to the source code
 configure_file (
