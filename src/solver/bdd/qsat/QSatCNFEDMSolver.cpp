@@ -94,9 +94,9 @@ namespace solver {
                             return bdd *= currentClauses;
                         });
                         app.getPrinter().solverIntermediateEvent(currentNode, *tmpOuter, "introducing clauses - done");
-                        app.getPrinter().solverIntermediateEvent(currentNode, *tmpOuter, "optimizing");
-                        nsfMan.optimize(*tmpOuter);
-                        app.getPrinter().solverIntermediateEvent(currentNode, *tmpOuter, "optimizing - done");
+//                        app.getPrinter().solverIntermediateEvent(currentNode, *tmpOuter, "optimizing");
+//                        nsfMan.optimize(*tmpOuter);
+//                        app.getPrinter().solverIntermediateEvent(currentNode, *tmpOuter, "optimizing - done");
 
                         if (first) {
                             cC = tmpOuter;
@@ -106,9 +106,9 @@ namespace solver {
                             nsfMan.conjunct(*cC, *tmpOuter);
                             delete tmpOuter;
                             app.getPrinter().solverIntermediateEvent(currentNode, *cC, "joining - done");
-                            app.getPrinter().solverIntermediateEvent(currentNode, *cC, "optimizing");
-                            nsfMan.optimize(*cC);
-                            app.getPrinter().solverIntermediateEvent(currentNode, *cC, "optimizing - done");
+//                            app.getPrinter().solverIntermediateEvent(currentNode, *cC, "optimizing");
+//                            nsfMan.optimize(*cC);
+//                            app.getPrinter().solverIntermediateEvent(currentNode, *cC, "optimizing - done");
                         }
                     }
                 }

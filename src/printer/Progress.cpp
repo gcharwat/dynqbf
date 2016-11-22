@@ -64,7 +64,7 @@ namespace printer {
         std::size_t children = app.getDecomposition()->childCount(vertex);
         std::cout << "\r" << std::setw(3) << percentSolved << "% solved. Now solving: TD node " << vertex << ", ";
         std::cout << bagSize << " elements (" << removed << "r, " << introduced << "i), " << children << " child(ren). ";
-        std::cout << computation.nsfCount() << " NSF (" << computation.maxBDDsize() << " max BDD) - ";
+        std::cout << computation.leavesCount() << " leaves (" << computation.maxBDDsize() << " max BDD) - ";
         std::cout << message << ".                       " << std::endl;
     }
 
@@ -76,8 +76,8 @@ namespace printer {
         std::size_t children = app.getDecomposition()->childCount(vertex);
         std::cout << "\r" << std::setw(3) << percentSolved << "% solved. Now solving: TD node " << vertex << ", ";
         std::cout << bagSize << " elements (" << removed << "r, " << introduced << "i), " << children << " child(ren). ";
-        std::cout << c1.nsfCount() << " NSF (" << c1.maxBDDsize() << " max BDD) X ";
-        std::cout << c2.nsfCount() << " NSF (" << c2.maxBDDsize() << " max BDD) - ";
+        std::cout << c1.leavesCount() << " leaves (" << c1.maxBDDsize() << " max BDD) X ";
+        std::cout << c2.leavesCount() << " leaves (" << c2.maxBDDsize() << " max BDD) - ";
         std::cout << message << ".                      " << std::endl;
     }
 

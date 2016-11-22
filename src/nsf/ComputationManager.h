@@ -62,20 +62,18 @@ protected:
 private:
     Application& app;
 
-    void divideMaxNSFSizeEstimation(int value);
-    void multiplyMaxNSFSizeEstimation(int value);
+    void divideGlobalNSFSizeEstimation(int value);
+    void multiplyGlobalNSFSizeEstimation(int value);
 
     static const std::string NSFMANAGER_SECTION;
 
     options::Option optPrintStats;
-    options::DefaultIntegerValueOption optMaxNSFSize;
+    options::DefaultIntegerValueOption optMaxGlobalNSFSize;
     options::DefaultIntegerValueOption optMaxBDDSize;
     options::DefaultIntegerValueOption optOptimizeInterval;
     options::Option optSortBeforeJoining;
 
-    unsigned long subsetChecks;
-    unsigned long subsetChecksSuccessful;
-    long maxNSFSizeEstimation;
+    long maxGlobalNSFSizeEstimation;
 
     unsigned int optIntervalCounter;
     bool left = true;

@@ -323,26 +323,32 @@ void NSF::removeApply(const std::vector<std::vector<BDD>>&removedVertices, const
     remove(removedVertices);
 }
 
-void NSF::optimize() {
+bool NSF::optimize() {
+    bool changed = false;
     if (!isLeaf()) {
         for (NSF* n : nestedSet()) {
-            n->optimize();
+            bool ret = n->optimize();
+            if (ret) changed = true;
         }
     }
-    compressConjunctive();
+    if (compressConjunctive() > 0) return true;
+    return changed;
 }
 
-void NSF::optimize(bool left) {
+bool NSF::optimize(bool left) {
+    bool changed = false;
     if (!isLeaf()) {
         for (NSF* n : nestedSet()) {
-            n->optimize();
+            bool ret = n->optimize();
+            if (ret) changed = true;
         }
     }
     if (left) {
-        compressConjunctiveLeft();
+        if (compressConjunctiveLeft() > 0) return true;
     } else {
-        compressConjunctiveRight();
+        if (compressConjunctiveRight() > 0) return true;
     }
+    return changed;
 }
 
 /**

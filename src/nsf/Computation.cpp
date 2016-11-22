@@ -70,12 +70,12 @@ void Computation::removeApply(const std::vector<std::vector<BDD>>&removedVertice
     _nsf->removeApply(removedVertices, clauses);
 }
 
-void Computation::optimize() {
-    _nsf->optimize();
+bool Computation::optimize() {
+    return _nsf->optimize();
 }
 
-void Computation::optimize(bool left) {
-    _nsf->optimize(left);
+bool Computation::optimize(bool left) {
+    return _nsf->optimize(left);
 }
 
 void Computation::sortByIncreasingSize() {

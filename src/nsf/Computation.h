@@ -43,8 +43,8 @@ public:
     virtual const BDD evaluate(Application& app, std::vector<BDD>& cubesAtlevels, bool keepFirstLevel) const;
     bool isUnsat() const;
 
-    virtual void optimize();
-    virtual void optimize(bool left);
+    virtual bool optimize();
+    virtual bool optimize(bool left);
     void sortByIncreasingSize();
 
     const unsigned int maxBDDsize() const;

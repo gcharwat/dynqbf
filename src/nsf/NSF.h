@@ -79,8 +79,9 @@ public:
     const BDD evaluate(const Application& app, const std::vector<BDD>& cubesAtlevels, const bool keepFirstLevel) const;
     bool isUnsat() const;
 
-    void optimize();
-    void optimize(bool left);
+    bool optimize();
+    bool optimize(bool left);
+    
     void sortByIncreasingSize();
 
 protected:

@@ -23,15 +23,15 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "CacheComputation.h"
 
-CacheComputation::CacheComputation(const std::vector<NTYPE>& quantifierSequence, const BDD& bdd, unsigned int maxNSFsize, unsigned int maxBDDsize)
+CacheComputation::CacheComputation(const std::vector<NTYPE>& quantifierSequence, const BDD& bdd, unsigned int maxBDDsize)
 : Computation(quantifierSequence, bdd)
-, maxNSFsize(maxNSFsize)
-, maxBDDsize(maxBDDsize) {
+, _maxBDDsize(maxBDDsize) {
     _removeCache = new std::vector<std::vector < BDD >> (quantifierSequence.size());
 }
 
 CacheComputation::CacheComputation(const CacheComputation& other)
-: Computation(other) {
+: Computation(other)
+, _maxBDDsize(other._maxBDDsize) {
     _removeCache = new std::vector<std::vector < BDD >> (other._removeCache->size());
     for (unsigned int level = 1; level <= other._removeCache->size(); level++) {
         std::copy(_removeCache->at(level - 1).begin(), other._removeCache->at(level - 1).begin(), other._removeCache->at(level - 1).end());
@@ -50,22 +50,18 @@ void CacheComputation::conjunct(const Computation& other) {
         addToRemoveCache(*(t._removeCache));
     } catch (std::bad_cast exp) {
     }
-
 }
 
 void CacheComputation::remove(const BDD& variable, const unsigned int vl) {
     addToRemoveCache(variable, vl);
-    reduceRemoveCache();
 }
 
 void CacheComputation::remove(const std::vector<std::vector<BDD>>&removedVertices) {
     addToRemoveCache(removedVertices);
-    reduceRemoveCache();
 }
 
 void CacheComputation::removeApply(const std::vector<std::vector<BDD>>&removedVertices, const BDD& clauses) {
     addToRemoveCache(removedVertices);
-    reduceRemoveCache();
     apply(clauses);
 }
 
@@ -78,8 +74,20 @@ const BDD CacheComputation::evaluate(Application& app, std::vector<BDD>& cubesAt
     return _nsf->evaluate(app, cubesAtlevels, keepFirstLevel);
 }
 
-void CacheComputation::optimize() {
-    Computation::optimize();
+bool CacheComputation::optimize() {
+    if (reduceRemoveCache()) {
+        Computation::optimize();
+        return true;
+    }
+    return false;
+}
+
+bool CacheComputation::optimize(bool left) {
+    if (reduceRemoveCache()) {
+        Computation::optimize(left);
+        return true;
+    }
+    return false;
 }
 
 void CacheComputation::print() const {
@@ -93,29 +101,32 @@ void CacheComputation::print() const {
 bool CacheComputation::isRemoveCacheReducible() {
     if (isEmptyRemoveCache()) {
         return false;
-    } else if (_nsf->maxBDDsize() > maxBDDsize) {
-        return true;
-    } else if (_nsf->nsfCount() < maxNSFsize) {
+    } else if (_nsf->maxBDDsize() > _maxBDDsize) {
         return true;
     }
     return false;
 }
 
-void CacheComputation::reduceRemoveCache() {
-    while (isRemoveCacheReducible()) {
+bool CacheComputation::reduceRemoveCache() {
+    if (isRemoveCacheReducible()) {
         // TODO add options for removal strategies (orderings) here
         for (unsigned int vl = _removeCache->size(); vl >= 1; vl--) {
             if (isEmptyAtRemoveCacheLevel(vl)) {
                 continue;
             }
-            BDD toRemove = popFromRemoveCache(vl);
+            BDD toRemove = popFirstFromRemoveCache(vl); // simulate fifo
             Computation::remove(toRemove, vl);
-            break;
+            return true;
         }
     }
+    return false;
 }
 
 void CacheComputation::addToRemoveCache(BDD variable, const unsigned int vl) {
+    // always immediately remove innermost variables
+    if (vl == _removeCache->size()) {
+        Computation::remove(variable, vl);
+    }
     if (_removeCache->size() < vl) {
         for (unsigned int i = _removeCache->size(); i < vl; i++) {
             std::vector<BDD> bddsAtLevel;
@@ -137,6 +148,16 @@ BDD CacheComputation::popFromRemoveCache(const unsigned int vl) {
     //    if (isEmptyAtRemoveCacheLevel(vl)) {
     //        return app.getBDDManager().getManager().bddOne();
     //    }
+    BDD b = _removeCache->at(vl - 1).back();
+    _removeCache->at(vl - 1).pop_back();
+    return b;
+}
+
+BDD CacheComputation::popFirstFromRemoveCache(const unsigned int vl) {
+    //    if (isEmptyAtRemoveCacheLevel(vl)) {
+    //        return app.getBDDManager().getManager().bddOne();
+    //    }
+    std::iter_swap(_removeCache->at(vl - 1).begin(), _removeCache->at(vl - 1).end() - 1);
     BDD b = _removeCache->at(vl - 1).back();
     _removeCache->at(vl - 1).pop_back();
     return b;
