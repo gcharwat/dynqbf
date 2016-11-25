@@ -39,7 +39,8 @@ CacheComputation::CacheComputation(const CacheComputation& other)
 }
 
 CacheComputation::~CacheComputation() {
-    delete _removeCache;
+    if (_removeCache != NULL)
+        delete _removeCache;
 }
 
 void CacheComputation::conjunct(const Computation& other) {
