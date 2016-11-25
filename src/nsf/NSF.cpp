@@ -264,7 +264,7 @@ void NSF::apply(const BDD& clauses) {
 
 void NSF::conjunct(const NSF& other) {
     if (isLeaf()) {
-        _value = std::move(_value * other._value);
+        _value *= other._value;
     } else {
         std::vector<NSF*> newNestedSet;
         newNestedSet.reserve(nestedSet().size() * other.nestedSet().size());
