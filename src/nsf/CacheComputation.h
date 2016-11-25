@@ -47,7 +47,7 @@ public:
 private:
 
     void addToRemoveCache(BDD variable, const unsigned int vl);
-    void addToRemoveCache(const std::vector<std::vector<BDD>>&variables);
+    void addToRemoveCache(const std::vector<std::vector<BDD>>& variables);
     BDD popFromRemoveCache(const unsigned int vl);
     BDD popFirstFromRemoveCache(const unsigned int vl);
     bool isEmptyAtRemoveCacheLevel(const unsigned int vl);
