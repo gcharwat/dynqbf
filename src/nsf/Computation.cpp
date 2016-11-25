@@ -19,11 +19,11 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
  */
 
-#include <iostream>
+#include <cuddInt.h>
 
 #include "Computation.h"
 
-Computation::Computation(const std::vector<NTYPE>& quantifierSequence, const BDD& bdd) {
+Computation::Computation(const std::vector<NTYPE>& quantifierSequence, const std::vector<BDD>& cubesAtLevels, const BDD& bdd) {
     unsigned int level = quantifierSequence.size();
     unsigned int depth = 0;
     NSF* current = new NSF(level, depth, quantifierSequence.at(level - 1));
@@ -36,38 +36,55 @@ Computation::Computation(const std::vector<NTYPE>& quantifierSequence, const BDD
         current = parent;
     }
     _nsf = current;
+
+    _variableDomain = new std::vector<BDD>();
+    for (unsigned int level = 1; level <= cubesAtLevels.size(); level++) {
+        _variableDomain->push_back(cubesAtLevels.at(level-1));
+    }
 }
 
 Computation::Computation(const Computation& other) {
     _nsf = new NSF(*(other._nsf));
+    _variableDomain = new std::vector<BDD>(*(other._variableDomain));
 }
 
 Computation::~Computation() {
     delete _nsf;
+    delete _variableDomain;
 }
 
-void Computation::apply(std::function<BDD(const BDD&)> f) {
+void Computation::apply(const std::vector<BDD>& cubesAtLevels, std::function<BDD(const BDD&)> f) {
+    addToVariableDomain(cubesAtLevels);
     _nsf->apply(f);
 }
 
-void Computation::apply(const BDD& clauses) {
+void Computation::apply(const std::vector<BDD>& cubesAtLevels, const BDD& clauses) {
+    addToVariableDomain(cubesAtLevels);
     _nsf->apply(clauses);
 }
 
 void Computation::conjunct(const Computation& other) {
+    addToVariableDomain(*(other._variableDomain));
     _nsf->conjunct(*(other._nsf));
 }
 
 void Computation::remove(const BDD& variable, const unsigned int vl) {
+    removeFromVariableDomain(variable, vl);
     _nsf->remove(variable, vl);
 }
 
-void Computation::remove(const std::vector<std::vector<BDD>>&removedVertices) {
+void Computation::remove(const std::vector<std::vector<BDD>>& removedVertices) {
+    for (unsigned int level = 1; level <= removedVertices.size(); level++) {
+        for (BDD variable : removedVertices.at(level-1)) {
+            removeFromVariableDomain(variable, level);
+        }
+    }
     _nsf->remove(removedVertices);
 }
 
-void Computation::removeApply(const std::vector<std::vector<BDD>>&removedVertices, const BDD& clauses) {
-    _nsf->removeApply(removedVertices, clauses);
+void Computation::removeApply(const std::vector<std::vector<BDD>>& removedVertices, const std::vector<BDD>& cubesAtLevels, const BDD& clauses) {
+    remove(removedVertices);
+    apply(cubesAtLevels, clauses);
 }
 
 bool Computation::optimize() {
@@ -103,5 +120,29 @@ bool Computation::isUnsat() const {
 }
 
 void Computation::print() const {
+    std::cout << "Variable domain (size):" << std::endl;
+    for (unsigned int level = 1; level <= _variableDomain->size(); level++) {
+        std::cout << level << ": " << (_variableDomain->at(level - 1).CountPath() - 1) << std::endl;
+    }
     _nsf->print();
+}
+
+void Computation::addToVariableDomain(BDD cube, const unsigned int vl) {
+    _variableDomain->at(vl - 1) *= cube;
+}
+
+void Computation::addToVariableDomain(const std::vector<BDD>& cubesAtLevels) {
+    for (unsigned int level = 1; level <= cubesAtLevels.size(); level++) {
+        addToVariableDomain(cubesAtLevels.at(level - 1), level);
+    }
+}
+
+void Computation::removeFromVariableDomain(BDD cube, const unsigned int vl) {
+    (_variableDomain->at(vl - 1)) = (_variableDomain->at(vl - 1)).ExistAbstract(cube);
+}
+
+void Computation::removeFromVariableDomain(const std::vector<BDD>& cubesAtLevels) {
+    for (unsigned int level = 1; level <= cubesAtLevels.size(); level++) {
+        removeFromVariableDomain(cubesAtLevels.at(level - 1), level);
+    }
 }

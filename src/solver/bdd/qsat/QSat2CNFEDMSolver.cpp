@@ -56,7 +56,7 @@ namespace solver {
                 Computation* cC = NULL;
 
                 if (decomposition->isLeaf(currentNode)) {
-                    cC = nsfMan.newComputation(app.getInputInstance()->getQuantifierSequence(), currentClauses(currentNode));
+                    cC = nsfMan.newComputation(app.getInputInstance()->getQuantifierSequence(), getCubesAtLevels(currentNode), currentClauses(currentNode));
                 } else {
                     bool first = true;
 
@@ -80,7 +80,7 @@ namespace solver {
                             if (vertexLevel == 2) {
                                 nsfMan.remove(*tmpOuter, variable, vertexLevel);
                             } else if (vertexLevel == 1) {
-                                nsfMan.apply(*tmpOuter, [&variable, &decision] (const BDD b) -> BDD {
+                                nsfMan.apply(*tmpOuter, getCubesAtLevels(currentNode), [&variable, &decision] (const BDD b) -> BDD {
                                     // TODO: Could also be done by renaming all removed variables at once
                                     return (b.Restrict(!variable) * !decision) + (b.Restrict(variable) * decision);
                                 });
@@ -94,7 +94,7 @@ namespace solver {
                         // Do introduction
                         app.getPrinter().solverIntermediateEvent(currentNode, *tmpOuter, "introducing clauses");
                         BDD currentClauses = this->currentClauses(currentNode);
-                        nsfMan.apply(*tmpOuter, [&currentClauses](BDD bdd) -> BDD {
+                        nsfMan.apply(*tmpOuter, getCubesAtLevels(currentNode), [&currentClauses](BDD bdd) -> BDD {
                             return bdd *= currentClauses;
                         });
                         app.getPrinter().solverIntermediateEvent(currentNode, *tmpOuter, "introducing clauses - done");
@@ -128,7 +128,7 @@ namespace solver {
                 optimizeCounter++;
                 if (optimizeCounter % 1 == 0) {
                     app.getPrinter().solverIntermediateEvent(currentNode, *cC, "subsets");
-                    nsfMan.apply(*cC, [this](BDD bdd) -> BDD {
+                    nsfMan.apply(*cC, getCubesAtLevels(currentNode), [this](BDD bdd) -> BDD {
                         return removeSubsets(bdd);
                     });
                     app.getPrinter().solverIntermediateEvent(currentNode, *cC, "subsets - done");

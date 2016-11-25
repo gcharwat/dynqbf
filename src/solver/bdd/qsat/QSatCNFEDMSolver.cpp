@@ -54,7 +54,7 @@ namespace solver {
                 Computation* cC = NULL;
 
                 if (decomposition->isLeaf(currentNode)) {
-                    cC = nsfMan.newComputation(app.getInputInstance()->getQuantifierSequence(), currentClauses(currentNode));
+                    cC = nsfMan.newComputation(app.getInputInstance()->getQuantifierSequence(), getCubesAtLevels(currentNode), currentClauses(currentNode));
                 } else {
                     bool first = true;
 
@@ -90,7 +90,7 @@ namespace solver {
                         app.getPrinter().solverIntermediateEvent(currentNode, *tmpOuter, "introducing clauses");
                         // TODO: Only consider introduced vertices
                         BDD currentClauses = this->currentClauses(currentNode);
-                        nsfMan.apply(*tmpOuter, [&currentClauses](BDD bdd) -> BDD {
+                        nsfMan.apply(*tmpOuter, getCubesAtLevels(currentNode), [&currentClauses](BDD bdd) -> BDD {
                             return bdd *= currentClauses;
                         });
                         app.getPrinter().solverIntermediateEvent(currentNode, *tmpOuter, "introducing clauses - done");

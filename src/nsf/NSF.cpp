@@ -318,11 +318,6 @@ void NSF::remove(const std::vector<std::vector<BDD>>&removedVertices) {
     }
 }
 
-void NSF::removeApply(const std::vector<std::vector<BDD>>&removedVertices, const BDD& clauses) {
-    apply(clauses);
-    remove(removedVertices);
-}
-
 bool NSF::optimize() {
     bool changed = false;
     if (!isLeaf()) {

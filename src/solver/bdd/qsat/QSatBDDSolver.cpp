@@ -71,7 +71,9 @@ namespace solver {
                     }
                 }
 
-                Computation* c = app.getNSFManager().newComputation(app.getInputInstance()->getQuantifierSequence(), bdd);
+                // TODO FIXME
+                std::vector<BDD> currentCubes;
+                Computation* c = app.getNSFManager().newComputation(app.getInputInstance()->getQuantifierSequence(), currentCubes, bdd);
 
                 app.getPrinter().solverInvocationResult(currentNode, *c);
 

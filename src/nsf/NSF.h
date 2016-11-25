@@ -74,7 +74,6 @@ public:
 
     void remove(const BDD& variable, const unsigned int vl);
     void remove(const std::vector<std::vector<BDD>>&removedVertices);
-    void removeApply(const std::vector<std::vector<BDD>>&removedVertices, const BDD& clauses);
 
     const BDD evaluate(const Application& app, const std::vector<BDD>& cubesAtlevels, const bool keepFirstLevel) const;
     bool isUnsat() const;

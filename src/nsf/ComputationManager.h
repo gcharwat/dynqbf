@@ -39,17 +39,17 @@ public:
     ComputationManager(Application& app);
     ~ComputationManager();
 
-    Computation* newComputation(const std::vector<NTYPE>& quantifierSequence, const BDD& bdd);
+    Computation* newComputation(const std::vector<NTYPE>& quantifierSequence, const std::vector<BDD>& cubesAtLevels, const BDD& bdd);
     Computation* copyComputation(const Computation& c);
 
-    void apply(Computation& c, std::function<BDD(const BDD&)> f);
-    void apply(Computation& c, const BDD& clauses);
+    void apply(Computation& c, const std::vector<BDD>& cubesAtLevels, std::function<BDD(const BDD&)> f);
+    void apply(Computation& c, const std::vector<BDD>& cubesAtLevels, const BDD& clauses);
 
     void conjunct(Computation& c, Computation& other);
 
     void remove(Computation& c, const BDD& variable, const unsigned int vl);
     void remove(Computation& c, const std::vector<std::vector<BDD>>&removedVertices);
-    void removeApply(Computation& c, const std::vector<std::vector<BDD>>&removedVertices, const BDD& clauses);
+    void removeApply(Computation& c, const std::vector<std::vector<BDD>>&removedVertices, const std::vector<BDD>& cubesAtLevels, const BDD& clauses);
 
     const BDD evaluate(const Computation& c, std::vector<BDD>& cubesAtlevels, bool keepFirstLevel);
 

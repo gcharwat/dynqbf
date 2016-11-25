@@ -31,7 +31,8 @@ namespace solver {
         }
 
         Computation* DummySolver::compute(htd::vertex_t root) {
-            Computation* c = app.getNSFManager().newComputation(app.getInputInstance()->getQuantifierSequence(), app.getBDDManager().getManager().bddOne());
+            std::vector<BDD> cubesAtLevels;
+            Computation* c = app.getNSFManager().newComputation(app.getInputInstance()->getQuantifierSequence(), cubesAtLevels, app.getBDDManager().getManager().bddOne());
             return c;
         }
 

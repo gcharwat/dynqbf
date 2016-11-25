@@ -53,10 +53,10 @@ ComputationManager::~ComputationManager() {
     printStatistics();
 }
 
-Computation* ComputationManager::newComputation(const std::vector<NTYPE>& quantifierSequence, const BDD& bdd) {
+Computation* ComputationManager::newComputation(const std::vector<NTYPE>& quantifierSequence, const std::vector<BDD>& cubesAtLevels, const BDD& bdd) {
     // TODO: dynamically return Computation with or without cache
-    return new CacheComputation(quantifierSequence, bdd, optMaxBDDSize.getValue());
-    //return new Computation(quantifierSequence, bdd);
+    return new CacheComputation(quantifierSequence, cubesAtLevels, bdd, optMaxBDDSize.getValue());
+    //return new Computation(quantifierSequence, cubesAtLevels, bdd);
 }
 
 Computation* ComputationManager::copyComputation(const Computation& c) {
@@ -64,13 +64,13 @@ Computation* ComputationManager::copyComputation(const Computation& c) {
     return nC;
 }
 
-void ComputationManager::apply(Computation& c, std::function<BDD(const BDD&)> f) {
-    c.apply(f);
+void ComputationManager::apply(Computation& c, const std::vector<BDD>& cubesAtLevels, std::function<BDD(const BDD&)> f) {
+    c.apply(cubesAtLevels, f);
     optimize(c);
 }
 
-void ComputationManager::apply(Computation& c, const BDD& clauses) {
-    c.apply(clauses);
+void ComputationManager::apply(Computation& c, const std::vector<BDD>& cubesAtLevels, const BDD& clauses) {
+    c.apply(cubesAtLevels, clauses);
     optimize(c);
 }
 
@@ -100,9 +100,9 @@ void ComputationManager::remove(Computation& c, const std::vector<std::vector<BD
     optimize(c);
 }
 
-void ComputationManager::removeApply(Computation& c, const std::vector<std::vector<BDD>>&removedVertices, const BDD& clauses) {
+void ComputationManager::removeApply(Computation& c, const std::vector<std::vector<BDD>>&removedVertices, const std::vector<BDD>& cubesAtLevels, const BDD& clauses) {
     divideGlobalNSFSizeEstimation(c.leavesCount());
-    c.removeApply(removedVertices, clauses);
+    c.removeApply(removedVertices, cubesAtLevels, clauses);
     multiplyGlobalNSFSizeEstimation(c.leavesCount());
     optimize(c);
 }

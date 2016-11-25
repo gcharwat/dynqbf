@@ -26,7 +26,7 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
 class CacheComputation : public Computation {
 public:
-    CacheComputation(const std::vector<NTYPE>& quantifierSequence, const BDD& bdd, unsigned int maxBDDsize);
+    CacheComputation(const std::vector<NTYPE>& quantifierSequence, const std::vector<BDD>& cubesAtLevels, const BDD& bdd, unsigned int maxBDDsize);
     CacheComputation(const CacheComputation& other);
 
     ~CacheComputation();
@@ -35,7 +35,7 @@ public:
 
     virtual void remove(const BDD& variable, const unsigned int vl) override;
     virtual void remove(const std::vector<std::vector<BDD>>&removedVertices) override;
-    virtual void removeApply(const std::vector<std::vector<BDD>>&removedVertices, const BDD& clauses) override;
+    virtual void removeApply(const std::vector<std::vector<BDD>>&removedVertices, const std::vector<BDD>& cubesAtLevels, const BDD& clauses) override;
 
     virtual const BDD evaluate(Application& app, std::vector<BDD>& cubesAtlevels, bool keepFirstLevel) const override;
 

@@ -53,7 +53,7 @@ namespace solver {
                 Computation* cC = NULL;
 
                 if (decomposition->isLeaf(currentNode)) {
-                    cC = nsfMan.newComputation(app.getInputInstance()->getQuantifierSequence(), app.getBDDManager().getManager().bddOne());
+                    cC = nsfMan.newComputation(app.getInputInstance()->getQuantifierSequence(), getCubesAtLevels(currentNode), app.getBDDManager().getManager().bddOne());
                 } else {
                     bool first = true;
 
@@ -78,7 +78,7 @@ namespace solver {
                             removed[vertexLevel - 1].push_back(variable);
                         }
                         BDD removedClauses = this->removedClauses(currentNode, child);
-                        nsfMan.removeApply(*tmpOuter, removed, removedClauses);
+                        nsfMan.removeApply(*tmpOuter, removed, getCubesAtLevels(currentNode), removedClauses); // TODO fixme!
                         app.getPrinter().solverIntermediateEvent(currentNode, *tmpOuter, "removing variables and introducing clauses - done");
 
                         app.getPrinter().solverIntermediateEvent(currentNode, *tmpOuter, "removing variables and introducing clauses, opt");

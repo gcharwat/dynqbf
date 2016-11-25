@@ -23,8 +23,8 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "CacheComputation.h"
 
-CacheComputation::CacheComputation(const std::vector<NTYPE>& quantifierSequence, const BDD& bdd, unsigned int maxBDDsize)
-: Computation(quantifierSequence, bdd)
+CacheComputation::CacheComputation(const std::vector<NTYPE>& quantifierSequence, const std::vector<BDD>& cubesAtLevels, const BDD& bdd, unsigned int maxBDDsize)
+: Computation(quantifierSequence, cubesAtLevels, bdd)
 , _maxBDDsize(maxBDDsize) {
     _removeCache = new std::vector<std::vector < BDD >> (quantifierSequence.size());
 }
@@ -61,9 +61,9 @@ void CacheComputation::remove(const std::vector<std::vector<BDD>>&removedVertice
     addToRemoveCache(removedVertices);
 }
 
-void CacheComputation::removeApply(const std::vector<std::vector<BDD>>&removedVertices, const BDD& clauses) {
+void CacheComputation::removeApply(const std::vector<std::vector<BDD>>&removedVertices, const std::vector<BDD>& cubesAtLevels, const BDD& clauses) {
     addToRemoveCache(removedVertices);
-    apply(clauses);
+    apply(cubesAtLevels, clauses);
 }
 
 const BDD CacheComputation::evaluate(Application& app, std::vector<BDD>& cubesAtlevels, bool keepFirstLevel) const {
