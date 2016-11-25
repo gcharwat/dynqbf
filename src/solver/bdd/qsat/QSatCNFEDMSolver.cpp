@@ -68,17 +68,17 @@ namespace solver {
 
                         app.getPrinter().solverIntermediateEvent(currentNode, *tmpOuter, "removing variables");
 
-                        // Do removal
-                        const htd::ConstCollection<htd::vertex_t> forgottenVertices = decomposition->forgottenVertices(currentNode, child);
-                        std::vector<htd::vertex_t> forgottenVerticesSorted(forgottenVertices.begin(), forgottenVertices.end());
-                        // Sort, decreasing by index (ie level in BDD)
-                        std::sort(forgottenVerticesSorted.begin(), forgottenVerticesSorted.end(), [&varMap] (htd::vertex_t x1, htd::vertex_t x2) -> bool {
-                            BDD x1v = varMap.getBDDVariable("a", 0,{x1});
-                            BDD x2v = varMap.getBDDVariable("a", 0,{x2});
-                            return (x1v.getNode()->index > x2v.getNode()->index); // vertices with higher index are to be removed first
-                        });
+//                        // Do removal
+//                        const htd::ConstCollection<htd::vertex_t> forgottenVertices = decomposition->forgottenVertices(currentNode, child);
+//                        std::vector<htd::vertex_t> forgottenVerticesSorted(forgottenVertices.begin(), forgottenVertices.end());
+//                        // Sort, decreasing by index (ie level in BDD)
+//                        std::sort(forgottenVerticesSorted.begin(), forgottenVerticesSorted.end(), [&varMap] (htd::vertex_t x1, htd::vertex_t x2) -> bool {
+//                            BDD x1v = varMap.getBDDVariable("a", 0,{x1});
+//                            BDD x2v = varMap.getBDDVariable("a", 0,{x2});
+//                            return (x1v.getNode()->index > x2v.getNode()->index); // vertices with higher index are to be removed first
+//                        });
 
-                        for (const auto& vertex : forgottenVerticesSorted) {
+                        for (const auto& vertex : decomposition->forgottenVertices(currentNode, child)) {
                             BDD variable = varMap.getBDDVariable("a", 0,{vertex});
                             unsigned int vertexLevel = htd::accessLabel<int>(app.getInputInstance()->hypergraph->internalGraph().vertexLabel("level", vertex));
                             nsfMan.remove(*tmpOuter, variable, vertexLevel);
@@ -206,7 +206,7 @@ namespace solver {
             BDD QSatCNFEDMSolver::solutions(const Computation& c) {
                 ComputationManager& nsfManager = app.getNSFManager();
                 std::vector<BDD> cubesAtlevels;
-                for (unsigned int i = 0; i < app.getInputInstance()->quantifierCount(); i++) {
+                for (unsigned int level = 1; level <= app.getInputInstance()->quantifierCount(); level++) {
                     cubesAtlevels.push_back(app.getBDDManager().getManager().bddOne());
                 }
                 return nsfManager.evaluate(c, cubesAtlevels, true);
