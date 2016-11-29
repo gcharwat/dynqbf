@@ -48,7 +48,7 @@ namespace decomposer {
     , optEmptyLeaves("empty-leaves", "Add empty leaves to the tree decomposition")
     , optPathDecomposition("path-decomposition", "Create a path decomposition")
     , optRootSelectionFitnessFunction("root-strategy", "f", "Use fitness function <f> for decomposition root node selection")
-    , optRootSelectionIterations("root-strategy-iterations", "i", "Randomly select <i> nodes as root, choose decomposition with best fitness value", 10)
+    , optRootSelectionIterations("root-strategy-iterations", "i", "Randomly select <i> nodes as root, choose decomposition with best fitness value", 1)
     , optDecompositionFitnessFunction("decomposition-strategy", "f", "Use fitness function <f> for decomposition selection")
     , optDecompositionIterations("decomposition-strategy-iterations", "i", "Generate <i> tree decompositions, choose decomposition with best fitness value", 10) {
         optNormalization.addCondition(selected);
@@ -87,13 +87,13 @@ namespace decomposer {
         app.getOptionHandler().addOption(optRootSelectionIterations, OPTION_SECTION);
 
         optDecompositionFitnessFunction.addCondition(selected);
-        optDecompositionFitnessFunction.addChoice("none", "do not optimize decomposition", true);
+        optDecompositionFitnessFunction.addChoice("none", "do not optimize decomposition");
         optDecompositionFitnessFunction.addChoice("width", "minimize decomposition width");
         optDecompositionFitnessFunction.addChoice("join-count", "minimize number of join nodes");
         optDecompositionFitnessFunction.addChoice("join-bag-size", "minimize the sum over join node bag sizes");
         optDecompositionFitnessFunction.addChoice("join-child-count", "minimize number of join node children");
         optDecompositionFitnessFunction.addChoice("join-child-bag-size", "minimize the sum over join node children bag sizes");
-        optDecompositionFitnessFunction.addChoice("join-child-bag-size-product", "minimize the sum over products of join node children bag sizes");
+        optDecompositionFitnessFunction.addChoice("join-child-bag-size-product", "minimize the sum over products of join node children bag sizes", true);
         
         app.getOptionHandler().addOption(optDecompositionFitnessFunction, OPTION_SECTION);
         
