@@ -43,6 +43,7 @@ namespace decomposer {
     : Decomposer(app, "td", "Tree decomposition (bucket elimination)", newDefault)
     , optNormalization("n", "normalization", "Use normal form <normalization> for the tree decomposition")
     , optEliminationOrdering("elimination", "h", "Use heuristic <h> for bucket elimination")
+    , optJoinCompression("join-compression", "Enable subset-maximal compression at join nodes")
     , optNoEmptyRoot("no-empty-root", "Do not add an empty root to the tree decomposition")
     , optEmptyLeaves("empty-leaves", "Add empty leaves to the tree decomposition")
     , optPathDecomposition("path-decomposition", "Create a path decomposition")
@@ -64,6 +65,9 @@ namespace decomposer {
         optEliminationOrdering.addChoice("natural", "natural order search");
         app.getOptionHandler().addOption(optEliminationOrdering, OPTION_SECTION);
 
+        optJoinCompression.addCondition(selected);
+        app.getOptionHandler().addOption(optJoinCompression, OPTION_SECTION);
+        
         optNoEmptyRoot.addCondition(selected);
         app.getOptionHandler().addOption(optNoEmptyRoot, OPTION_SECTION);
 
@@ -115,7 +119,16 @@ namespace decomposer {
             orderingAlgorithm = new htd::NaturalOrderingAlgorithm(app.getHTDManager());
         }
         app.getHTDManager()->orderingAlgorithmFactory().setConstructionTemplate(orderingAlgorithm);
-        app.getHTDManager()->treeDecompositionAlgorithmFactory().setConstructionTemplate(new htd::BucketEliminationTreeDecompositionAlgorithm(app.getHTDManager()));
+        
+        htd::BucketEliminationTreeDecompositionAlgorithm * treeDecompositionAlgorithm = new htd::BucketEliminationTreeDecompositionAlgorithm(app.getHTDManager());
+        
+        // disable compression for join nodes
+        if (!(optJoinCompression.isUsed())) {
+            treeDecompositionAlgorithm->setCompressionEnabled(false);
+            treeDecompositionAlgorithm->addManipulationOperation(new htd::CompressionOperation(app.getHTDManager(), false));
+        }
+        app.getHTDManager()->treeDecompositionAlgorithmFactory().setConstructionTemplate(treeDecompositionAlgorithm); 
+        
         // set cover oder exact...
         // htd::SetCoverAlgorithmFactory::instance().setConstructionTemplate(new htd::HeuristicSetCoverAlgorithm());
 
@@ -155,7 +168,7 @@ namespace decomposer {
             /* nothing to do */
         }
 
-        htd::ITreeDecompositionAlgorithm * algorithm = app.getHTDManager()->treeDecompositionAlgorithmFactory().getTreeDecompositionAlgorithm();
+        htd::ITreeDecompositionAlgorithm * algorithm = app.getHTDManager()->treeDecompositionAlgorithmFactory().createInstance(); //getTreeDecompositionAlgorithm();
         algorithm->addManipulationOperation(operation);
 
         if (optDecompositionFitnessFunction.isUsed() && optDecompositionFitnessFunction.getValue() != "none") {
@@ -188,7 +201,7 @@ namespace decomposer {
 
         htd::ITreeDecomposition * decomp = algorithm->computeDecomposition(instance->hypergraph->internalGraph());
 
-        htd::IMutableTreeDecomposition * decompMutable = &(app.getHTDManager()->treeDecompositionFactory().accessMutableTreeDecomposition(*decomp));
+        htd::IMutableTreeDecomposition * decompMutable = &(app.getHTDManager()->treeDecompositionFactory().accessMutableInstance(*decomp));
         HTDDecompositionPtr decomposition(decompMutable);
         return decomposition;
     }

@@ -41,6 +41,7 @@ namespace decomposer {
 
         options::Choice optNormalization;
         options::Choice optEliminationOrdering;
+        options::Option optJoinCompression;
         options::Option optNoEmptyRoot;
         options::Option optEmptyLeaves;
         options::Option optPathDecomposition;
