@@ -23,15 +23,17 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "CacheComputation.h"
 
-CacheComputation::CacheComputation(const std::vector<NTYPE>& quantifierSequence, const std::vector<BDD>& cubesAtLevels, const BDD& bdd, unsigned int maxBDDsize)
+CacheComputation::CacheComputation(const std::vector<NTYPE>& quantifierSequence, const std::vector<BDD>& cubesAtLevels, const BDD& bdd, unsigned int maxBDDsize, bool keepFirstLevel)
 : Computation(quantifierSequence, cubesAtLevels, bdd)
-, _maxBDDsize(maxBDDsize) {
+, _maxBDDsize(maxBDDsize)
+, _keepFirstLevel(keepFirstLevel) {
     _removeCache = new std::vector<std::vector < BDD >> (quantifierSequence.size());
 }
 
 CacheComputation::CacheComputation(const CacheComputation& other)
 : Computation(other)
-, _maxBDDsize(other._maxBDDsize) {
+, _maxBDDsize(other._maxBDDsize)
+, _keepFirstLevel(other._keepFirstLevel) {
     _removeCache = new std::vector<std::vector < BDD >> (other._removeCache->size());
     for (unsigned int level = 1; level <= other._removeCache->size(); level++) {
         std::copy(_removeCache->at(level - 1).begin(), other._removeCache->at(level - 1).begin(), other._removeCache->at(level - 1).end());
@@ -87,14 +89,13 @@ RESULT CacheComputation::decide() const {
     } else if (decide.IsOne()) {
         return RESULT::SAT;
     } else {
-        // decide.print(0, 2);
         return RESULT::UNDECIDED;
     }
 }
 
 BDD CacheComputation::solutions() const {
     std::vector<BDD> cubesAtlevels;
-    return evaluate(cubesAtlevels, false);
+    return evaluate(cubesAtlevels, true);
 }
 
 bool CacheComputation::optimize() {
@@ -122,7 +123,7 @@ void CacheComputation::print() const {
 }
 
 bool CacheComputation::isRemoveCacheReducible() {
-    if (isEmptyRemoveCache()) {
+    if (!isRemovableRemoveCache()) {
         return false;
     } else if (_nsf->maxBDDsize() > _maxBDDsize) {
         return true;
@@ -134,12 +135,11 @@ bool CacheComputation::reduceRemoveCache() {
     if (isRemoveCacheReducible()) {
         // TODO add options for removal strategies (orderings) here
         for (unsigned int vl = _removeCache->size(); vl >= 1; vl--) {
-            if (isEmptyAtRemoveCacheLevel(vl)) {
-                continue;
+            if (isRemovableAtRemoveCacheLevel(vl)) {
+                BDD toRemove = popFirstFromRemoveCache(vl); // simulate fifo
+                Computation::remove(toRemove, vl);
+                return true;
             }
-            BDD toRemove = popFirstFromRemoveCache(vl); // simulate fifo
-            Computation::remove(toRemove, vl);
-            return true;
         }
     }
     return false;
@@ -172,6 +172,7 @@ BDD CacheComputation::popFromRemoveCache(const unsigned int vl) {
     //    if (isEmptyAtRemoveCacheLevel(vl)) {
     //        return app.getBDDManager().getManager().bddOne();
     //    }
+    // TODO: We assume isRemovableAtRemoveCacheLevel() to be called first
     BDD b = _removeCache->at(vl - 1).back();
     _removeCache->at(vl - 1).pop_back();
     return b;
@@ -181,23 +182,27 @@ BDD CacheComputation::popFirstFromRemoveCache(const unsigned int vl) {
     //    if (isEmptyAtRemoveCacheLevel(vl)) {
     //        return app.getBDDManager().getManager().bddOne();
     //    }
+    // TODO: We assume isRemovableAtRemoveCacheLevel() to be called first
     std::iter_swap(_removeCache->at(vl - 1).begin(), _removeCache->at(vl - 1).end() - 1);
     BDD b = _removeCache->at(vl - 1).back();
     _removeCache->at(vl - 1).pop_back();
     return b;
 }
 
-bool CacheComputation::isEmptyRemoveCache() {
+bool CacheComputation::isRemovableRemoveCache() {
     for (unsigned int vl = 1; vl <= _removeCache->size(); vl++) {
-        if (!isEmptyAtRemoveCacheLevel(vl))
-            return false;
+        if (isRemovableAtRemoveCacheLevel(vl))
+            return true;
     }
-    return true;
+    return false;
 }
 
-bool CacheComputation::isEmptyAtRemoveCacheLevel(const unsigned int vl) {
-    if (_removeCache->size() < vl) {
-        return true;
+bool CacheComputation::isRemovableAtRemoveCacheLevel(const unsigned int vl) {
+    if (vl == 1 && _keepFirstLevel) {
+        return false;
     }
-    return _removeCache->at(vl - 1).empty();
+    if (_removeCache->size() < vl) {
+        return false;
+    }
+    return !(_removeCache->at(vl - 1).empty());
 }

@@ -26,7 +26,7 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
 class CacheComputation : public Computation {
 public:
-    CacheComputation(const std::vector<NTYPE>& quantifierSequence, const std::vector<BDD>& cubesAtLevels, const BDD& bdd, unsigned int maxBDDsize);
+    CacheComputation(const std::vector<NTYPE>& quantifierSequence, const std::vector<BDD>& cubesAtLevels, const BDD& bdd, unsigned int maxBDDsize, bool keepFirstLevel);
     CacheComputation(const CacheComputation& other);
 
     ~CacheComputation();
@@ -54,12 +54,13 @@ private:
     void addToRemoveCache(const std::vector<std::vector<BDD>>&variables);
     BDD popFromRemoveCache(const unsigned int vl);
     BDD popFirstFromRemoveCache(const unsigned int vl);
-    bool isEmptyAtRemoveCacheLevel(const unsigned int vl);
-    bool isEmptyRemoveCache();
+    bool isRemovableAtRemoveCacheLevel(const unsigned int vl);
+    bool isRemovableRemoveCache();
 
     bool isRemoveCacheReducible();
     bool reduceRemoveCache();
 
     std::vector<std::vector<BDD>>*_removeCache;
     unsigned int _maxBDDsize;
+    bool _keepFirstLevel;
 };

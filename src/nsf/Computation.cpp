@@ -142,7 +142,7 @@ RESULT Computation::decide() const {
 
 BDD Computation::solutions() const {
     std::vector<BDD> cubesAtlevels;
-    return evaluate(cubesAtlevels, false);
+    return evaluate(cubesAtlevels, true);
 }
 
 void Computation::print() const {

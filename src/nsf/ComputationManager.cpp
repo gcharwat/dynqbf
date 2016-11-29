@@ -55,7 +55,11 @@ ComputationManager::~ComputationManager() {
 
 Computation* ComputationManager::newComputation(const std::vector<NTYPE>& quantifierSequence, const std::vector<BDD>& cubesAtLevels, const BDD& bdd) {
     // TODO: dynamically return Computation with or without cache
-    return new CacheComputation(quantifierSequence, cubesAtLevels, bdd, optMaxBDDSize.getValue());
+    bool keepFirstLevel = false;
+    if (quantifierSequence.size() >= 1 && quantifierSequence.at(0) == NTYPE::EXISTS) {
+        keepFirstLevel = app.enumerate();
+    }
+    return new CacheComputation(quantifierSequence, cubesAtLevels, bdd, optMaxBDDSize.getValue(), keepFirstLevel);
     //return new Computation(quantifierSequence, cubesAtLevels, bdd);
 }
 
