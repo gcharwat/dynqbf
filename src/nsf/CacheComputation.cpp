@@ -64,8 +64,8 @@ void CacheComputation::remove(const std::vector<std::vector<BDD>>&removedVertice
 }
 
 void CacheComputation::removeApply(const std::vector<std::vector<BDD>>&removedVertices, const std::vector<BDD>& cubesAtLevels, const BDD& clauses) {
-    addToRemoveCache(removedVertices);
     apply(cubesAtLevels, clauses);
+    addToRemoveCache(removedVertices);
 }
 
 BDD CacheComputation::evaluate(std::vector<BDD>& cubesAtlevels, bool keepFirstLevel) const {

@@ -70,8 +70,7 @@ namespace solver {
                         // Do removal
                         const htd::ConstCollection<htd::vertex_t> forgottenVertices = decomposition->forgottenVertices(currentNode, child);
 
-                        std::vector<std::vector < BDD >> removed(app.getInputInstance()->quantifierCount());
-
+                        std::vector<std::vector<BDD>> removed(app.getInputInstance()->quantifierCount());                        
                         for (const auto& vertex : forgottenVertices) {
                             BDD variable = varMap.getBDDVariable("a", 0,{vertex});
                             unsigned int vertexLevel = htd::accessLabel<int>(app.getInputInstance()->hypergraph->internalGraph().vertexLabel("level", vertex));

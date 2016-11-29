@@ -107,8 +107,6 @@ namespace solver {
                     }
                 }
                 if (checkUnsat) {
-//                    std::vector<BDD> cubesAtLevels = getCubesAtLevels(currentNode);
-
                     app.getPrinter().solverIntermediateEvent(currentNode, *cC, "checking unsat");
                     RESULT decide = nsfMan.decide(*cC);
                     app.getPrinter().solverIntermediateEvent(currentNode, *cC, "checking unsat - done");

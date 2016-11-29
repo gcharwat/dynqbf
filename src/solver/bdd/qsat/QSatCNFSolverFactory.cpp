@@ -45,9 +45,6 @@ namespace solver {
 
             std::unique_ptr<::Solver> QSatCNFSolverFactory::newSolver() const {
                 if (optUseLDM.isUsed()) {
-                    if (app.enumerate()) {
-                        throw std::runtime_error("not implemented yet");
-                    }
                     return std::unique_ptr<::Solver>(new QSatCNFLDMSolver(app, optCheckUnsat.isUsed()));
                 } else {
                     return std::unique_ptr<::Solver>(new QSatCNFEDMSolver(app, optCheckUnsat.isUsed()));

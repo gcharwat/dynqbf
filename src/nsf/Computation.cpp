@@ -83,8 +83,8 @@ void Computation::remove(const std::vector<std::vector<BDD>>&removedVertices) {
 }
 
 void Computation::removeApply(const std::vector<std::vector<BDD>>&removedVertices, const std::vector<BDD>& cubesAtLevels, const BDD& clauses) {
-    remove(removedVertices);
     apply(cubesAtLevels, clauses);
+    remove(removedVertices);
 }
 
 bool Computation::optimize() {
