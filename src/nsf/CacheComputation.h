@@ -37,17 +37,21 @@ public:
     virtual void remove(const std::vector<std::vector<BDD>>&removedVertices) override;
     virtual void removeApply(const std::vector<std::vector<BDD>>&removedVertices, const std::vector<BDD>& cubesAtLevels, const BDD& clauses) override;
 
-    virtual const BDD evaluate(Application& app, std::vector<BDD>& cubesAtlevels, bool keepFirstLevel) const override;
+    virtual RESULT decide() const override;
+    virtual BDD solutions() const override;
 
     virtual bool optimize() override;
     virtual bool optimize(bool left) override;
 
     virtual void print() const override;
 
+protected:
+    virtual BDD evaluate(std::vector<BDD>& cubesAtlevels, bool keepFirstLevel) const override;
+
 private:
 
     void addToRemoveCache(BDD variable, const unsigned int vl);
-    void addToRemoveCache(const std::vector<std::vector<BDD>>& variables);
+    void addToRemoveCache(const std::vector<std::vector<BDD>>&variables);
     BDD popFromRemoveCache(const unsigned int vl);
     BDD popFirstFromRemoveCache(const unsigned int vl);
     bool isEmptyAtRemoveCacheLevel(const unsigned int vl);

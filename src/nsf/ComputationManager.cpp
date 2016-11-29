@@ -157,8 +157,19 @@ void ComputationManager::optimize(Computation &c) {
 //    return checking;
 //}
 
-const BDD ComputationManager::evaluate(const Computation& c, std::vector<BDD>& cubesAtlevels, bool keepFirstLevel) {
-    return c.evaluate(app, cubesAtlevels, keepFirstLevel);
+//const BDD ComputationManager::evaluate(const Computation& c, std::vector<BDD>& cubesAtlevels, bool keepFirstLevel) {
+//    return c.evaluate(cubesAtlevels, keepFirstLevel);
+//}
+
+bool ComputationManager::isUnsat(const Computation& c) const {
+    return c.isUnsat();
+}
+
+RESULT ComputationManager::decide(const Computation& c) const {
+    return c.decide();
+}
+BDD ComputationManager::solutions(const Computation& c) const {
+    return c.solutions();
 }
 
 void ComputationManager::printStatistics() const {

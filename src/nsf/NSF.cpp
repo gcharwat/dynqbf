@@ -514,22 +514,31 @@ void NSF::sortByIncreasingSize() {
     });
 }
 
-const BDD NSF::evaluate(const Application& app, const std::vector<BDD>& cubesAtlevels, const bool keepFirstLevel) const {
+const BDD NSF::evaluate(const std::vector<BDD>& cubesAtlevels, const bool keepFirstLevel) const {
     BDD ret;
     if (isLeaf()) {
         ret = value();
     } else {
-        if (isExistentiallyQuantified()) {
-            ret = app.getBDDManager().getManager().bddZero();
-            for (NSF* n : nestedSet()) {
-                ret += n->evaluate(app, cubesAtlevels, keepFirstLevel);
-            }
-        } else {
-            ret = app.getBDDManager().getManager().bddOne();
-            for (NSF* n : nestedSet()) {
-                ret *= n->evaluate(app, cubesAtlevels, keepFirstLevel);
+        ret = nestedSet().front()->evaluate(cubesAtlevels, keepFirstLevel);
+        for (unsigned int it = 0; it < nestedSet().size(); it++) {
+            if (isExistentiallyQuantified()) {
+                ret += nestedSet().at(it)->evaluate(cubesAtlevels, keepFirstLevel);
+            } else {
+                ret *= nestedSet().at(it)->evaluate(cubesAtlevels, keepFirstLevel);
             }
         }
+
+//        if (isExistentiallyQuantified()) {
+//            ret = app.getBDDManager().getManager().bddZero();
+//            for (NSF* n : nestedSet()) {
+//                ret += n->evaluate(app, cubesAtlevels, keepFirstLevel);
+//            }
+//        } else {
+//            ret = app.getBDDManager().getManager().bddOne();
+//            for (NSF* n : nestedSet()) {
+//                ret *= n->evaluate(app, cubesAtlevels, keepFirstLevel);
+//            }
+//        }
     }
 
     if (level() != 1 || !keepFirstLevel) {
@@ -539,7 +548,6 @@ const BDD NSF::evaluate(const Application& app, const std::vector<BDD>& cubesAtl
             ret = ret.UnivAbstract(cubesAtlevels[level() - 1]);
         }
     }
-
     return ret;
 }
 

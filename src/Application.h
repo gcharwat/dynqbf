@@ -32,6 +32,10 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include <htd/NamedMultiHypergraph.hpp>
 #include <htd/IMutableHypertreeDecomposition.hpp>
 
+enum RESULT {
+    SAT, UNSAT, UNDECIDED
+};
+
 #define RETURN_SAT 10
 #define RETURN_UNSAT 20
 #define RETURN_UNDECIDED 1

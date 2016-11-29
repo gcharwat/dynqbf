@@ -66,13 +66,35 @@ void CacheComputation::removeApply(const std::vector<std::vector<BDD>>&removedVe
     apply(cubesAtLevels, clauses);
 }
 
-const BDD CacheComputation::evaluate(Application& app, std::vector<BDD>& cubesAtlevels, bool keepFirstLevel) const {
-    for (unsigned int level = 1; level <= cubesAtlevels.size(); level++) {
+BDD CacheComputation::evaluate(std::vector<BDD>& cubesAtlevels, bool keepFirstLevel) const {
+    for (unsigned int level = 1; level <= _removeCache->size(); level++) {
         for (BDD b : _removeCache->at(level - 1)) {
-            cubesAtlevels.at(level - 1) *= b;
+            if (cubesAtlevels.size() < level) {
+                cubesAtlevels.push_back(b);
+            } else {
+                cubesAtlevels.at(level - 1) *= b;
+            }
         }
     }
-    return _nsf->evaluate(app, cubesAtlevels, keepFirstLevel);
+    return Computation::evaluate(cubesAtlevels, keepFirstLevel);
+}
+
+RESULT CacheComputation::decide() const {
+    std::vector<BDD> cubesAtlevels;
+    BDD decide = evaluate(cubesAtlevels, false);
+    if (decide.IsZero()) {
+        return RESULT::UNSAT;
+    } else if (decide.IsOne()) {
+        return RESULT::SAT;
+    } else {
+        // decide.print(0, 2);
+        return RESULT::UNDECIDED;
+    }
+}
+
+BDD CacheComputation::solutions() const {
+    std::vector<BDD> cubesAtlevels;
+    return evaluate(cubesAtlevels, false);
 }
 
 bool CacheComputation::optimize() {

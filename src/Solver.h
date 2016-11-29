@@ -30,9 +30,7 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
 class Application;
 
-enum RESULT {
-    SAT, UNSAT, UNDECIDED
-};
+
 
 class Solver {
 public:
@@ -42,9 +40,9 @@ public:
     // Return the computation for the current decomposition vertex
     virtual Computation* compute(htd::vertex_t) = 0;
 
-    virtual RESULT decide(const Computation& c) = 0;
-
-    virtual BDD solutions(const Computation& c) = 0;
+//    virtual RESULT decide(const Computation& c) = 0;
+//
+//    virtual BDD solutions(const Computation& c) = 0;
 
 protected:
     const Application& app;

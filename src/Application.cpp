@@ -200,9 +200,9 @@ int Application::run(int argc, char** argv) {
         printer->afterComputation();
 
         // Return result
-        result = solver->decide(*computation);
+        result = nsfManager->decide(*computation);
         if (enumerate()) {
-            BDD answer = solver->solutions(*computation);
+            BDD answer = nsfManager->solutions(*computation);
             printer->models(answer, solverFactory->getVariables());
         }
         

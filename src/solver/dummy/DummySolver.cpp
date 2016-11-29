@@ -36,13 +36,13 @@ namespace solver {
             return c;
         }
 
-        RESULT DummySolver::decide(const Computation& c) {
-            return RESULT::UNDECIDED;
-        }
-
-        BDD DummySolver::solutions(const Computation& c) {
-            throw std::runtime_error("not implemented");
-        }
+//        RESULT DummySolver::decide(const Computation& c) {
+//            return RESULT::UNDECIDED;
+//        }
+//
+//        BDD DummySolver::solutions(const Computation& c) {
+//            throw std::runtime_error("not implemented");
+//        }
 
     }
 } // namespace solver::dummy

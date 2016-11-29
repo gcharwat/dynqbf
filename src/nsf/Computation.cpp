@@ -39,7 +39,7 @@ Computation::Computation(const std::vector<NTYPE>& quantifierSequence, const std
 
     _variableDomain = new std::vector<BDD>();
     for (unsigned int level = 1; level <= cubesAtLevels.size(); level++) {
-        _variableDomain->push_back(cubesAtLevels.at(level-1));
+        _variableDomain->push_back(cubesAtLevels.at(level - 1));
     }
 }
 
@@ -73,16 +73,16 @@ void Computation::remove(const BDD& variable, const unsigned int vl) {
     _nsf->remove(variable, vl);
 }
 
-void Computation::remove(const std::vector<std::vector<BDD>>& removedVertices) {
+void Computation::remove(const std::vector<std::vector<BDD>>&removedVertices) {
     for (unsigned int level = 1; level <= removedVertices.size(); level++) {
-        for (BDD variable : removedVertices.at(level-1)) {
+        for (BDD variable : removedVertices.at(level - 1)) {
             removeFromVariableDomain(variable, level);
         }
     }
     _nsf->remove(removedVertices);
 }
 
-void Computation::removeApply(const std::vector<std::vector<BDD>>& removedVertices, const std::vector<BDD>& cubesAtLevels, const BDD& clauses) {
+void Computation::removeApply(const std::vector<std::vector<BDD>>&removedVertices, const std::vector<BDD>& cubesAtLevels, const BDD& clauses) {
     remove(removedVertices);
     apply(cubesAtLevels, clauses);
 }
@@ -111,12 +111,38 @@ const unsigned int Computation::nsfCount() const {
     return _nsf->nsfCount();
 }
 
-const BDD Computation::evaluate(Application& app, std::vector<BDD>& cubesAtlevels, bool keepFirstLevel) const {
-    return _nsf->evaluate(app, cubesAtlevels, keepFirstLevel);
+BDD Computation::evaluate(std::vector<BDD>& cubesAtlevels, bool keepFirstLevel) const {
+    // assert cubesAtLevels.size() == _variableDomain->size()
+    for (unsigned int level = 1; level <= _variableDomain->size(); level++) {
+        if (cubesAtlevels.size() < level) {
+            cubesAtlevels.push_back(_variableDomain->at(level-1));
+        } else {
+            cubesAtlevels.at(level - 1) *= _variableDomain->at(level - 1);
+        }
+    }
+    return _nsf->evaluate(cubesAtlevels, keepFirstLevel);
 }
 
 bool Computation::isUnsat() const {
     return _nsf->isUnsat();
+}
+
+RESULT Computation::decide() const {
+    std::vector<BDD> cubesAtlevels;
+    BDD decide = evaluate(cubesAtlevels, false);
+    if (decide.IsZero()) {
+        return RESULT::UNSAT;
+    } else if (decide.IsOne()) {
+        return RESULT::SAT;
+    } else {
+        // decide.print(0, 2);
+        return RESULT::UNDECIDED;
+    }
+}
+
+BDD Computation::solutions() const {
+    std::vector<BDD> cubesAtlevels;
+    return evaluate(cubesAtlevels, false);
 }
 
 void Computation::print() const {
