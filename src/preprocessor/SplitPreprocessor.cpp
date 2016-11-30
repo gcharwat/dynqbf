@@ -30,7 +30,7 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 namespace preprocessor {
 
     SplitPreprocessor::SplitPreprocessor(Application& app, bool newDefault)
-    : Preprocessor(app, "split", "Split clauses if their length exceeds XX", newDefault) {
+    : Preprocessor(app, "split", "Split clauses if their length exceeds 40", newDefault) {
     }
 
     InstancePtr SplitPreprocessor::preprocess(const InstancePtr& instance) const {
