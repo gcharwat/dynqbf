@@ -81,6 +81,7 @@ namespace decomposer {
         optRootSelectionFitnessFunction.addChoice("none", "do not optimize selected root", true);
         optRootSelectionFitnessFunction.addChoice("height", "minimize decomposition height");
         optRootSelectionFitnessFunction.addChoice("variable-level", "prefer innermost variables to be removed first");
+        optRootSelectionFitnessFunction.addChoice("join-child-bag-size-product", "minimize the sum over products of join node children bag sizes");
         app.getOptionHandler().addOption(optRootSelectionFitnessFunction, OPTION_SECTION);
 
         optRootSelectionIterations.addCondition(selected);
@@ -142,6 +143,9 @@ namespace decomposer {
         } else if (optRootSelectionFitnessFunction.getValue() == "variable-level") {
             VariableLevelFitnessFunction variableLevelFitnessFunction(app);
             operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager(), variableLevelFitnessFunction);
+        } else if (optRootSelectionFitnessFunction.getValue() == "join-child-bag-size-product") {
+            JoinNodeChildBagProductFitnessFunction joinNodeChildBagProductFitnessFunction;
+            operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager(), joinNodeChildBagProductFitnessFunction);
         } else {
             assert(optRootSelectionFitnessFunction.getValue() == "none");
             operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager());
@@ -151,28 +155,28 @@ namespace decomposer {
 
         // Path decomposition
         if (optPathDecomposition.isUsed()) {
-            operation->addManipulationOperations({new htd::JoinNodeReplacementOperation(app.getHTDManager())});
+            operation->addManipulationOperation(new htd::JoinNodeReplacementOperation(app.getHTDManager()));
         }
 
         // Normalize
         if (optNormalization.getValue() == "none") {
-            if (emptyRoot) operation->addManipulationOperations({new htd::AddEmptyRootOperation(app.getHTDManager())});
-            if (emptyLeaves) operation->addManipulationOperations({new htd::AddEmptyLeavesOperation(app.getHTDManager())});
+            if (emptyRoot) operation->addManipulationOperation(new htd::AddEmptyRootOperation(app.getHTDManager()));
+            if (emptyLeaves) operation->addManipulationOperation(new htd::AddEmptyLeavesOperation(app.getHTDManager()));
         } else if (optNormalization.getValue() == "weak") {
-            operation->addManipulationOperations({new htd::WeakNormalizationOperation(app.getHTDManager(), emptyRoot, emptyLeaves, false)});
+            operation->addManipulationOperation(new htd::WeakNormalizationOperation(app.getHTDManager(), emptyRoot, emptyLeaves, false));
         } else if (optNormalization.getValue() == "semi") {
-            operation->addManipulationOperations({new htd::SemiNormalizationOperation(app.getHTDManager(), emptyRoot, emptyLeaves, false)});
+            operation->addManipulationOperation(new htd::SemiNormalizationOperation(app.getHTDManager(), emptyRoot, emptyLeaves, false));
         } else if (optNormalization.getValue() == "normalized") {
-            operation->addManipulationOperations({new htd::NormalizationOperation(app.getHTDManager(), emptyRoot, emptyLeaves, false, false)});
+            operation->addManipulationOperation(new htd::NormalizationOperation(app.getHTDManager(), emptyRoot, emptyLeaves, false, false));
         } else {
             /* nothing to do */
         }
 
-        htd::ITreeDecompositionAlgorithm * algorithm = app.getHTDManager()->treeDecompositionAlgorithmFactory().createInstance(); //getTreeDecompositionAlgorithm();
+        htd::ITreeDecompositionAlgorithm* algorithm = app.getHTDManager()->treeDecompositionAlgorithmFactory().createInstance();
         algorithm->addManipulationOperation(operation);
 
         if (optDecompositionFitnessFunction.isUsed() && optDecompositionFitnessFunction.getValue() != "none") {
-            htd::IterativeImprovementTreeDecompositionAlgorithm * iterativeAlgorithm;
+            htd::IterativeImprovementTreeDecompositionAlgorithm* iterativeAlgorithm;
             if (optDecompositionFitnessFunction.getValue() == "width") {
                 WidthFitnessFunction fitnessFunction;
                 iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
@@ -199,9 +203,9 @@ namespace decomposer {
             algorithm = iterativeAlgorithm;
         }
 
-        htd::ITreeDecomposition * decomp = algorithm->computeDecomposition(instance->hypergraph->internalGraph());
+        htd::ITreeDecomposition* decomp = algorithm->computeDecomposition(instance->hypergraph->internalGraph());
 
-        htd::IMutableTreeDecomposition * decompMutable = &(app.getHTDManager()->treeDecompositionFactory().accessMutableInstance(*decomp));
+        htd::IMutableTreeDecomposition* decompMutable = &(app.getHTDManager()->treeDecompositionFactory().accessMutableInstance(*decomp));
         HTDDecompositionPtr decomposition(decompMutable);
         return decomposition;
     }
