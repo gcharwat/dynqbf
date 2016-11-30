@@ -44,7 +44,10 @@ set(CMAKE_CXX_FLAGS_PROFILER "-O3 -g")
 
 SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
 SET(BUILD_SHARED_LIBRARIES OFF)
-SET(CMAKE_EXE_LINKER_FLAGS "-static")
+
+if(NOT APPLE)
+    SET(CMAKE_EXE_LINKER_FLAGS "-static")
+endif()
 
 # Add additional directories for library search
 include_directories("/opt/local/include")
