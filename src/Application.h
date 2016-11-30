@@ -112,6 +112,7 @@ private:
     
     options::OptionHandler opts;
     options::Option optHelp;
+    options::SingleValueOption optInputFile;
     options::Choice optHGInputParser;
     options::Choice optDecomposer;
     options::Choice optPreprocessor;
