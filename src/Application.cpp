@@ -116,9 +116,9 @@ int Application::run(int argc, char** argv) {
     opts.addOption(optPreprocessor, MODULE_SECTION);
     preprocessor::NoPreprocessor noPreprocessor(*this, true);
 //    preprocessor::UnitLiteralPreprocessor unitLiteralPreprocessor(*this);
-//    preprocessor::CNF3Preprocessor cnf3Preprocessor(*this);
-//    preprocessor::SplitPreprocessor splitPreprocessor(*this);
-    preprocessor::CombinedPreprocessor combinedPreprocessor(*this);
+    preprocessor::CNF3Preprocessor cnf3Preprocessor(*this);
+    preprocessor::SplitPreprocessor splitPreprocessor(*this);
+//    preprocessor::CombinedPreprocessor combinedPreprocessor(*this);
     
 
     opts.addOption(optSolver, MODULE_SECTION);
