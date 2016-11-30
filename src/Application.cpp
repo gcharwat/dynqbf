@@ -109,7 +109,7 @@ int Application::run(int argc, char** argv) {
     opts.addOption(optEnumerate);
     opts.addOption(optSeed);
 
-    opts.addOption(optHGInputParser, MODULE_SECTION); // uncomment to add to selection
+    //opts.addOption(optHGInputParser, MODULE_SECTION); // uncomment to add to selection
     parser::DIMACSDriver dimacsParser(*this, true);
     //parser::DIMACSIncidenceDriver dimacsIncidenceParser(*this);
 
