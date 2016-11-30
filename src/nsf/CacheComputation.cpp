@@ -169,9 +169,6 @@ void CacheComputation::addToRemoveCache(const std::vector<std::vector<BDD>>&vari
 }
 
 BDD CacheComputation::popFromRemoveCache(const unsigned int vl) {
-    //    if (isEmptyAtRemoveCacheLevel(vl)) {
-    //        return app.getBDDManager().getManager().bddOne();
-    //    }
     // TODO: We assume isRemovableAtRemoveCacheLevel() to be called first
     BDD b = _removeCache->at(vl - 1).back();
     _removeCache->at(vl - 1).pop_back();
@@ -179,9 +176,6 @@ BDD CacheComputation::popFromRemoveCache(const unsigned int vl) {
 }
 
 BDD CacheComputation::popFirstFromRemoveCache(const unsigned int vl) {
-    //    if (isEmptyAtRemoveCacheLevel(vl)) {
-    //        return app.getBDDManager().getManager().bddOne();
-    //    }
     // TODO: We assume isRemovableAtRemoveCacheLevel() to be called first
     std::iter_swap(_removeCache->at(vl - 1).begin(), _removeCache->at(vl - 1).end() - 1);
     BDD b = _removeCache->at(vl - 1).back();
