@@ -34,8 +34,6 @@ namespace solver {
                 QSatBDDSolver(const Application& app);
 
                 Computation* compute(htd::vertex_t vertex) override;
-//                RESULT decide(const Computation& c) override;
-//                BDD solutions(const Computation& c) override;
 
             private:
                 BDD currentClauses();

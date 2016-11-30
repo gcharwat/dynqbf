@@ -45,6 +45,7 @@ namespace solver {
 
             QSat2CNFEDMSolver::QSat2CNFEDMSolver(const Application& app)
             : ::Solver(app) {
+                std::cerr << "Warning: Not tested/optimized (development in progress)" << std::endl;
             }
 
             Computation* QSat2CNFEDMSolver::compute(htd::vertex_t currentNode) {

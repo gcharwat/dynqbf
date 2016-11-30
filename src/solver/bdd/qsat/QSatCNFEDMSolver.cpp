@@ -161,55 +161,6 @@ namespace solver {
                 }
                 return clauses;
             }
-
-            //            bool QSatCNFEDMSolver::isUnsat(const Computation & c) {
-            //                if (c.isLeaf()) {
-            //                    return c.value().IsZero();
-            //                } else {
-            //                    for (const Computation* cC : c.nestedSet()) {
-            //                        bool unsatC = isUnsat(*cC);
-            //                        if (c.isExistentiallyQuantified() && !unsatC) {
-            //                            return false;
-            //                        } else if (c.isUniversiallyQuantified() && unsatC) { // FORALL
-            //                            return true;
-            //                        }
-            //                    }
-            //                    if (c.isExistentiallyQuantified()) {
-            //                        return true;
-            //                    } else {
-            //                        return false;
-            //                    }
-            //                }
-            //            }
-
-//            RESULT QSatCNFEDMSolver::decide(const Computation& c) {
-//                Cudd manager = app.getBDDManager().getManager();
-//                ComputationManager& nsfManager = app.getNSFManager();
-//
-//                std::vector<BDD> cubesAtlevels;
-//                for (unsigned int i = 0; i < app.getInputInstance()->quantifierCount(); i++) {
-//                    cubesAtlevels.push_back(manager.bddOne());
-//                }
-//                BDD decide = nsfManager.evaluate(c, cubesAtlevels, false);
-//                if (decide == manager.bddZero()) {
-//                    return RESULT::UNSAT;
-//                } else if (decide == manager.bddOne()) {
-//                    return RESULT::SAT;
-//                } else {
-//                    decide.print(0, 2);
-//                    return RESULT::UNDECIDED;
-//                }
-//            }
-//
-//            BDD QSatCNFEDMSolver::solutions(const Computation& c) {
-//                ComputationManager& nsfManager = app.getNSFManager();
-//                std::vector<BDD> cubesAtlevels;
-//                for (unsigned int level = 1; level <= app.getInputInstance()->quantifierCount(); level++) {
-//                    cubesAtlevels.push_back(app.getBDDManager().getManager().bddOne());
-//                }
-//                return nsfManager.evaluate(c, cubesAtlevels, true);
-//            }
-
         }
     }
 

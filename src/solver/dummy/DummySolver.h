@@ -32,8 +32,6 @@ namespace solver {
             DummySolver(const Application& app);
 
             virtual Computation* compute(htd::vertex_t root) override;
-//            RESULT decide(const Computation& c) override;
-//            BDD solutions(const Computation& c) override;
         };
 
     }

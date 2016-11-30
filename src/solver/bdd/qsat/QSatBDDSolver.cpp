@@ -106,23 +106,6 @@ namespace solver {
                 }
                 return clauses;
             }
-
-//            RESULT QSatBDDSolver::decide(const Computation & c) {
-//                if (c.isUnsat()) {
-//                    return RESULT::UNSAT;
-//                } else {
-//                    return RESULT::SAT;
-//                }
-//            }
-//
-//            BDD QSatBDDSolver::solutions(const Computation& c) {
-//                ComputationManager& nsfManager = app.getNSFManager();
-//                std::vector<BDD> cubesAtlevels;
-//                for (unsigned int i = 0; i < app.getInputInstance()->quantifierCount(); i++) {
-//                    cubesAtlevels.push_back(app.getBDDManager().getManager().bddOne());
-//                }
-//                return nsfManager.evaluate(c, cubesAtlevels, true);
-//            }
         }
     }
 } // namespace solver::bdd::qsat
