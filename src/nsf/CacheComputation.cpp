@@ -189,7 +189,7 @@ BDD CacheComputation::popFirstFromRemoveCache(const unsigned int vl) {
     return b;
 }
 
-bool CacheComputation::isRemovableRemoveCache() {
+bool CacheComputation::isRemovableRemoveCache() const {
     for (unsigned int vl = 1; vl <= _removeCache->size(); vl++) {
         if (isRemovableAtRemoveCacheLevel(vl))
             return true;
@@ -197,7 +197,7 @@ bool CacheComputation::isRemovableRemoveCache() {
     return false;
 }
 
-bool CacheComputation::isRemovableAtRemoveCacheLevel(const unsigned int vl) {
+bool CacheComputation::isRemovableAtRemoveCacheLevel(const unsigned int vl) const {
     if (vl == 1 && _keepFirstLevel) {
         return false;
     }

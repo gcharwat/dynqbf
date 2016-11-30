@@ -54,8 +54,8 @@ private:
     void addToRemoveCache(const std::vector<std::vector<BDD>>&variables);
     BDD popFromRemoveCache(const unsigned int vl);
     BDD popFirstFromRemoveCache(const unsigned int vl);
-    bool isRemovableAtRemoveCacheLevel(const unsigned int vl);
-    bool isRemovableRemoveCache();
+    bool isRemovableAtRemoveCacheLevel(const unsigned int vl) const;
+    bool isRemovableRemoveCache() const;
 
     bool isRemoveCacheReducible();
     bool reduceRemoveCache();
