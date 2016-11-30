@@ -4,6 +4,8 @@ cudd_lib=$(cudd_dir)/cudd/.libs/libcudd.a
 htd_dir=$(CURDIR)/../htd-lib/current
 htd_lib=$(htd_dir)/lib/libhtd.a
 
+export PATH := /opt/local/bin:$(PATH)
+
 .PHONY: all
 all: release
 
