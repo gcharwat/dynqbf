@@ -48,7 +48,7 @@ namespace decomposer {
     , optEmptyLeaves("empty-leaves", "Add empty leaves to the tree decomposition")
     , optPathDecomposition("path-decomposition", "Create a path decomposition")
     , optRootSelectionFitnessFunction("root-strategy", "f", "Use fitness function <f> for decomposition root node selection")
-    , optRootSelectionIterations("root-strategy-iterations", "i", "Randomly select <i> nodes as root, choose decomposition with best fitness value", 1)
+    , optRootSelectionIterations("root-strategy-iterations", "i", "Randomly select <i> nodes as root, choose decomposition with best fitness value", 0)
     , optDecompositionFitnessFunction("decomposition-strategy", "f", "Use fitness function <f> for decomposition selection")
     , optDecompositionIterations("decomposition-strategy-iterations", "i", "Generate <i> tree decompositions, choose decomposition with best fitness value", 10) {
         optNormalization.addCondition(selected);
