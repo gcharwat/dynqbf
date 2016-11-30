@@ -45,6 +45,7 @@ namespace parser {
 
         std::string inputFileFormat, dummy;
         unsigned int atoms = 0, clauses = 0;
+        htd::vertex_t maxVertexId = htd::Vertex::FIRST - 1;
 //        unsigned int firstLevelCount = 0;
 
         std::string line;
@@ -68,11 +69,11 @@ namespace parser {
                     std::getline(lineStream, lineElement, ' '); // skip first character
                     while (std::getline(lineStream, lineElement, ' ')) {
                         if (lineElement == "0") break;
-                        instance->hypergraph->addVertex(lineElement);
-                        instance->hypergraph->setVertexLabel("level", lineElement, new htd::Label<int>(instance->quantifierCount()));
-                        if (instance->quantifierCount() == 1) {
-//                            firstLevelCount++;
+                        htd::vertex_t vertexId = instance->hypergraph->addVertex(lineElement);
+                        if (vertexId > maxVertexId) {
+                            maxVertexId = vertexId;
                         }
+                        instance->hypergraph->setVertexLabel("level", lineElement, new htd::Label<int>(instance->quantifierCount()));
                     }
                     break;
                 case 'a':
@@ -82,11 +83,11 @@ namespace parser {
                     std::getline(lineStream, lineElement, ' '); // skip first character
                     while (std::getline(lineStream, lineElement, ' ')) {
                         if (lineElement == "0") break;
-                        instance->hypergraph->addVertex(lineElement);
-                        instance->hypergraph->setVertexLabel("level", lineElement, new htd::Label<int>(instance->quantifierCount()));
-                        if (instance->quantifierCount() == 1) {
-//                            firstLevelCount++;
+                        htd::vertex_t vertexId = instance->hypergraph->addVertex(lineElement);
+                        if (vertexId > maxVertexId) {
+                            maxVertexId = vertexId;
                         }
+                        instance->hypergraph->setVertexLabel("level", lineElement, new htd::Label<int>(instance->quantifierCount()));
                     }
                     break;
                 default:
@@ -106,8 +107,9 @@ namespace parser {
                             vertexName = lineElement;
                         }
                         // Does the vertex already exist?
-                        // TODO adding vertex also checks if it already exists -> remove redundant check
-                        if (!instance->hypergraph->isVertexName(vertexName)) {
+                        htd::vertex_t vertexId = instance->hypergraph->addVertex(vertexName);
+                        if (vertexId > maxVertexId) {
+                            maxVertexId = vertexId;
                             // Shift all levels by 1
                             if (instance->quantifier(1) != NTYPE::EXISTS) {
                                 instance->pushFrontQuantifier(NTYPE::EXISTS);
@@ -118,9 +120,7 @@ namespace parser {
                                     instance->hypergraph->setVertexLabel("level", oldVertexName, new htd::Label<int>(newVertexLevel));
                                 }
                             }
-                            instance->hypergraph->addVertex(vertexName);
                             instance->hypergraph->setVertexLabel("level", vertexName, new htd::Label<int>(1)); // insert at level 1
-//                            firstLevelCount++;
                         }
                         atoms.push_back(vertexName);
                         signs.push_back(sign);
