@@ -75,6 +75,7 @@ const std::string Application::MODULE_SECTION = "Module selection";
 Application::Application(const std::string& binaryName)
 : binaryName(binaryName)
 , optHelp("h", "Print usage information and exit")
+, optVersion("v", "Print version information and exit")
 , optInputFile("f", "file", "Read problem instance from <file> (default: from stdin)")
 , optHGInputParser("i", "input-format", "Specify the instance input format")
 , optDecomposer("d", "decomposer", "Use decomposition method <decomposer>")
@@ -100,6 +101,7 @@ int Application::run(int argc, char** argv) {
     opts.addOption(optHelp);
     options::HelpObserver helpObserver(*this, optHelp);
     opts.registerObserver(helpObserver);
+    opts.addOption(optVersion);
 
     opts.addOption(optInputFile);
     opts.addOption(optOnlyParseInstance);
@@ -166,6 +168,12 @@ int Application::run(int argc, char** argv) {
         usage();
         throw;
     }
+    
+    if (optVersion.isUsed()) {
+        version();
+        std::exit(0);
+    }
+    
     srand(seed);
 
     RESULT result = RESULT::UNDECIDED;
@@ -248,12 +256,15 @@ int Application::run(int argc, char** argv) {
 }
 
 void Application::usage() const {
+    std::cerr << "Usage: " << binaryName << " [options] < instance" << std::endl;
+    opts.printHelp();
+}
+
+void Application::version() const {
     std::cerr << "Version:          " << DYNQBF_VERSION_MAJOR << "." << DYNQBF_VERSION_MINOR << "." << DYNQBF_VERSION_PATCH << std::endl;
     std::cerr << "Github Commit ID: " << DYNQBF_GIT_COMMIT_ID << std::endl;
     std::cerr << " with HTD Commit: " << HTD_GIT_COMMIT_ID << std::endl;
     std::cerr << "Built on:         " << __DATE__ << " at " << __TIME__ << std::endl;
-    std::cerr << "Usage: " << binaryName << " [options] < instance" << std::endl;
-    opts.printHelp();
 }
 
 InstancePtr Application::getInputInstance() const {

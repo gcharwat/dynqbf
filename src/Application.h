@@ -66,6 +66,7 @@ public:
     
     // Print usage (but don't exit)
     void usage() const;
+    void version() const;
 
     options::OptionHandler& getOptionHandler();
     options::Choice& getHGInputParserChoice();
@@ -112,6 +113,7 @@ private:
     
     options::OptionHandler opts;
     options::Option optHelp;
+    options::Option optVersion;
     options::SingleValueOption optInputFile;
     options::Choice optHGInputParser;
     options::Choice optDecomposer;
