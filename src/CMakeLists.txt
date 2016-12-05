@@ -98,6 +98,7 @@ add_library(dynqbf-objects
     decomposer/JoinNodeChildCountFitnessFunction.cpp
     decomposer/JoinNodeChildBagFitnessFunction.cpp
     decomposer/JoinNodeChildBagProductFitnessFunction.cpp
+    decomposer/JoinNodeBagExponentialFitnessFunction.cpp
     decomposer/JoinNodeBagFitnessFunction.cpp
     decomposer/JoinNodeCountFitnessFunction.cpp
     decomposer/WidthFitnessFunction.cpp
