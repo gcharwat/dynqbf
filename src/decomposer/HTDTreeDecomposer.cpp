@@ -96,7 +96,7 @@ namespace decomposer {
         optDecompositionFitnessFunction.addChoice("join-child-count", "minimize number of join node children");
         optDecompositionFitnessFunction.addChoice("join-child-bag-size", "minimize the sum over join node children bag sizes");
         optDecompositionFitnessFunction.addChoice("join-child-bag-size-product", "minimize the sum over products of join node children bag sizes", true);
-        optDecompositionFitnessFunction.addChoice("join-bag-size-exponential", "minimize the sum over join node bag sizes to the power of number of children", true);
+        optDecompositionFitnessFunction.addChoice("join-bag-size-exponential", "minimize the sum over join node bag sizes to the power of number of children");
         
         app.getOptionHandler().addOption(optDecompositionFitnessFunction, OPTION_SECTION);
         
