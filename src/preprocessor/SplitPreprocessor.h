@@ -22,7 +22,7 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 #include "../Preprocessor.h"
-#include "../options/Choice.h"
+#include "../options/DefaultIntegerValueOption.h"
 
 #include <list>
 
@@ -37,6 +37,10 @@ namespace preprocessor {
     private:    
         void split(InstancePtr& preprocessed, const std::vector<std::string> &vertices, const std::vector<bool> &edgeSigns) const;
         mutable int splitVarIndex = 0;
+        
+        static const std::string OPTION_SECTION;
+        options::DefaultIntegerValueOption optSplitSize;
+        
         
     };
 
