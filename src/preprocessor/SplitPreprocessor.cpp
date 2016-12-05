@@ -30,7 +30,7 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 namespace preprocessor {
 
     SplitPreprocessor::SplitPreprocessor(Application& app, bool newDefault)
-    : Preprocessor(app, "split", "Split clauses if their length exceeds 40", newDefault) {
+    : Preprocessor(app, "split", "Split clauses if their length exceeds 100", newDefault) {
     }
 
     InstancePtr SplitPreprocessor::preprocess(const InstancePtr& instance) const {
@@ -61,7 +61,7 @@ namespace preprocessor {
     
     
     void SplitPreprocessor::split(InstancePtr& preprocessed, const std::vector<std::string> &vertices, const std::vector<bool> &edgeSigns) const {
-        if (vertices.size() <= 40) {
+        if (vertices.size() <= 100) {
             htd::id_t newEdgeId = preprocessed->hypergraph->addEdge(vertices);
             preprocessed->hypergraph->setEdgeLabel("signs", newEdgeId, new htd::Label < std::vector<bool>>(edgeSigns));
         } else {

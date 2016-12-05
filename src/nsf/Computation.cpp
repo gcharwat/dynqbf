@@ -73,7 +73,7 @@ void Computation::remove(const BDD& variable, const unsigned int vl) {
     _nsf->remove(variable, vl);
 }
 
-void Computation::remove(const std::vector<std::vector<BDD>>&removedVertices) {
+void Computation::remove(const std::vector<std::vector<BDD>>& removedVertices) {
     for (unsigned int level = 1; level <= removedVertices.size(); level++) {
         for (BDD variable : removedVertices.at(level - 1)) {
             removeFromVariableDomain(variable, level);
@@ -85,7 +85,20 @@ void Computation::remove(const std::vector<std::vector<BDD>>&removedVertices) {
 void Computation::removeApply(const std::vector<std::vector<BDD>>&removedVertices, const std::vector<BDD>& cubesAtLevels, const BDD& clauses) {
     apply(cubesAtLevels, clauses);
     remove(removedVertices);
+//    addToVariableDomain(cubesAtLevels);
+//    for (unsigned int level = 1; level <= removedVertices.size(); level++) {
+//        for (BDD variable : removedVertices.at(level - 1)) {
+//            removeFromVariableDomain(variable, level);
+//            _nsf->removeApply(variable, level, clauses);
+//        }
+//    }
 }
+
+//void Computation::removeApply(const BDD& variable, const unsigned int vl, const std::vector<BDD>& cubesAtLevels, const BDD& clauses) {
+//    addToVariableDomain(cubesAtLevels);
+//    removeFromVariableDomain(variable, vl);
+//    _nsf->removeApply(variable, vl, clauses);
+//}
 
 bool Computation::optimize() {
     return _nsf->optimize();

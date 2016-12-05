@@ -281,6 +281,66 @@ void NSF::conjunct(const NSF& other) {
     }
 }
 
+//void NSF::removeApply(const std::vector<std::vector<BDD>>& removedVertices, const BDD& restrict, const BDD& clauses) {
+//    if (!removedVertices.at(level() - 1).empty()) {
+//        BDD removed = removedVertices.at(level() - 1).back();
+//        removedVertices.at(level() - 1).pop_back();
+//
+//        BDD restrictTop = restrict * removed;
+//        BDD restrictBot = restrict * !removed;
+//
+//        BDD assignTop = clauses.Restrict(removed);
+//        BDD assignBot = clauses.Restrict(!removed);
+//
+//        removeApply(removedVertices, restrictTop, assignTop);
+//        removeApply(removedVertices, restrictBot, assignBot);
+//    } else {
+//        if (isLeaf()) {
+//            
+//        } else {
+//            for (NSF* n : nestedSet()) {
+//                
+//            }
+//        }
+//    }
+//}
+//
+//void NSF::removeApply(const std::vector<BDD>& removedVertices, const BDD& restrict, const BDD& clauses) { 
+//    
+//}
+//
+//void NSF::removeApply(const BDD& variable, const unsigned int vl, const BDD& clauses) {
+//    if (level() == vl) {
+//        BDD assignTop = clauses.Restrict(variable);
+//        BDD assignBot = clauses.Restrict(!variable);
+//
+//        if (isLeaf()) {
+//            if (isExistentiallyQuantified()) {
+//                _value = (_value.Restrict(variable) * assignTop) + (_value.Restrict(!variable) * assignBot);
+//            } else {
+//                _value = (_value.Restrict(variable) * assignTop) * (_value.Restrict(!variable) * assignBot);
+//            }
+//        } else {
+//            std::vector<NSF*> newNestedSet;
+//            for (NSF* n : nestedSet()) {
+//                NSF* cop = new NSF(*n);
+//                n->apply([&variable, &assignTop] (BDD b) -> BDD {
+//                    return b.Restrict(variable) * assignTop;
+//                });
+//                cop->apply([&variable, &assignBot] (BDD b) -> BDD {
+//                    return b.Restrict(!variable) * assignBot;
+//                });
+//                newNestedSet.push_back(cop);
+//            }
+//            _nestedSet.insert(_nestedSet.end(), newNestedSet.begin(), newNestedSet.end());
+//        }
+//    } else {
+//        for (NSF* n : nestedSet()) {
+//            n->removeApply(variable, vl, clauses);
+//        }
+//    }
+//}
+
 void NSF::remove(const BDD& variable, const unsigned int vl) {
     if (level() == vl) {
         if (isLeaf()) {
@@ -528,17 +588,17 @@ const BDD NSF::evaluate(const std::vector<BDD>& cubesAtlevels, const bool keepFi
             }
         }
 
-//        if (isExistentiallyQuantified()) {
-//            ret = app.getBDDManager().getManager().bddZero();
-//            for (NSF* n : nestedSet()) {
-//                ret += n->evaluate(app, cubesAtlevels, keepFirstLevel);
-//            }
-//        } else {
-//            ret = app.getBDDManager().getManager().bddOne();
-//            for (NSF* n : nestedSet()) {
-//                ret *= n->evaluate(app, cubesAtlevels, keepFirstLevel);
-//            }
-//        }
+        //        if (isExistentiallyQuantified()) {
+        //            ret = app.getBDDManager().getManager().bddZero();
+        //            for (NSF* n : nestedSet()) {
+        //                ret += n->evaluate(app, cubesAtlevels, keepFirstLevel);
+        //            }
+        //        } else {
+        //            ret = app.getBDDManager().getManager().bddOne();
+        //            for (NSF* n : nestedSet()) {
+        //                ret *= n->evaluate(app, cubesAtlevels, keepFirstLevel);
+        //            }
+        //        }
     }
 
     if (level() != 1 || !keepFirstLevel) {

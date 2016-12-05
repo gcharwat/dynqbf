@@ -81,7 +81,7 @@ namespace solver {
                         app.getPrinter().solverIntermediateEvent(currentNode, *tmpOuter, "removing variables and introducing clauses - done");
 
                         app.getPrinter().solverIntermediateEvent(currentNode, *tmpOuter, "removing variables and introducing clauses, opt");
-                        nsfMan.optimize(*tmpOuter);
+//                        nsfMan.optimize(*tmpOuter);
                         app.getPrinter().solverIntermediateEvent(currentNode, *tmpOuter, "removing variables and introducing clauses, opt - done");
                         if (first) {
                             cC = tmpOuter;
@@ -91,14 +91,12 @@ namespace solver {
                             nsfMan.conjunct(*cC, *tmpOuter);
                             delete tmpOuter;
                             app.getPrinter().solverIntermediateEvent(currentNode, *cC, "joining - done");
-                            nsfMan.optimize(*cC);
+//                            nsfMan.optimize(*cC);
                         }
                     }
                 }
 
                 if (checkUnsat) {
-//                    std::vector<BDD> cubesAtLevels = getCubesAtLevels(currentNode);
-
                     app.getPrinter().solverIntermediateEvent(currentNode, *cC, "checking unsat");
                     RESULT decide = nsfMan.decide(*cC);
                     app.getPrinter().solverIntermediateEvent(currentNode, *cC, "checking unsat - done");

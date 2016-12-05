@@ -105,6 +105,15 @@ void ComputationManager::remove(Computation& c, const std::vector<std::vector<BD
 }
 
 void ComputationManager::removeApply(Computation& c, const std::vector<std::vector<BDD>>&removedVertices, const std::vector<BDD>& cubesAtLevels, const BDD& clauses) {
+//    for (unsigned int level = 1; level <= removedVertices.size(); level++) {
+//        for (BDD variable : removedVertices.at(level - 1)) {
+//            divideGlobalNSFSizeEstimation(c.leavesCount());
+//            c.removeApply(variable, level, cubesAtLevels, clauses);
+//            multiplyGlobalNSFSizeEstimation(c.leavesCount());
+//            optimize(c);
+//        }
+//    }
+    
     divideGlobalNSFSizeEstimation(c.leavesCount());
     c.removeApply(removedVertices, cubesAtLevels, clauses);
     multiplyGlobalNSFSizeEstimation(c.leavesCount());
@@ -132,38 +141,6 @@ void ComputationManager::optimize(Computation &c) {
     //        multiplyMaxNSFSizeEstimation(c.leavesCount());
     ////    }
 }
-
-/**
- * We expect an alternating quantifier sequence!
- * 
- **/
-//int ComputationManager::compressConjunctive(Computation &c) {
-//    int localSubsetChecksSuccessful = BaseNSFManager::compressConjunctive(c);
-//    subsetChecksSuccessful += localSubsetChecksSuccessful;
-//    return localSubsetChecksSuccessful;
-//}
-
-//bool NSFManager::optimizeNow(bool half) const {
-//    int rotateCheckInterval = optOptimizeInterval.getValue();
-//    if (rotateCheckInterval <= 0) {
-//        return false;
-//    }
-//    bool checking = false;
-//    rotateCheck = rotateCheck % rotateCheckInterval;
-//    if (!half) {
-//        checking = (rotateCheck % rotateCheckInterval == rotateCheckInterval);
-//    } else {
-//        checking = (rotateCheck % rotateCheckInterval == rotateCheckInterval / 2);
-//    }
-//    if (checking) {
-//        subsetChecks++;
-//    }
-//    return checking;
-//}
-
-//const BDD ComputationManager::evaluate(const Computation& c, std::vector<BDD>& cubesAtlevels, bool keepFirstLevel) {
-//    return c.evaluate(cubesAtlevels, keepFirstLevel);
-//}
 
 bool ComputationManager::isUnsat(const Computation& c) const {
     return c.isUnsat();

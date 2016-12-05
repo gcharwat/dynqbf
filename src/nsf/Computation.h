@@ -39,6 +39,7 @@ public:
     virtual void remove(const BDD& variable, const unsigned int vl);
     virtual void remove(const std::vector<std::vector<BDD>>& removedVertices);
     virtual void removeApply(const std::vector<std::vector<BDD>>& removedVertices, const std::vector<BDD>& cubesAtLevels, const BDD& clauses);
+//    virtual void removeApply(const BDD& variable, const unsigned int vl, const std::vector<BDD>& cubesAtLevels, const BDD& clauses);
 
     virtual bool isUnsat() const;
     virtual RESULT decide() const;
