@@ -30,7 +30,6 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "ComputationManager.h"
 #include "Computation.h"
 #include "CacheComputation.h"
-#include "CompressedComputation.h"
 
 const std::string ComputationManager::NSFMANAGER_SECTION = "NSF Manager";
 
@@ -60,8 +59,7 @@ Computation* ComputationManager::newComputation(const std::vector<NTYPE>& quanti
     if (quantifierSequence.size() >= 1 && quantifierSequence.at(0) == NTYPE::EXISTS) {
         keepFirstLevel = app.enumerate();
     }
-    return new CompressedComputation(quantifierSequence, cubesAtLevels, bdd, optMaxBDDSize.getValue(), keepFirstLevel);
-    //return new CacheComputation(quantifierSequence, cubesAtLevels, bdd, optMaxBDDSize.getValue(), keepFirstLevel);
+    return new CacheComputation(quantifierSequence, cubesAtLevels, bdd, optMaxBDDSize.getValue(), keepFirstLevel);
     //return new Computation(quantifierSequence, cubesAtLevels, bdd);
 }
 
