@@ -35,12 +35,12 @@ namespace preprocessor {
         InstancePtr preprocess(const InstancePtr& instance) const override;
 
     private:    
-        void split(InstancePtr& preprocessed, const std::vector<std::string> &vertices, const std::vector<bool> &edgeSigns) const;
+        void split(InstancePtr& preprocessed, const std::vector < std::pair < std::string, bool>> &combinedEdge) const;
         mutable int splitVarIndex = 0;
         
         static const std::string OPTION_SECTION;
         options::DefaultIntegerValueOption optSplitSize;
-        
+        options::Choice optSplitStrategy;
         
     };
 
