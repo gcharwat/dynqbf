@@ -33,7 +33,7 @@ namespace preprocessor {
 
     SplitPreprocessor::SplitPreprocessor(Application& app, bool newDefault)
     : Preprocessor(app, "split", "Split large clauses", newDefault)
-    , optSplitSize("split-size", "s", "Split clauses if their length exceeds <s>", 40)
+    , optSplitSize("split-size", "s", "Split clauses if their length exceeds <s>", 30)
     , optSplitStrategy("split-strategy", "s", "Split clauses following strategy <s>") {
 
         optSplitSize.addCondition(selected);
