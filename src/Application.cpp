@@ -214,7 +214,6 @@ int Application::run(int argc, char** argv) {
         printer->beforeComputation();
         std::unique_ptr<Solver> solver = solverFactory->newSolver();
         Computation* computation = solver->compute(decomposition->root());
-        printer->afterComputation();
 
         // Return result
         result = nsfManager->decide(*computation);
@@ -246,6 +245,8 @@ int Application::run(int argc, char** argv) {
             exitCode = RETURN_UNDECIDED;
             break;
     }
+
+    printer->afterComputation();
 
     printer->result(result);
 
