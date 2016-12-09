@@ -67,6 +67,20 @@ namespace solver {
                         Computation* tmpOuter = childComputations[childIndex];
 
                         app.getPrinter().solverIntermediateEvent(currentNode, *tmpOuter, "removing variables");
+                        
+//                        // only for testing on 2QBFs!!!
+//                        bool noInnermostVariable = true;
+//                        for (const auto& vertex : decomposition->bagContent(currentNode)) {
+//                            unsigned int vertexLevel = htd::accessLabel<int>(app.getInputInstance()->hypergraph->internalGraph().vertexLabel("level", vertex));
+//                            if (vertexLevel == 2) {
+//                                noInnermostVariable = false;
+//                                break;
+//                            }
+//                        }
+//                        
+//                        if (noInnermostVariable) {
+//                            std::cout << "forgotten without innermost left: " << decomposition->forgottenVertices(currentNode, child).size() << std::endl;
+//                        }
 
                         for (const auto& vertex : decomposition->forgottenVertices(currentNode, child)) {
                             BDD variable = varMap.getBDDVariable("a", 0,{vertex});
