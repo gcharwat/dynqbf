@@ -49,6 +49,7 @@ namespace decomposer {
             for (htd::vertex_t child : decomposition.children(node)) {
                 value += removedCount(decomposition, child, fitness);
             }
+            value += decomposition.forgottenVertexCount(node);
         }
         if (decomposition.isJoinNode(node)) {
             fitness += value;
