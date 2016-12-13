@@ -33,7 +33,7 @@ namespace decomposer {
     htd::FitnessEvaluation* NSFSizeEstimationFitnessFunction::fitness(const htd::IMultiHypergraph& graph,
             const htd::ITreeDecomposition& decomposition) const {
         
-        double nsfSizeEstimation;
+        double nsfSizeEstimation = 0.0;
         removedCount(decomposition, decomposition.root(), nsfSizeEstimation);
         
         return new htd::FitnessEvaluation(1, -nsfSizeEstimation);
@@ -42,9 +42,7 @@ namespace decomposer {
     
     double NSFSizeEstimationFitnessFunction::removedCount(const htd::ITreeDecomposition& decomposition, htd::vertex_t node, double& fitness) const {
         double value = 0.0;
-        if (decomposition.isLeaf(node)) {
-            value = 0.0;
-        } else {
+        if (!decomposition.isLeaf(node)) {
             for (htd::vertex_t child : decomposition.children(node)) {
                 value += removedCount(decomposition, child, fitness);
             }
