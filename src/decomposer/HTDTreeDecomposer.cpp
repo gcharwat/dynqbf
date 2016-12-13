@@ -85,8 +85,8 @@ namespace decomposer {
         optRootSelectionFitnessFunction.addChoice("height", "minimize decomposition height");
         optRootSelectionFitnessFunction.addChoice("variable-level", "prefer innermost variables to be removed first");
         optRootSelectionFitnessFunction.addChoice("join-child-bag-size-product", "minimize the sum over products of join node children bag sizes");
-        optDecompositionFitnessFunction.addChoice("nsf-size-estimation", "minimize the estimated total size of computed NSFs");
-        optDecompositionFitnessFunction.addChoice("nsf-size-join-estimation", "minimize the estimated total size of computed NSFs in join nodes");
+        optRootSelectionFitnessFunction.addChoice("nsf-size-estimation", "minimize the estimated total size of computed NSFs");
+        optRootSelectionFitnessFunction.addChoice("nsf-size-join-estimation", "minimize the estimated total size of computed NSFs in join nodes");
         app.getOptionHandler().addOption(optRootSelectionFitnessFunction, OPTION_SECTION);
 
         optRootSelectionIterations.addCondition(selected);
