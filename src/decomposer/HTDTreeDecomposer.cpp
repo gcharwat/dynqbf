@@ -31,6 +31,8 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "JoinNodeChildBagProductFitnessFunction.h"
 #include "JoinNodeBagExponentialFitnessFunction.h"
 #include "JoinNodeBagFitnessFunction.h"
+#include "NSFSizeEstimationFitnessFunction.h"
+#include "NSFSizeJoinEstimationFitnessFunction.h"
 #include "VariableLevelFitnessFunction.h"
 
 #include <htd/main.hpp>
@@ -97,6 +99,8 @@ namespace decomposer {
         optDecompositionFitnessFunction.addChoice("join-child-bag-size", "minimize the sum over join node children bag sizes");
         optDecompositionFitnessFunction.addChoice("join-child-bag-size-product", "minimize the sum over products of join node children bag sizes", true);
         optDecompositionFitnessFunction.addChoice("join-bag-size-exponential", "minimize the sum over join node bag sizes to the power of number of children");
+        optDecompositionFitnessFunction.addChoice("nsf-size-estimation", "minimize the estimated total size of computed NSFs");
+        optDecompositionFitnessFunction.addChoice("nsf-size-join-estimation", "minimize the estimated total size of computed NSFs in join nodes");
         
         app.getOptionHandler().addOption(optDecompositionFitnessFunction, OPTION_SECTION);
         
@@ -199,6 +203,12 @@ namespace decomposer {
                 iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
             } else if (optDecompositionFitnessFunction.getValue() == "join-bag-size-exponential") {
                 JoinNodeBagExponentialFitnessFunction fitnessFunction;
+                iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
+            } else if (optDecompositionFitnessFunction.getValue() == "nsf-size-estimation") {
+                NSFSizeEstimationFitnessFunction fitnessFunction;
+                iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
+            } else if (optDecompositionFitnessFunction.getValue() == "nsf-size-join-estimation") {
+                NSFSizeJoinEstimationFitnessFunction fitnessFunction;
                 iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
             } else {
                 throw std::runtime_error("Invalid option");

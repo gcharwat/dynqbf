@@ -103,6 +103,8 @@ add_library(dynqbf-objects
     decomposer/JoinNodeCountFitnessFunction.cpp
     decomposer/WidthFitnessFunction.cpp
     decomposer/VariableLevelFitnessFunction.cpp
+    decomposer/NSFSizeEstimationFitnessFunction.cpp
+    decomposer/NSFSizeJoinEstimationFitnessFunction.cpp
     Ordering.cpp
     ordering/InstanceOrdering.cpp
     ordering/LexicographicalOrdering.cpp
