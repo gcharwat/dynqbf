@@ -29,6 +29,7 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "../Application.h"
 #include "../options/DefaultIntegerValueOption.h"
 #include "../Instance.h"
+#include "../AbortException.h"
 #include "Computation.h"
 #include "CacheComputation.h"
 
@@ -74,6 +75,7 @@ private:
     options::DefaultIntegerValueOption optMaxGlobalNSFSize;
     options::DefaultIntegerValueOption optMaxBDDSize;
     options::DefaultIntegerValueOption optOptimizeInterval;
+    options::DefaultIntegerValueOption optUnsatCheckInterval;
     options::Option optSortBeforeJoining;
 
     long maxGlobalNSFSizeEstimation;
@@ -81,6 +83,7 @@ private:
     unsigned int optIntervalCounter;
     bool left = true;
 
+    unsigned int optUnsatCheckCounter;
 };
 
 

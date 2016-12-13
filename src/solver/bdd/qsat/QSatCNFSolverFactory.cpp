@@ -37,17 +37,15 @@ namespace solver {
 
             QSatCNFSolverFactory::QSatCNFSolverFactory(Application& app, bool newDefault)
             : ::SolverFactory(app, "cnf", "solve CNF QSAT", newDefault)
-            , optUseLDM("ldm", "Use late decision method")
-            , optCheckUnsat("check-unsat", "Check for unsatisfiable computations") {
+            , optUseLDM("ldm", "Use late decision method"){
                 app.getOptionHandler().addOption(optUseLDM, OPTION_SECTION);
-                app.getOptionHandler().addOption(optCheckUnsat, OPTION_SECTION);
             }
 
             std::unique_ptr<::Solver> QSatCNFSolverFactory::newSolver() const {
                 if (optUseLDM.isUsed()) {
-                    return std::unique_ptr<::Solver>(new QSatCNFLDMSolver(app, optCheckUnsat.isUsed()));
+                    return std::unique_ptr<::Solver>(new QSatCNFLDMSolver(app));
                 } else {
-                    return std::unique_ptr<::Solver>(new QSatCNFEDMSolver(app, optCheckUnsat.isUsed()));
+                    return std::unique_ptr<::Solver>(new QSatCNFEDMSolver(app));
                 }
             }
 

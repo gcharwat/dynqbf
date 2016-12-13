@@ -38,9 +38,8 @@ namespace solver {
     namespace bdd {
         namespace qsat {
 
-            QSatCNFLDMSolver::QSatCNFLDMSolver(const Application& app, bool checkUnsat)
-            : ::Solver(app)
-            , checkUnsat(checkUnsat) {
+            QSatCNFLDMSolver::QSatCNFLDMSolver(const Application& app)
+            : ::Solver(app) {
                 std::cout << "Warning: Not tested/optimized" << std::endl;
             }
 
@@ -93,15 +92,6 @@ namespace solver {
                             app.getPrinter().solverIntermediateEvent(currentNode, *cC, "joining - done");
 //                            nsfMan.optimize(*cC);
                         }
-                    }
-                }
-
-                if (checkUnsat) {
-                    app.getPrinter().solverIntermediateEvent(currentNode, *cC, "checking unsat");
-                    RESULT decide = nsfMan.decide(*cC);
-                    app.getPrinter().solverIntermediateEvent(currentNode, *cC, "checking unsat - done");
-                    if (decide == RESULT::UNSAT) {
-                        throw AbortException("Intermediate unsat check successful", RESULT::UNSAT);
                     }
                 }
 

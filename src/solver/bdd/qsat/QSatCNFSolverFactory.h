@@ -39,7 +39,6 @@ namespace solver {
                 static const std::string OPTION_SECTION;
 
                 options::Option optUseLDM;
-                options::Option optCheckUnsat;
             };
 
 

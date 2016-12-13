@@ -38,13 +38,16 @@ ComputationManager::ComputationManager(Application& app)
 , optPrintStats("print-NSF-stats", "Print NSF Manager statistics")
 , optMaxGlobalNSFSize("max-global-NSF-size", "s", "Split until the global estimated NSF size <s> is reached", 1000)
 , optMaxBDDSize("max-BDD-size", "s", "Split if a BDD size exceeds <s> (may be overruled by max-global-NSF-size)", 3000)
-, optOptimizeInterval("opt-interval", "i", "Optimize NSF every <i>-th computation step", 4)
+, optOptimizeInterval("opt-interval", "i", "Optimize NSF every <i>-th computation step,0 to disable", 4)
+, optUnsatCheckInterval("unsat-check-interval", "i", "Check for unsatisfiability every <i>-th computation step, 0 to disable", 4)
 , optSortBeforeJoining("sort-before-joining", "Sort NSFs by increasing size before joining; can increase subset check success rate")
 , maxGlobalNSFSizeEstimation(1)
-, optIntervalCounter(0) {
+, optIntervalCounter(0)
+, optUnsatCheckCounter(0) {
     app.getOptionHandler().addOption(optOptimizeInterval, NSFMANAGER_SECTION);
     app.getOptionHandler().addOption(optMaxGlobalNSFSize, NSFMANAGER_SECTION);
     app.getOptionHandler().addOption(optMaxBDDSize, NSFMANAGER_SECTION);
+    app.getOptionHandler().addOption(optUnsatCheckInterval, NSFMANAGER_SECTION);
     app.getOptionHandler().addOption(optSortBeforeJoining, NSFMANAGER_SECTION);
     app.getOptionHandler().addOption(optPrintStats, NSFMANAGER_SECTION);
 }
@@ -105,15 +108,15 @@ void ComputationManager::remove(Computation& c, const std::vector<std::vector<BD
 }
 
 void ComputationManager::removeApply(Computation& c, const std::vector<std::vector<BDD>>&removedVertices, const std::vector<BDD>& cubesAtLevels, const BDD& clauses) {
-//    for (unsigned int level = 1; level <= removedVertices.size(); level++) {
-//        for (BDD variable : removedVertices.at(level - 1)) {
-//            divideGlobalNSFSizeEstimation(c.leavesCount());
-//            c.removeApply(variable, level, cubesAtLevels, clauses);
-//            multiplyGlobalNSFSizeEstimation(c.leavesCount());
-//            optimize(c);
-//        }
-//    }
-    
+    //    for (unsigned int level = 1; level <= removedVertices.size(); level++) {
+    //        for (BDD variable : removedVertices.at(level - 1)) {
+    //            divideGlobalNSFSizeEstimation(c.leavesCount());
+    //            c.removeApply(variable, level, cubesAtLevels, clauses);
+    //            multiplyGlobalNSFSizeEstimation(c.leavesCount());
+    //            optimize(c);
+    //        }
+    //    }
+
     divideGlobalNSFSizeEstimation(c.leavesCount());
     c.removeApply(removedVertices, cubesAtLevels, clauses);
     multiplyGlobalNSFSizeEstimation(c.leavesCount());
@@ -121,25 +124,33 @@ void ComputationManager::removeApply(Computation& c, const std::vector<std::vect
 }
 
 void ComputationManager::optimize(Computation &c) {
-    optIntervalCounter++;
-    optIntervalCounter %= optOptimizeInterval.getValue();
+    if (optOptimizeInterval.getValue() > 0) {
+        optIntervalCounter++;
+        optIntervalCounter %= optOptimizeInterval.getValue();
 
-    if (optIntervalCounter == 0) {
-        while (maxGlobalNSFSizeEstimation < optMaxGlobalNSFSize.getValue()) {
-            divideGlobalNSFSizeEstimation(c.leavesCount());
-            if (!(c.optimize(left))) {
-                break;
+        if (optIntervalCounter == 0) {
+            while (maxGlobalNSFSizeEstimation < optMaxGlobalNSFSize.getValue()) {
+                divideGlobalNSFSizeEstimation(c.leavesCount());
+                if (!(c.optimize(left))) {
+                    break;
+                }
+                left = !left;
+                multiplyGlobalNSFSizeEstimation(c.leavesCount());
             }
-            left = !left;
-            multiplyGlobalNSFSizeEstimation(c.leavesCount());
         }
     }
-    ////    rotateCheck++;
-    ////    if (optimizeNow(false) || optimizeNow(true)) {
-    //        divideMaxNSFSizeEstimation(c.leavesCount());
-    //        BaseNSFManager::optimize(c);
-    //        multiplyMaxNSFSizeEstimation(c.leavesCount());
-    ////    }
+
+    if (optUnsatCheckInterval.getValue() > 0) {
+        optUnsatCheckCounter++;
+        optUnsatCheckCounter %= optUnsatCheckInterval.getValue();
+
+        if (optIntervalCounter == 0) {
+            RESULT result = decide(c);
+            if (result == RESULT::UNSAT) {
+                throw AbortException("Intermediate unsat check successful", RESULT::UNSAT);
+            }
+        }
+    }
 }
 
 bool ComputationManager::isUnsat(const Computation& c) const {
@@ -149,6 +160,7 @@ bool ComputationManager::isUnsat(const Computation& c) const {
 RESULT ComputationManager::decide(const Computation& c) const {
     return c.decide();
 }
+
 BDD ComputationManager::solutions(const Computation& c) const {
     return c.solutions();
 }

@@ -40,9 +40,8 @@ namespace solver {
     namespace bdd {
         namespace qsat {
 
-            QSatCNFEDMSolver::QSatCNFEDMSolver(const Application& app, bool checkUnsat)
-            : ::Solver(app)
-            , checkUnsat(checkUnsat) {
+            QSatCNFEDMSolver::QSatCNFEDMSolver(const Application& app)
+            : ::Solver(app) {
             }
 
             Computation* QSatCNFEDMSolver::compute(htd::vertex_t currentNode) {
@@ -108,14 +107,6 @@ namespace solver {
                             delete tmpOuter;
                             app.getPrinter().solverIntermediateEvent(currentNode, *cC, "joining - done");
                         }
-                    }
-                }
-                if (checkUnsat) {
-                    app.getPrinter().solverIntermediateEvent(currentNode, *cC, "checking unsat");
-                    RESULT decide = nsfMan.decide(*cC);
-                    app.getPrinter().solverIntermediateEvent(currentNode, *cC, "checking unsat - done");
-                    if (decide == RESULT::UNSAT) {
-                        throw AbortException("Intermediate unsat check successful", RESULT::UNSAT);
                     }
                 }
 
