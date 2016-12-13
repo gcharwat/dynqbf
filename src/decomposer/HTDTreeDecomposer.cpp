@@ -85,6 +85,8 @@ namespace decomposer {
         optRootSelectionFitnessFunction.addChoice("height", "minimize decomposition height");
         optRootSelectionFitnessFunction.addChoice("variable-level", "prefer innermost variables to be removed first");
         optRootSelectionFitnessFunction.addChoice("join-child-bag-size-product", "minimize the sum over products of join node children bag sizes");
+        optDecompositionFitnessFunction.addChoice("nsf-size-estimation", "minimize the estimated total size of computed NSFs");
+        optDecompositionFitnessFunction.addChoice("nsf-size-join-estimation", "minimize the estimated total size of computed NSFs in join nodes");
         app.getOptionHandler().addOption(optRootSelectionFitnessFunction, OPTION_SECTION);
 
         optRootSelectionIterations.addCondition(selected);
@@ -152,6 +154,12 @@ namespace decomposer {
         } else if (optRootSelectionFitnessFunction.getValue() == "join-child-bag-size-product") {
             JoinNodeChildBagProductFitnessFunction joinNodeChildBagProductFitnessFunction;
             operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager(), joinNodeChildBagProductFitnessFunction);
+        } else if (optRootSelectionFitnessFunction.getValue() == "nsf-size-estimation") {
+            NSFSizeEstimationFitnessFunction nsfSizeEstimationFitnessFunction;
+            operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager(), nsfSizeEstimationFitnessFunction);
+        } else if (optRootSelectionFitnessFunction.getValue() == "nsf-size-join-estimation") {
+            NSFSizeJoinEstimationFitnessFunction nsfSizeJoinEstimationFitnessFunction;
+            operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager(), nsfSizeJoinEstimationFitnessFunction);
         } else {
             assert(optRootSelectionFitnessFunction.getValue() == "none");
             operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager());
