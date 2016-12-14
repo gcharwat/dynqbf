@@ -47,8 +47,8 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "preprocessor/SplitPreprocessor.h"
 #include "preprocessor/CombinedPreprocessor.h"
 
-#include "decomposer/Dummy.h"
 #include "decomposer/HTDTreeDecomposer.h"
+#include "decomposer/SingleNodeDecomposer.h"
 
 #include "ordering/LexicographicalOrdering.h"
 #include "ordering/InstanceOrdering.h"
@@ -60,7 +60,8 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "ordering/MinDegreeOrdering.h"
 
 #include "solver/dummy/SolverFactory.h"
-#include "solver/bdd/qsat/QSatCNFSolverFactory.h"
+#include "solver/bdd/qsat/QSatCNFEDMSolverFactory.h"
+#include "solver/bdd/qsat/QSatCNFLDMSolverFactory.h"
 #include "solver/bdd/qsat/QSat2CNFSolverFactory.h"
 #include "solver/bdd/qsat/QSatBDDSolverFactory.h"
 
@@ -68,7 +69,6 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "printer/Progress.h"
 #include "printer/Debug.h"
 #include "printer/Performance.h"
-#include "solver/bdd/qsat/QSat2CNFSolverFactory.h"
 
 const std::string Application::MODULE_SECTION = "Module selection";
 
@@ -86,7 +86,7 @@ Application::Application(const std::string& binaryName)
 , optPrintInputInstance("print-instance", "Print the input hypergraph")
 , optPrintPreprocessedInstance("print-preprocessed", "Print the preprocessed hypergraph")
 , optPrintDecomposition("print-decomposition", "Print the computed decomposition")
-, optPrintVertexOrdering("print-ordering", "Print the computed vertex order")
+, optPrintVertexOrdering("print-ordering", "Print the computed initial vertex ordering")
 , optOnlyParseInstance("only-parse-instance", "Only construct hypergraph and exit")
 , optOnlyDecomposeInstance("only-decompose", "Only parse input instance, decompose it and exit")
 , optEnumerate("enumerate", "Enumerate models (for outermost existential quantifier, satisfiable instances)")
@@ -127,15 +127,16 @@ int Application::run(int argc, char** argv) {
 
 
     opts.addOption(optSolver, MODULE_SECTION);
-    solver::bdd::qsat::QSatCNFSolverFactory qsatSolverCNFFactory(*this, true);
+    solver::bdd::qsat::QSatCNFEDMSolverFactory qsatSolverCNFEDMFactory(*this, true);
+    solver::bdd::qsat::QSatCNFLDMSolverFactory qsatSolverCNFLDMFactory(*this);
     solver::bdd::qsat::QSat2CNFSolverFactory qsat2SolverCNFFactory(*this);
     //    solver::bdd::qsat::QSatDNFSolverFactory qsatSolverDNFFactory(*this);
     solver::bdd::qsat::QSatBDDSolverFactory qsatSolverBDDFactory(*this);
-    solver::dummy::SolverFactory dummySolverFactory(*this);
+    // solver::dummy::SolverFactory dummySolverFactory(*this);
 
     opts.addOption(optDecomposer, MODULE_SECTION);
     decomposer::HTDTreeDecomposer treeDecomposer(*this, true);
-    decomposer::Dummy dummyDecomposer(*this);
+    decomposer::SingleNodeDecomposer singleNodeDecomposer(*this);
 
     opts.addOption(optOrdering, MODULE_SECTION);
     ordering::InstanceOrdering instanceOrdering(*this, true);

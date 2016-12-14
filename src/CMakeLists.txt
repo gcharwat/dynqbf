@@ -92,8 +92,8 @@ add_library(dynqbf-objects
     preprocessor/SplitPreprocessor.cpp
     preprocessor/CombinedPreprocessor.cpp
     Decomposer.cpp
-    decomposer/Dummy.cpp
     decomposer/HTDTreeDecomposer.cpp
+    decomposer/SingleNodeDecomposer.cpp
     decomposer/HeightFitnessFunction.cpp
     decomposer/JoinNodeChildCountFitnessFunction.cpp
     decomposer/JoinNodeChildBagFitnessFunction.cpp
@@ -118,8 +118,9 @@ add_library(dynqbf-objects
     SolverFactory.cpp
     solver/dummy/DummySolver.cpp
     solver/dummy/SolverFactory.cpp
-    solver/bdd/qsat/QSatCNFSolverFactory.cpp
+    solver/bdd/qsat/QSatCNFEDMSolverFactory.cpp
     solver/bdd/qsat/QSatCNFEDMSolver.cpp
+    solver/bdd/qsat/QSatCNFLDMSolverFactory.cpp
     solver/bdd/qsat/QSatCNFLDMSolver.cpp
     solver/bdd/qsat/QSat2CNFSolverFactory.cpp
     solver/bdd/qsat/QSat2CNFEDMSolver.cpp
