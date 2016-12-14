@@ -55,14 +55,16 @@ include_directories("/opt/local/include")
 # Add the binary tree to the search path for include files
 include_directories("${PROJECT_BINARY_DIR}")
 
-# Include the cudd and htd header files
-include_directories(${cudd_dir} ${cudd_dir}/cudd ${cudd_dir}/cplusplus ${cudd_dir}/st ${cudd_dir}/mtr ${cudd_dir}/epd ${cudd_dir}/util ${htd_dir}/include)
+# Include the library header files
+include_directories(${cudd_dir} ${cudd_dir}/cudd ${cudd_dir}/cplusplus ${cudd_dir}/st ${cudd_dir}/mtr ${cudd_dir}/epd ${cudd_dir}/util ${htd_dir}/include ${depqbf_dir})
 
 # Add required libraries for linking
 add_library(htd STATIC IMPORTED)
 set_target_properties(htd PROPERTIES IMPORTED_LOCATION ${htd_lib})
 add_library(cudd STATIC IMPORTED)
 set_target_properties(cudd PROPERTIES IMPORTED_LOCATION ${cudd_lib})
+add_library(qdpll STATIC IMPORTED)
+set_target_properties(qdpll PROPERTIES IMPORTED_LOCATION ${depqbf_lib})
 
 add_library(dynqbf-objects
     Utils.cpp
@@ -138,5 +140,5 @@ add_library(dynqbf-objects
 add_executable(dynqbf main.cpp)
 
 # link the libraries 
-target_link_libraries(dynqbf dynqbf-objects cudd htd)
+target_link_libraries(dynqbf dynqbf-objects cudd htd qdpll)
     

@@ -4,6 +4,10 @@ cudd_lib=$(cudd_dir)/cudd/.libs/libcudd.a
 htd_dir=$(CURDIR)/../htd-lib/current
 htd_lib=$(htd_dir)/lib/libhtd.a
 
+depqbf_dir=$(CURDIR)/../depqbf
+depqbf_lib=$(depqbf_dir)/libqdpll.a
+
+
 export PATH := /opt/local/bin:$(PATH)
 
 .PHONY: all
@@ -20,6 +24,8 @@ release:
 		-Dcudd_lib=$(cudd_lib) \
 		-Dhtd_dir=$(htd_dir) \
 		-Dhtd_lib=$(htd_lib) \
+		-Ddepqbf_dir=$(depqbf_dir) \
+		-Ddepqbf_lib=$(depqbf_lib) \
 	&& $(MAKE)
 
 .PHONY: debug
@@ -33,6 +39,8 @@ debug:
 		-Dcudd_lib=$(cudd_lib) \
 		-Dhtd_dir=$(htd_dir) \
 		-Dhtd_lib=$(htd_lib) \
+		-Ddepqbf_dir=$(depqbf_dir) \
+		-Ddepqbf_lib=$(depqbf_lib) \
 	&& $(MAKE)
 
 .PHONY: gprof
@@ -46,6 +54,8 @@ gprof:
 		-Dcudd_lib=$(cudd_lib) \
 		-Dhtd_dir=$(htd_dir) \
 		-Dhtd_lib=$(htd_lib) \
+		-Ddepqbf_dir=$(depqbf_dir) \
+		-Ddepqbf_lib=$(depqbf_lib) \
 	&& $(MAKE)
 	
 .PHONY: profiler
@@ -59,6 +69,8 @@ profiler:
 		-Dcudd_lib=$(cudd_lib) \
 		-Dhtd_dir=$(htd_dir) \
 		-Dhtd_lib=$(htd_lib) \
+		-Ddepqbf_dir=$(depqbf_dir) \
+		-Ddepqbf_lib=$(depqbf_lib) \
 	&& $(MAKE)
 
 .PHONY: clean

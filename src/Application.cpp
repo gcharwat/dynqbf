@@ -70,6 +70,11 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "printer/Debug.h"
 #include "printer/Performance.h"
 
+extern "C" 
+{
+#include "qdpll.h"
+}
+
 const std::string Application::MODULE_SECTION = "Module selection";
 
 Application::Application(const std::string& binaryName)
@@ -95,6 +100,73 @@ Application::Application(const std::string& binaryName)
 
 int Application::run(int argc, char** argv) {
 
+       
+    QDPLL *depqbf = qdpll_create ();
+
+  /* Make sure that standard dependency scheme is enabled. */
+  qdpll_configure (depqbf, "--dep-man=qdag");
+
+  /* Add the following formula:
+    p cnf 20 4
+    e 1 2 0
+    a 10 20 0
+    e 3 4 0
+    1 10 3 0
+    1 2 0
+    2 4 0
+    20 4 0
+  */
+
+  qdpll_new_scope (depqbf, QDPLL_QTYPE_EXISTS);
+  qdpll_add (depqbf, 1);
+  qdpll_add (depqbf, 2);
+  qdpll_add (depqbf, 0);
+
+  qdpll_new_scope (depqbf, QDPLL_QTYPE_FORALL);
+  qdpll_add (depqbf, 10);
+  qdpll_add (depqbf, 20);
+  qdpll_add (depqbf, 0);
+
+  qdpll_new_scope (depqbf, QDPLL_QTYPE_EXISTS);
+  qdpll_add (depqbf, 3);
+  qdpll_add (depqbf, 4);
+  qdpll_add (depqbf, 0);
+
+  qdpll_add (depqbf, 1);
+  qdpll_add (depqbf, 10);
+  qdpll_add (depqbf, 3);
+  qdpll_add (depqbf, 0);
+
+  qdpll_add (depqbf, 1);
+  qdpll_add (depqbf, 2);
+  qdpll_add (depqbf, 0);
+
+  qdpll_add (depqbf, 2);
+  qdpll_add (depqbf, 4);
+  qdpll_add (depqbf, 0);
+
+  qdpll_add (depqbf, 20);
+  qdpll_add (depqbf, 4);
+  qdpll_add (depqbf, 0);
+
+  /* Print formula. */
+  qdpll_print (depqbf, stdout);
+
+  /* Must tell DepQBF to compute the standard dependency. */
+  qdpll_init_deps (depqbf);
+
+  /* E.g. 4 does not depend on 10 although 4 appears to the right of 10. */
+  assert (!qdpll_var_depends (depqbf, 10, 4));
+  /* E.g. 4 does not depend on 20 although 3 appears to the right of 20. */
+  assert (!qdpll_var_depends (depqbf, 20, 3));
+
+  /* E.g. 3 depends on 10 and 4 depends on 20.*/
+  assert (qdpll_var_depends (depqbf, 10, 3));
+  assert (qdpll_var_depends (depqbf, 20, 4));
+
+  qdpll_delete (depqbf);
+    
+    
     opts.addOption(optHelp);
     options::HelpObserver helpObserver(*this, optHelp);
     opts.registerObserver(helpObserver);
