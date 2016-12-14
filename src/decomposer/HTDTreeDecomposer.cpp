@@ -33,6 +33,7 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "JoinNodeBagFitnessFunction.h"
 #include "NSFSizeEstimationFitnessFunction.h"
 #include "NSFSizeJoinEstimationFitnessFunction.h"
+#include "InverseNSFSizeJoinEstimationFitnessFunction.h"
 #include "VariableLevelFitnessFunction.h"
 
 #include <htd/main.hpp>
@@ -87,6 +88,7 @@ namespace decomposer {
         optRootSelectionFitnessFunction.addChoice("join-child-bag-prod", "minimize the sum over products of join node children bag sizes");
         optRootSelectionFitnessFunction.addChoice("nsf", "minimize the estimated total size of computed NSFs");
         optRootSelectionFitnessFunction.addChoice("join-nsf", "minimize the estimated total size of computed NSFs in join nodes");
+        optRootSelectionFitnessFunction.addChoice("join-nsf-i", "maximize the estimated total size of computed NSFs in join nodes");
         app.getOptionHandler().addOption(optRootSelectionFitnessFunction, OPTION_SECTION);
 
         optRootSelectionIterations.addCondition(selected);
@@ -103,6 +105,7 @@ namespace decomposer {
         optDecompositionFitnessFunction.addChoice("join-bag-exp", "minimize the sum over join node bag sizes to the power of number of children");
         optDecompositionFitnessFunction.addChoice("nsf", "minimize the estimated total size of computed NSFs");
         optDecompositionFitnessFunction.addChoice("join-nsf", "minimize the estimated total size of computed NSFs in join nodes");
+        optDecompositionFitnessFunction.addChoice("join-nsf-i", "maximize the estimated total size of computed NSFs in join nodes");
         
         app.getOptionHandler().addOption(optDecompositionFitnessFunction, OPTION_SECTION);
         
@@ -160,6 +163,9 @@ namespace decomposer {
         } else if (optRootSelectionFitnessFunction.getValue() == "join-nsf") {
             NSFSizeJoinEstimationFitnessFunction nsfSizeJoinEstimationFitnessFunction;
             operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager(), nsfSizeJoinEstimationFitnessFunction);
+        } else if (optRootSelectionFitnessFunction.getValue() == "join-nsf-i") {
+            InverseNSFSizeJoinEstimationFitnessFunction inverseNSFSizeJoinEstimationFitnessFunction;
+            operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager(), inverseNSFSizeJoinEstimationFitnessFunction);
         } else {
             assert(optRootSelectionFitnessFunction.getValue() == "none");
             operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager());
@@ -217,6 +223,9 @@ namespace decomposer {
                 iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
             } else if (optDecompositionFitnessFunction.getValue() == "join-nsf") {
                 NSFSizeJoinEstimationFitnessFunction fitnessFunction;
+                iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
+            } else if (optDecompositionFitnessFunction.getValue() == "join-nsf-i") {
+                InverseNSFSizeJoinEstimationFitnessFunction fitnessFunction;
                 iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
             } else {
                 throw std::runtime_error("Invalid option");
