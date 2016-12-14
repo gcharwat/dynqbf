@@ -33,12 +33,19 @@ namespace decomposer {
 
         htd::IMutableTreeDecomposition * decompMutable = app.getHTDManager()->treeDecompositionFactory().createInstance();
         decompMutable->insertRoot();
-        std::vector<htd::vertex_t> & bag = decompMutable->mutableBagContent(decompMutable->root());
+        std::vector<htd::vertex_t>& bag = decompMutable->mutableBagContent(decompMutable->root());
         const htd::ConstCollection<htd::vertex_t> & vertices = instance->hypergraph->internalGraph().vertices();
 
         std::copy(vertices.begin(), vertices.end(), std::back_inserter(bag));
-
-        // TODO: assign edges (induced)
+        
+        htd::FilteredHyperedgeCollection& inducedEdges = decompMutable->mutableInducedHyperedges(decompMutable->root());
+        
+        std::vector<htd::index_t> indices(instance->hypergraph->internalGraph().edgeCount());
+        std::iota(std::begin(indices), std::end(indices), 0);
+        
+        htd::FilteredHyperedgeCollection originalEdges = instance->hypergraph->internalGraph().hyperedgesAtPositions(indices);
+        
+        inducedEdges = originalEdges;
         
         HTDDecompositionPtr decomposition(decompMutable);
         
