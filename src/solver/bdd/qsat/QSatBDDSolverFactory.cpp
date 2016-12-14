@@ -34,7 +34,7 @@ namespace solver {
         namespace qsat {
 
             QSatBDDSolverFactory::QSatBDDSolverFactory(Application& app, bool newDefault)
-            : ::SolverFactory(app, "bdd", "solve CNF QSAT directly via BDDs", newDefault) {
+            : ::SolverFactory(app, "bdd", "solve CNF QSAT directly using a single BDD and no tree decomposition", newDefault) {
             }
 
             std::unique_ptr<::Solver> QSatBDDSolverFactory::newSolver() const {

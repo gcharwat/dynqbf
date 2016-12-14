@@ -43,38 +43,21 @@ namespace solver {
             Computation* QSatBDDSolver::compute(htd::vertex_t currentNode) {
 
                 BDD bdd = currentClauses();
-
+                
                 const SolverFactory& varMap = app.getSolverFactory();
-
                 std::vector<BDD> cubesAtlevels;
                 for (unsigned int i = 0; i < app.getInputInstance()->quantifierCount(); i++) {
                     cubesAtlevels.push_back(app.getBDDManager().getManager().bddOne());
                 }
+                
                 const htd::ConstCollection<htd::vertex_t> currentVertices = app.getInputInstance()->hypergraph->internalGraph().vertices();
                 for (const auto v : currentVertices) {
                     int level = htd::accessLabel<int>(this->app.getInputInstance()->hypergraph->internalGraph().vertexLabel("level", v));
                     BDD vertexVar = varMap.getBDDVariable("a", 0,{v});
                     cubesAtlevels[level - 1] *= vertexVar;
                 }
-
-                unsigned int keepUntil = 0;
-                if (app.enumerate() && app.getInputInstance()->quantifier(1) == NTYPE::EXISTS) {
-                    keepUntil = 1;
-                }
-
-                for (unsigned int level = app.getInputInstance()->quantifierCount(); level > keepUntil; level--) {
-                    BDD cube = cubesAtlevels[level - 1];
-                    if (app.getInputInstance()->quantifier(level) == NTYPE::EXISTS) {
-                        bdd = bdd.ExistAbstract(cube, 0);
-                    } else {
-                        bdd = bdd.UnivAbstract(cube);
-                    }
-                }
-
-                // TODO FIXME
-                std::vector<BDD> currentCubes;
-                Computation* c = app.getNSFManager().newComputation(app.getInputInstance()->getQuantifierSequence(), currentCubes, bdd);
-
+                
+                Computation* c = app.getNSFManager().newComputation(app.getInputInstance()->getQuantifierSequence(), cubesAtlevels, bdd);
                 app.getPrinter().solverInvocationResult(currentNode, *c);
 
                 return c;
@@ -88,7 +71,7 @@ namespace solver {
                 const SolverFactory& varMap = app.getSolverFactory();
 
                 BDD clauses = manager.bddOne();
-                const htd::ConstCollection<htd::Hyperedge> edges = app.getInputInstance()->hypergraph->internalGraph().hyperedges();
+                const htd::ConstCollection<htd::Hyperedge>& edges = app.getInputInstance()->hypergraph->internalGraph().hyperedges();
 
                 for (const auto& edge : edges) {
                     htd::id_t edgeId = edge.id();
@@ -105,6 +88,7 @@ namespace solver {
                     clauses *= clause;
                 }
                 return clauses;
+
             }
         }
     }
