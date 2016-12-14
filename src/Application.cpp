@@ -90,10 +90,7 @@ Application::Application(const std::string& binaryName)
 , optOnlyParseInstance("only-parse-instance", "Only construct hypergraph and exit")
 , optOnlyDecomposeInstance("only-decompose", "Only parse input instance, decompose it and exit")
 , optEnumerate("enumerate", "Enumerate models (for outermost existential quantifier, satisfiable instances)")
-, optSeed("seed", "s", "Initialize random number generator with seed <s>")
-//, decomposer(0)
-//, solverFactory(0) 
-{
+, optSeed("seed", "s", "Initialize random number generator with seed <s>") {
 }
 
 int Application::run(int argc, char** argv) {
@@ -120,17 +117,15 @@ int Application::run(int argc, char** argv) {
     opts.addOption(optPreprocessor, MODULE_SECTION);
     preprocessor::SplitPreprocessor splitPreprocessor(*this, true);
     preprocessor::NoPreprocessor noPreprocessor(*this);
-    //    preprocessor::UnitLiteralPreprocessor unitLiteralPreprocessor(*this);
+    // preprocessor::UnitLiteralPreprocessor unitLiteralPreprocessor(*this);
     preprocessor::CNF3Preprocessor cnf3Preprocessor(*this);
-    
-    //    preprocessor::CombinedPreprocessor combinedPreprocessor(*this);
+    // preprocessor::CombinedPreprocessor combinedPreprocessor(*this);
 
 
     opts.addOption(optSolver, MODULE_SECTION);
     solver::bdd::qsat::QSatCNFEDMSolverFactory qsatSolverCNFEDMFactory(*this, true);
     solver::bdd::qsat::QSatCNFLDMSolverFactory qsatSolverCNFLDMFactory(*this);
     solver::bdd::qsat::QSat2CNFSolverFactory qsat2SolverCNFFactory(*this);
-    //    solver::bdd::qsat::QSatDNFSolverFactory qsatSolverDNFFactory(*this);
     solver::bdd::qsat::QSatBDDSolverFactory qsatSolverBDDFactory(*this);
     // solver::dummy::SolverFactory dummySolverFactory(*this);
 
@@ -153,7 +148,6 @@ int Application::run(int argc, char** argv) {
     printer::Progress progressPrinter(*this);
     printer::Debug debugPrinter(*this);
     printer::Performance performancePrinter(*this);
-    //printer::Visualization visualizationPrinter(*this);
 
     bddManager = new BDDManager(*this);
     nsfManager = new ComputationManager(*this);
@@ -170,12 +164,12 @@ int Application::run(int argc, char** argv) {
         usage();
         throw;
     }
-    
+
     if (optVersion.isUsed()) {
         version();
         std::exit(0);
     }
-    
+
     srand(seed);
 
     RESULT result = RESULT::UNDECIDED;
