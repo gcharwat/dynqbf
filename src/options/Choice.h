@@ -50,7 +50,7 @@ namespace options {
 
         typedef std::vector<Possibility> Possibilities;
 
-        static const int POSSIBILITY_NAME_WIDTH = 18;
+        static const int POSSIBILITY_NAME_WIDTH = 19;
 
         Possibilities possibilities;
         std::string defaultValue;

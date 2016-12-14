@@ -29,7 +29,7 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace preprocessor {
 
-    const std::string SplitPreprocessor::OPTION_SECTION = "Splitting options";
+    const std::string SplitPreprocessor::OPTION_SECTION = "Splitting (-r split)";
 
     SplitPreprocessor::SplitPreprocessor(Application& app, bool newDefault)
     : Preprocessor(app, "split", "Split large clauses", newDefault)
