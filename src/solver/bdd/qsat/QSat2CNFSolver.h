@@ -34,10 +34,8 @@ namespace solver {
                 QSat2CNFEDMSolver(const Application& app);
 
                 Computation* compute(htd::vertex_t vertex) override;
-                RESULT decide(const Computation& c) override;
-                BDD solutions(const Computation& c) override;
 
-                const std::vector<BDD> getCubesAtLevels(htd::vertex_t currentNode) const;
+                std::vector<BDD> getCubesAtLevels(htd::vertex_t currentNode) const;
                 bool isUnsat(const BDD bdd);
 
             private:

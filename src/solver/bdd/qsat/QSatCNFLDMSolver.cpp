@@ -23,7 +23,7 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include <list>
 
-#include "QSatCNFSolver.h"
+#include "QSatCNFLDMSolver.h"
 #include "../../../Application.h"
 #include "../../../Printer.h"
 #include "../../../AbortException.h"
@@ -38,9 +38,8 @@ namespace solver {
     namespace bdd {
         namespace qsat {
 
-            QSatCNFLDMSolver::QSatCNFLDMSolver(const Application& app, bool checkUnsat)
-            : ::Solver(app)
-            , checkUnsat(checkUnsat) {
+            QSatCNFLDMSolver::QSatCNFLDMSolver(const Application& app)
+            : ::Solver(app) {
                 std::cout << "Warning: Not tested/optimized" << std::endl;
             }
 
@@ -48,12 +47,12 @@ namespace solver {
 
                 HTDDecompositionPtr decomposition = app.getDecomposition();
                 const SolverFactory& varMap = (app.getSolverFactory());
-                const NSFManager& nsfMan = app.getNSFManager();
+                ComputationManager& nsfMan = app.getNSFManager();
 
                 Computation* cC = NULL;
 
                 if (decomposition->isLeaf(currentNode)) {
-                    cC = nsfMan.newComputation(app.getBDDManager().getManager().bddOne());
+                    cC = nsfMan.newComputation(app.getInputInstance()->getQuantifierSequence(), getCubesAtLevels(currentNode), app.getBDDManager().getManager().bddOne());
                 } else {
                     bool first = true;
 
@@ -70,43 +69,29 @@ namespace solver {
                         // Do removal
                         const htd::ConstCollection<htd::vertex_t> forgottenVertices = decomposition->forgottenVertices(currentNode, child);
 
-                        std::vector<std::vector < BDD >> removed(app.getInputInstance()->quantifierCount());
-
+                        std::vector<std::vector<BDD>> removed(app.getInputInstance()->quantifierCount());                        
                         for (const auto& vertex : forgottenVertices) {
                             BDD variable = varMap.getBDDVariable("a", 0,{vertex});
                             unsigned int vertexLevel = htd::accessLabel<int>(app.getInputInstance()->hypergraph->internalGraph().vertexLabel("level", vertex));
                             removed[vertexLevel - 1].push_back(variable);
                         }
                         BDD removedClauses = this->removedClauses(currentNode, child);
-                        nsfMan.removeApply(*tmpOuter, removed, removedClauses);
+                        nsfMan.removeApply(*tmpOuter, removed, getCubesAtLevels(currentNode), removedClauses); // TODO fixme!
                         app.getPrinter().solverIntermediateEvent(currentNode, *tmpOuter, "removing variables and introducing clauses - done");
 
                         app.getPrinter().solverIntermediateEvent(currentNode, *tmpOuter, "removing variables and introducing clauses, opt");
-                        nsfMan.optimize(*tmpOuter);
+//                        nsfMan.optimize(*tmpOuter);
                         app.getPrinter().solverIntermediateEvent(currentNode, *tmpOuter, "removing variables and introducing clauses, opt - done");
                         if (first) {
                             cC = tmpOuter;
                             first = false;
                         } else {
                             app.getPrinter().solverIntermediateEvent(currentNode, *cC, "joining");
-                            Computation * tmpJoin = nsfMan.conjunct(*cC, *tmpOuter);
-                            delete cC;
+                            nsfMan.conjunct(*cC, *tmpOuter);
                             delete tmpOuter;
-                            cC = tmpJoin;
                             app.getPrinter().solverIntermediateEvent(currentNode, *cC, "joining - done");
-                            nsfMan.optimize(*cC);
+//                            nsfMan.optimize(*cC);
                         }
-                    }
-                }
-
-                if (checkUnsat) {
-                    const std::vector<BDD> cubesAtLevels = getCubesAtLevels(currentNode);
-
-                    app.getPrinter().solverIntermediateEvent(currentNode, *cC, "checking unsat");
-                    BDD decide = nsfMan.evaluateNSF(cubesAtLevels, *cC, false);
-                    app.getPrinter().solverIntermediateEvent(currentNode, *cC, "checking unsat - done");
-                    if (decide == app.getBDDManager().getManager().bddZero()) {
-                        throw AbortException("Intermediate unsat check successful", RESULT::UNSAT);
                     }
                 }
 
@@ -114,7 +99,7 @@ namespace solver {
                 return cC;
             }
 
-            const std::vector<BDD> QSatCNFLDMSolver::getCubesAtLevels(htd::vertex_t currentNode) const {
+            std::vector<BDD> QSatCNFLDMSolver::getCubesAtLevels(htd::vertex_t currentNode) const {
                 std::vector<BDD> cubesAtLevels;
                 for (unsigned int i = 0; i < app.getInputInstance()->quantifierCount(); i++) {
                     cubesAtLevels.push_back(app.getBDDManager().getManager().bddOne());
@@ -159,55 +144,6 @@ namespace solver {
                 }
                 return clauses;
             }
-
-//            bool QSatCNFLDMSolver::isUnsat(const Computation & c) {
-//                if (c.isLeaf()) {
-//                    return c.value().IsZero();
-//                } else {
-//                    for (const Computation* cC : c.nestedSet()) {
-//                        bool unsatC = isUnsat(*cC);
-//                        if (c.isExistentiallyQuantified() && !unsatC) {
-//                            return false;
-//                        } else if (c.isUniversiallyQuantified() && unsatC) { // FORALL
-//                            return true;
-//                        }
-//                    }
-//                    if (c.isExistentiallyQuantified()) {
-//                        return true;
-//                    } else {
-//                        return false;
-//                    }
-//                }
-//            }
-
-            RESULT QSatCNFLDMSolver::decide(const Computation & c) {
-                Cudd manager = app.getBDDManager().getManager();
-                NSFManager& nsfManager = app.getNSFManager();
-
-                std::vector<BDD> cubesAtlevels;
-                for (unsigned int i = 0; i < app.getInputInstance()->quantifierCount(); i++) {
-                    cubesAtlevels.push_back(manager.bddOne());
-                }
-                BDD decide = nsfManager.evaluateNSF(cubesAtlevels, c, false);
-                if (decide == manager.bddZero()) {
-                    return RESULT::UNSAT;
-                } else if (decide == manager.bddOne()) {
-                    return RESULT::SAT;
-                } else {
-                    decide.print(0, 2);
-                    return RESULT::UNDECIDED;
-                }
-            }
-
-            BDD QSatCNFLDMSolver::solutions(const Computation& c) {
-                NSFManager& nsfManager = app.getNSFManager();
-                std::vector<BDD> cubesAtlevels;
-                for (unsigned int i = 0; i < app.getInputInstance()->quantifierCount(); i++) {
-                    cubesAtlevels.push_back(app.getBDDManager().getManager().bddOne());
-                }
-                return nsfManager.evaluateNSF(cubesAtlevels, c, true);
-            }
-
         }
     }
 

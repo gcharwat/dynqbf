@@ -24,7 +24,6 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "options/OptionHandler.h"
 #include "options/Choice.h"
 #include "Utils.h"
-#include "NSFManager.h"
 
 #include <mtr.h>
 
@@ -32,6 +31,10 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <htd/NamedMultiHypergraph.hpp>
 #include <htd/IMutableHypertreeDecomposition.hpp>
+
+enum RESULT {
+    SAT, UNSAT, UNDECIDED
+};
 
 #define RETURN_SAT 10
 #define RETURN_UNSAT 20
@@ -47,6 +50,7 @@ class SolverFactory;
 class Printer;
 class BDDManager;
 class Instance;
+class ComputationManager;
 
 typedef std::shared_ptr<Instance> InstancePtr;
 typedef std::shared_ptr<htd::IMutableTreeDecomposition> HTDDecompositionPtr;
@@ -62,6 +66,7 @@ public:
     
     // Print usage (but don't exit)
     void usage() const;
+    void version() const;
 
     options::OptionHandler& getOptionHandler();
     options::Choice& getHGInputParserChoice();
@@ -91,7 +96,7 @@ public:
     bool enumerate() const;
 
     BDDManager& getBDDManager() const;
-    NSFManager& getNSFManager() const;
+    ComputationManager& getNSFManager() const;
     htd::LibraryInstance* getHTDManager() const;
     Decomposer& getDecomposer() const;
 
@@ -108,6 +113,8 @@ private:
     
     options::OptionHandler opts;
     options::Option optHelp;
+    options::Option optVersion;
+    options::SingleValueOption optInputFile;
     options::Choice optHGInputParser;
     options::Choice optDecomposer;
     options::Choice optPreprocessor;
@@ -131,6 +138,6 @@ private:
     Printer* printer;
 
     BDDManager* bddManager;
-    NSFManager* nsfManager;
+    ComputationManager* nsfManager;
     htd::LibraryInstance* htdManager;
 };

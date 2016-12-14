@@ -31,17 +31,9 @@ namespace solver {
         }
 
         Computation* DummySolver::compute(htd::vertex_t root) {
-            Computation* c = app.getNSFManager().newComputation(app.getBDDManager().getManager().bddOne());
+            std::vector<BDD> cubesAtLevels;
+            Computation* c = app.getNSFManager().newComputation(app.getInputInstance()->getQuantifierSequence(), cubesAtLevels, app.getBDDManager().getManager().bddOne());
             return c;
         }
-
-        RESULT DummySolver::decide(const Computation& c) {
-            return RESULT::UNDECIDED;
-        }
-
-        BDD DummySolver::solutions(const Computation& c) {
-            throw std::runtime_error("not implemented");
-        }
-
     }
 } // namespace solver::dummy

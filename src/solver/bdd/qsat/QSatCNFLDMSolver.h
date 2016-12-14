@@ -28,37 +28,16 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 namespace solver {
     namespace bdd {
         namespace qsat {
-
-            class QSatCNFEDMSolver : public Solver {
-            public:
-                QSatCNFEDMSolver(const Application& app, bool checkUnsat);
-
-                Computation* compute(htd::vertex_t vertex) override;
-                RESULT decide(const Computation& c) override;
-                BDD solutions(const Computation& c) override;
-
-                const std::vector<BDD> getCubesAtLevels(htd::vertex_t currentNode) const;
-//                bool isUnsat(const Computation& c);
-
-            private:
-                BDD currentClauses(htd::vertex_t currentNode);
-                bool checkUnsat;
-            };
-            
             class QSatCNFLDMSolver : public Solver {
             public:
-                QSatCNFLDMSolver(const Application& app, bool checkUnsat);
+                QSatCNFLDMSolver(const Application& app);
 
                 Computation* compute(htd::vertex_t vertex) override;
-                RESULT decide(const Computation& c) override;
-                BDD solutions(const Computation& c) override;
-
-                const std::vector<BDD> getCubesAtLevels(htd::vertex_t currentNode) const;
-//                bool isUnsat(const Computation& c);
 
             private:
+                std::vector<BDD> getCubesAtLevels(htd::vertex_t currentNode) const;
+
                 BDD removedClauses(htd::vertex_t currentNode, htd::vertex_t childNode);
-                bool checkUnsat;
             };
         }
     }

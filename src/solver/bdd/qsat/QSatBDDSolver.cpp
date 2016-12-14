@@ -43,36 +43,21 @@ namespace solver {
             Computation* QSatBDDSolver::compute(htd::vertex_t currentNode) {
 
                 BDD bdd = currentClauses();
-
+                
                 const SolverFactory& varMap = app.getSolverFactory();
-
                 std::vector<BDD> cubesAtlevels;
                 for (unsigned int i = 0; i < app.getInputInstance()->quantifierCount(); i++) {
                     cubesAtlevels.push_back(app.getBDDManager().getManager().bddOne());
                 }
+                
                 const htd::ConstCollection<htd::vertex_t> currentVertices = app.getInputInstance()->hypergraph->internalGraph().vertices();
                 for (const auto v : currentVertices) {
                     int level = htd::accessLabel<int>(this->app.getInputInstance()->hypergraph->internalGraph().vertexLabel("level", v));
                     BDD vertexVar = varMap.getBDDVariable("a", 0,{v});
                     cubesAtlevels[level - 1] *= vertexVar;
                 }
-
-                unsigned int keepUntil = 0;
-                if (app.enumerate() && app.getInputInstance()->quantifier(1) == NTYPE::EXISTS) {
-                    keepUntil = 1;
-                }
-
-                for (unsigned int level = app.getInputInstance()->quantifierCount(); level > keepUntil; level--) {
-                    BDD cube = cubesAtlevels[level - 1];
-                    if (app.getInputInstance()->quantifier(level) == NTYPE::EXISTS) {
-                        bdd = bdd.ExistAbstract(cube, 0);
-                    } else {
-                        bdd = bdd.UnivAbstract(cube);
-                    }
-                }
-
-                Computation* c = app.getNSFManager().newComputation(bdd);
-
+                
+                Computation* c = app.getNSFManager().newComputation(app.getInputInstance()->getQuantifierSequence(), cubesAtlevels, bdd);
                 app.getPrinter().solverInvocationResult(currentNode, *c);
 
                 return c;
@@ -86,7 +71,7 @@ namespace solver {
                 const SolverFactory& varMap = app.getSolverFactory();
 
                 BDD clauses = manager.bddOne();
-                const htd::ConstCollection<htd::Hyperedge> edges = app.getInputInstance()->hypergraph->internalGraph().hyperedges();
+                const htd::ConstCollection<htd::Hyperedge>& edges = app.getInputInstance()->hypergraph->internalGraph().hyperedges();
 
                 for (const auto& edge : edges) {
                     htd::id_t edgeId = edge.id();
@@ -103,44 +88,7 @@ namespace solver {
                     clauses *= clause;
                 }
                 return clauses;
-            }
 
-            bool QSatBDDSolver::isUnsat(const Computation & c) {
-
-                if (c.isLeaf()) {
-                    return c.value().IsZero();
-                } else {
-                    for (const Computation* cC : c.nestedSet()) {
-                        bool unsatC = isUnsat(*cC);
-                        if (c.isExistentiallyQuantified() && !unsatC) {
-                            return false;
-                        } else if (c.isUniversiallyQuantified() && unsatC) { // FORALL
-                            return true;
-                        }
-                    }
-                    if (c.isExistentiallyQuantified()) {
-                        return true;
-                    } else {
-                        return false;
-                    }
-                }
-            }
-
-            RESULT QSatBDDSolver::decide(const Computation & c) {
-                if (isUnsat(c)) {
-                    return RESULT::UNSAT;
-                } else {
-                    return RESULT::SAT;
-                }
-            }
-
-            BDD QSatBDDSolver::solutions(const Computation& c) {
-                if (c.isLeaf()) {
-                    return c.value();
-                } else {
-                    Computation * cC = c.nestedSet()[0];
-                    return solutions(*cC);
-                }
             }
         }
     }

@@ -36,7 +36,7 @@ namespace solver {
             const std::string QSat2CNFSolverFactory::OPTION_SECTION = "QSAT2 (CNF) Problem options";
 
             QSat2CNFSolverFactory::QSat2CNFSolverFactory(Application& app, bool newDefault)
-            : ::SolverFactory(app, "cnf2", "solve CNF QSAT2", newDefault) {
+            : ::SolverFactory(app, "single", "solve CNF QSAT2 using a single BDD and decision variables (experimental)", newDefault) {
             }
 
             std::unique_ptr<::Solver> QSat2CNFSolverFactory::newSolver() const {

@@ -19,26 +19,36 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
  */
 
-#include "Dummy.h"
+#include "SingleNodeDecomposer.h"
 #include "../Application.h"
 #include "../Printer.h"
 
 namespace decomposer {
 
-    Dummy::Dummy(Application& app, bool newDefault)
-    : Decomposer(app, "dummy", "Do not decompose", newDefault) {
+    SingleNodeDecomposer::SingleNodeDecomposer(Application& app, bool newDefault)
+    : Decomposer(app, "single", "Tree decomposition with a single node containing all vertices", newDefault) {
     }
 
-    HTDDecompositionPtr Dummy::decompose(const InstancePtr& instance) const {
+    HTDDecompositionPtr SingleNodeDecomposer::decompose(const InstancePtr& instance) const {
 
-        htd::IMutableTreeDecomposition * decompMutable = app.getHTDManager()->treeDecompositionFactory().getTreeDecomposition();
+        htd::IMutableTreeDecomposition * decompMutable = app.getHTDManager()->treeDecompositionFactory().createInstance();
         decompMutable->insertRoot();
-        std::vector<htd::vertex_t> & bag = decompMutable->mutableBagContent(decompMutable->root());
+        std::vector<htd::vertex_t>& bag = decompMutable->mutableBagContent(decompMutable->root());
         const htd::ConstCollection<htd::vertex_t> & vertices = instance->hypergraph->internalGraph().vertices();
 
         std::copy(vertices.begin(), vertices.end(), std::back_inserter(bag));
-
+        
+        htd::FilteredHyperedgeCollection& inducedEdges = decompMutable->mutableInducedHyperedges(decompMutable->root());
+        
+        std::vector<htd::index_t> indices(instance->hypergraph->internalGraph().edgeCount());
+        std::iota(std::begin(indices), std::end(indices), 0);
+        
+        htd::FilteredHyperedgeCollection originalEdges = instance->hypergraph->internalGraph().hyperedgesAtPositions(indices);
+        
+        inducedEdges = originalEdges;
+        
         HTDDecompositionPtr decomposition(decompMutable);
+        
         return decomposition;
     }
 

@@ -28,18 +28,14 @@ namespace solver {
     namespace bdd {
         namespace qsat {
 
-            class QSatCNFSolverFactory : public ::SolverFactory {
+            class QSatCNFLDMSolverFactory : public ::SolverFactory {
             public:
-                QSatCNFSolverFactory(Application& app, bool newDefault = false);
+                QSatCNFLDMSolverFactory(Application& app, bool newDefault = false);
 
                 virtual std::unique_ptr<::Solver> newSolver() const override;
                 virtual BDD getBDDVariable(const std::string& type, const int position, const std::vector<htd::vertex_t>& vertices) const override;
                 virtual std::vector<Variable> getVariables() const override;
-            private:
-                static const std::string OPTION_SECTION;
 
-                options::Option optUseLDM;
-                options::Option optCheckUnsat;
             };
 
 

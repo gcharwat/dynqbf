@@ -36,7 +36,7 @@ namespace printer {
     
     void Debug::solverInvocationResult(const htd::vertex_t vertex, const Computation& computation) {
         std::cout << "Node " << vertex << ": " << std::endl;
-        computation.printCompact();
+        computation.print();
         std::cout << std::endl;
     }
 

@@ -19,8 +19,8 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
  */
 
-#include <ctime>
 #include <iostream>
+#include <fstream>
 #include <sstream>
 #include <cassert>
 
@@ -28,7 +28,8 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "DynQBFConfig.h"
 #include "Application.h"
 #include "BDDManager.h"
-#include "Computation.h"
+#include "nsf/Computation.h"
+#include "nsf/ComputationManager.h"
 #include "AbortException.h"
 
 #include "options/MultiValueOption.h"
@@ -46,8 +47,8 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "preprocessor/SplitPreprocessor.h"
 #include "preprocessor/CombinedPreprocessor.h"
 
-#include "decomposer/Dummy.h"
 #include "decomposer/HTDTreeDecomposer.h"
+#include "decomposer/SingleNodeDecomposer.h"
 
 #include "ordering/LexicographicalOrdering.h"
 #include "ordering/InstanceOrdering.h"
@@ -59,7 +60,8 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "ordering/MinDegreeOrdering.h"
 
 #include "solver/dummy/SolverFactory.h"
-#include "solver/bdd/qsat/QSatCNFSolverFactory.h"
+#include "solver/bdd/qsat/QSatCNFEDMSolverFactory.h"
+#include "solver/bdd/qsat/QSatCNFLDMSolverFactory.h"
 #include "solver/bdd/qsat/QSat2CNFSolverFactory.h"
 #include "solver/bdd/qsat/QSatBDDSolverFactory.h"
 
@@ -67,38 +69,38 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "printer/Progress.h"
 #include "printer/Debug.h"
 #include "printer/Performance.h"
-#include "solver/bdd/qsat/QSat2CNFSolverFactory.h"
 
 const std::string Application::MODULE_SECTION = "Module selection";
 
 Application::Application(const std::string& binaryName)
 : binaryName(binaryName)
 , optHelp("h", "Print usage information and exit")
+, optVersion("v", "Print version information and exit")
+, optInputFile("f", "file", "Read problem instance from <file> (default: from stdin)")
 , optHGInputParser("i", "input-format", "Specify the instance input format")
 , optDecomposer("d", "decomposer", "Use decomposition method <decomposer>")
 , optPreprocessor("r", "preprocessor", "Use instance preprocessor <preprocessor>")
-, optOrdering("o", "ordering", "Use BDD variable ordering <ordering>")
+, optOrdering("o", "ordering", "Initially use BDD variable ordering <ordering>")
 , optSolver("p", "problem-solver", "Use <problem-solver> to solve problem")
-, optPrinter("output", "module", "Print information during the run using <module>")
+, optPrinter("output", "printer", "Print information during the run using <printer>")
 , optPrintInputInstance("print-instance", "Print the input hypergraph")
 , optPrintPreprocessedInstance("print-preprocessed", "Print the preprocessed hypergraph")
 , optPrintDecomposition("print-decomposition", "Print the computed decomposition")
-, optPrintVertexOrdering("print-ordering", "Print the computed vertex order")
+, optPrintVertexOrdering("print-ordering", "Print the computed initial vertex ordering")
 , optOnlyParseInstance("only-parse-instance", "Only construct hypergraph and exit")
 , optOnlyDecomposeInstance("only-decompose", "Only parse input instance, decompose it and exit")
 , optEnumerate("enumerate", "Enumerate models (for outermost existential quantifier, satisfiable instances)")
-, optSeed("seed", "n", "Initialize random number generator with seed <n>")
-//, decomposer(0)
-//, solverFactory(0) 
-{
+, optSeed("seed", "s", "Initialize random number generator with seed <s>") {
 }
 
 int Application::run(int argc, char** argv) {
-    
+
     opts.addOption(optHelp);
     options::HelpObserver helpObserver(*this, optHelp);
     opts.registerObserver(helpObserver);
+    opts.addOption(optVersion);
 
+    opts.addOption(optInputFile);
     opts.addOption(optOnlyParseInstance);
     opts.addOption(optOnlyDecomposeInstance);
     opts.addOption(optPrintInputInstance);
@@ -108,28 +110,28 @@ int Application::run(int argc, char** argv) {
     opts.addOption(optEnumerate);
     opts.addOption(optSeed);
 
-    opts.addOption(optHGInputParser, MODULE_SECTION); // uncomment to add to selection
+    //opts.addOption(optHGInputParser, MODULE_SECTION); // uncomment to add to selection
     parser::DIMACSDriver dimacsParser(*this, true);
     //parser::DIMACSIncidenceDriver dimacsIncidenceParser(*this);
 
     opts.addOption(optPreprocessor, MODULE_SECTION);
-    preprocessor::NoPreprocessor noPreprocessor(*this, true);
-//    preprocessor::UnitLiteralPreprocessor unitLiteralPreprocessor(*this);
-//    preprocessor::CNF3Preprocessor cnf3Preprocessor(*this);
-//    preprocessor::SplitPreprocessor splitPreprocessor(*this);
-    preprocessor::CombinedPreprocessor combinedPreprocessor(*this);
-    
+    preprocessor::SplitPreprocessor splitPreprocessor(*this, true);
+    preprocessor::NoPreprocessor noPreprocessor(*this);
+    // preprocessor::UnitLiteralPreprocessor unitLiteralPreprocessor(*this);
+    preprocessor::CNF3Preprocessor cnf3Preprocessor(*this);
+    // preprocessor::CombinedPreprocessor combinedPreprocessor(*this);
+
 
     opts.addOption(optSolver, MODULE_SECTION);
-    solver::bdd::qsat::QSatCNFSolverFactory qsatSolverCNFFactory(*this, true);
+    solver::bdd::qsat::QSatCNFEDMSolverFactory qsatSolverCNFEDMFactory(*this, true);
+    solver::bdd::qsat::QSatCNFLDMSolverFactory qsatSolverCNFLDMFactory(*this);
     solver::bdd::qsat::QSat2CNFSolverFactory qsat2SolverCNFFactory(*this);
-    //    solver::bdd::qsat::QSatDNFSolverFactory qsatSolverDNFFactory(*this);
     solver::bdd::qsat::QSatBDDSolverFactory qsatSolverBDDFactory(*this);
-    solver::dummy::SolverFactory dummySolverFactory(*this);
+    // solver::dummy::SolverFactory dummySolverFactory(*this);
 
     opts.addOption(optDecomposer, MODULE_SECTION);
     decomposer::HTDTreeDecomposer treeDecomposer(*this, true);
-    decomposer::Dummy dummyDecomposer(*this);
+    decomposer::SingleNodeDecomposer singleNodeDecomposer(*this);
 
     opts.addOption(optOrdering, MODULE_SECTION);
     ordering::InstanceOrdering instanceOrdering(*this, true);
@@ -146,12 +148,11 @@ int Application::run(int argc, char** argv) {
     printer::Progress progressPrinter(*this);
     printer::Debug debugPrinter(*this);
     printer::Performance performancePrinter(*this);
-    //printer::Visualization visualizationPrinter(*this);
 
     bddManager = new BDDManager(*this);
-    nsfManager = new NSFManager(*this);
+    nsfManager = new ComputationManager(*this);
     htdManager = htd::createManagementInstance(htd::Id::FIRST);
-    
+
     time_t seed = time(0);
     // Parse command line
     try {
@@ -163,13 +164,26 @@ int Application::run(int argc, char** argv) {
         usage();
         throw;
     }
+
+    if (optVersion.isUsed()) {
+        version();
+        std::exit(0);
+    }
+
     srand(seed);
-    
+
     RESULT result = RESULT::UNDECIDED;
 
     try {
         // Parse instance
-        inputInstance = hgInputParser->parse(std::cin);
+        std::unique_ptr<std::istream> input;
+        if (optInputFile.isUsed()) {
+            input.reset(new std::ifstream(optInputFile.getValue()));
+            if (!input->good()) {
+                throw std::runtime_error("Error reading input file");
+            }
+        }
+        inputInstance = hgInputParser->parse(input ? *input : std::cin);
         printer->inputInstance(inputInstance);
         if (optOnlyParseInstance.isUsed()) {
             return RETURN_UNFINISHED;
@@ -178,7 +192,7 @@ int Application::run(int argc, char** argv) {
         // Preprocess instance
         inputInstance = preprocessor->preprocess(inputInstance);
         printer->preprocessedInstance(inputInstance);
-        
+
         // Decompose instance
         decomposition = decomposer->decompose(inputInstance);
         printer->decomposerResult(decomposition);
@@ -188,7 +202,7 @@ int Application::run(int argc, char** argv) {
 
         vertexOrdering = ordering->computeVertexOrder(inputInstance, decomposition);
         printer->vertexOrdering(vertexOrdering);
-        
+
         // Initialize CUDD manager
         bddManager->init(inputInstance->hypergraph->vertexCount());
 
@@ -196,15 +210,14 @@ int Application::run(int argc, char** argv) {
         printer->beforeComputation();
         std::unique_ptr<Solver> solver = solverFactory->newSolver();
         Computation* computation = solver->compute(decomposition->root());
-        printer->afterComputation();
 
         // Return result
-        result = solver->decide(*computation);
+        result = nsfManager->decide(*computation);
         if (enumerate()) {
-            BDD answer = solver->solutions(*computation);
+            BDD answer = nsfManager->solutions(*computation);
             printer->models(answer, solverFactory->getVariables());
         }
-        
+
         delete computation;
 
     } catch (AbortException e) {
@@ -229,6 +242,8 @@ int Application::run(int argc, char** argv) {
             break;
     }
 
+    printer->afterComputation();
+
     printer->result(result);
 
     decomposition.reset();
@@ -238,9 +253,15 @@ int Application::run(int argc, char** argv) {
 }
 
 void Application::usage() const {
-    std::cerr << "Version " << DYNQBF_VERSION_MAJOR << "." << DYNQBF_VERSION_MINOR << " (Built on " __DATE__ << " at " << __TIME__ << ")" << std::endl;
     std::cerr << "Usage: " << binaryName << " [options] < instance" << std::endl;
     opts.printHelp();
+}
+
+void Application::version() const {
+    std::cerr << "Version:          " << DYNQBF_VERSION_MAJOR << "." << DYNQBF_VERSION_MINOR << "." << DYNQBF_VERSION_PATCH << std::endl;
+    std::cerr << "Github Commit ID: " << DYNQBF_GIT_COMMIT_ID << std::endl;
+    std::cerr << " with HTD Commit: " << HTD_GIT_COMMIT_ID << std::endl;
+    std::cerr << "Built on:         " << __DATE__ << " at " << __TIME__ << std::endl;
 }
 
 InstancePtr Application::getInputInstance() const {
@@ -346,7 +367,7 @@ BDDManager& Application::getBDDManager() const {
     return *bddManager;
 }
 
-NSFManager& Application::getNSFManager() const {
+ComputationManager& Application::getNSFManager() const {
     return *nsfManager;
 }
 

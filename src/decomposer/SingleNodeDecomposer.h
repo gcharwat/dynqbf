@@ -21,27 +21,16 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include "../Preprocessor.h"
-#include "../options/DefaultIntegerValueOption.h"
+#include "../Decomposer.h"
 
-#include <list>
+namespace decomposer {
 
-namespace preprocessor {
-
-    class SplitPreprocessor : public Preprocessor {
+    class SingleNodeDecomposer : public Decomposer {
     public:
-        SplitPreprocessor(Application& app, bool newDefault = false);
+        SingleNodeDecomposer(Application& app, bool newDefault = false);
 
-        InstancePtr preprocess(const InstancePtr& instance) const override;
+        HTDDecompositionPtr decompose(const InstancePtr& instance) const override;
 
-    private:    
-        void split(InstancePtr& preprocessed, const std::vector < std::pair < std::string, bool>> &combinedEdge) const;
-        mutable int splitVarIndex = 0;
-        
-        static const std::string OPTION_SECTION;
-        options::DefaultIntegerValueOption optSplitSize;
-        options::Choice optSplitStrategy;
-        
     };
 
-}
+} // namespace decomposer

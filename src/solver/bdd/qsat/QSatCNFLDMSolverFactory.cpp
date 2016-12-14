@@ -19,8 +19,8 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
  */
 
-#include "QSatBDDSolverFactory.h"
-#include "QSatBDDSolver.h"
+#include "QSatCNFLDMSolverFactory.h"
+#include "QSatCNFLDMSolver.h"
 #include "../../../Application.h"
 
 #include "cuddObj.hh"
@@ -33,15 +33,15 @@ namespace solver {
     namespace bdd {
         namespace qsat {
 
-            QSatBDDSolverFactory::QSatBDDSolverFactory(Application& app, bool newDefault)
-            : ::SolverFactory(app, "bdd", "solve CNF QSAT directly using a single BDD and no tree decomposition", newDefault) {
+            QSatCNFLDMSolverFactory::QSatCNFLDMSolverFactory(Application& app, bool newDefault)
+            : SolverFactory(app, "ldm", "solve CNF QSAT via late decision method", newDefault) {
             }
 
-            std::unique_ptr<::Solver> QSatBDDSolverFactory::newSolver() const {
-                return std::unique_ptr<::Solver>(new QSatBDDSolver(app));
+            std::unique_ptr<::Solver> QSatCNFLDMSolverFactory::newSolver() const {
+                return std::unique_ptr<::Solver>(new QSatCNFLDMSolver(app));
             }
 
-            BDD QSatBDDSolverFactory::getBDDVariable(const std::string& type, const int position, const std::vector<htd::vertex_t>& vertices) const {
+            BDD QSatCNFLDMSolverFactory::getBDDVariable(const std::string& type, const int position, const std::vector<htd::vertex_t>& vertices) const {
                 if (vertices.size() > 1) {
                     throw std::runtime_error("Invalid variable call");
                 }
@@ -57,11 +57,11 @@ namespace solver {
                 }
             }
 
-            std::vector<Variable> QSatBDDSolverFactory::getVariables() const {
+            std::vector<Variable> QSatCNFLDMSolverFactory::getVariables() const {
                 std::vector<Variable> variables;
 
                 for (const auto& vertex : app.getInputInstance()->hypergraph->internalGraph().vertices()) {
-                    BDD var = QSatBDDSolverFactory::getBDDVariable("a", 0,{vertex});
+                    BDD var = QSatCNFLDMSolverFactory::getBDDVariable("a", 0,{vertex});
                     Variable v = Variable(var.getNode()->index, "a", 0, {
                         vertex
                     });

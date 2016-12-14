@@ -21,6 +21,9 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
+#include "htd/main.hpp"
+#include "Application.h"
+
 typedef std::string vertexNameType;
 typedef std::string edgeNameType;
 typedef htd::NamedMultiHypergraph<vertexNameType, edgeNameType> HTDHypergraph;
@@ -44,8 +47,11 @@ public:
     const std::vector<NTYPE> getQuantifierSequence() const;
     
     HTDHypergraph* hypergraph;
-    std::vector<NTYPE> quantifierSequence;
+    
 
 protected:
     Application& app;
+    
+private:
+    std::vector<NTYPE> quantifierSequence;
 };

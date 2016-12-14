@@ -23,6 +23,7 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Module.h"
 #include "Application.h"
+#include "Instance.h"
 
 class Preprocessor : public Module {
 public:

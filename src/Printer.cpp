@@ -47,7 +47,7 @@ void Printer::inputInstance(const InstancePtr& instance) {
     std::cout << "### Input instance ###" << std::endl;
     std::cout << "#quantifiers: " << instance->quantifierCount() << std::endl;
     std::cout << " ";
-    for (auto q : instance->quantifierSequence) {
+    for (auto q : instance->getQuantifierSequence()) {
         switch (q) {
             case NTYPE::EXISTS: std::cout << "E ";
                 break;
@@ -90,7 +90,7 @@ void Printer::preprocessedInstance(const InstancePtr& instance) {
     std::cout << "### Preprocessed instance ###" << std::endl;
     std::cout << "#quantifiers: " << instance->quantifierCount() << std::endl;
     std::cout << " ";
-    for (auto q : instance->quantifierSequence) {
+    for (auto q : instance->getQuantifierSequence()) {
         switch (q) {
             case NTYPE::EXISTS: std::cout << "E ";
                 break;
@@ -182,7 +182,7 @@ void Printer::beforeComputation() {
 
 void Printer::resultComputation(const Computation& computation) {
     std::cout << "Computation: ";
-    computation.printCompact();
+    computation.print();
 }
 
 void Printer::result(const RESULT result) {

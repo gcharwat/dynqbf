@@ -19,29 +19,21 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
  */
 
-#pragma once
+#include <htd/main.hpp>
 
-#include "../Preprocessor.h"
-#include "../options/DefaultIntegerValueOption.h"
+namespace decomposer {
 
-#include <list>
-
-namespace preprocessor {
-
-    class SplitPreprocessor : public Preprocessor {
+    class NSFSizeEstimationFitnessFunction : public htd::ITreeDecompositionFitnessFunction {
     public:
-        SplitPreprocessor(Application& app, bool newDefault = false);
+        NSFSizeEstimationFitnessFunction(void);
+        ~NSFSizeEstimationFitnessFunction();
 
-        InstancePtr preprocess(const InstancePtr& instance) const override;
+        htd::FitnessEvaluation * fitness(const htd::IMultiHypergraph & graph, const htd::ITreeDecomposition & decomposition) const;
 
-    private:    
-        void split(InstancePtr& preprocessed, const std::vector < std::pair < std::string, bool>> &combinedEdge) const;
-        mutable int splitVarIndex = 0;
+        NSFSizeEstimationFitnessFunction * clone(void) const;
         
-        static const std::string OPTION_SECTION;
-        options::DefaultIntegerValueOption optSplitSize;
-        options::Choice optSplitStrategy;
-        
+private:
+        double removedCount(const htd::ITreeDecomposition& decomposition, htd::vertex_t node, double& fitness) const;
+
     };
-
 }

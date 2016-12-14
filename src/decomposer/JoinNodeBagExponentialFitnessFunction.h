@@ -19,18 +19,17 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
  */
 
-#pragma once
-
-#include "../Decomposer.h"
+#include <htd/main.hpp>
 
 namespace decomposer {
 
-    class Dummy : public Decomposer {
+    class JoinNodeBagExponentialFitnessFunction : public htd::ITreeDecompositionFitnessFunction {
     public:
-        Dummy(Application& app, bool newDefault = false);
+        JoinNodeBagExponentialFitnessFunction(void);
+        ~JoinNodeBagExponentialFitnessFunction();
 
-        HTDDecompositionPtr decompose(const InstancePtr& instance) const override;
+        htd::FitnessEvaluation * fitness(const htd::IMultiHypergraph & graph, const htd::ITreeDecomposition & decomposition) const;
 
+        JoinNodeBagExponentialFitnessFunction * clone(void) const;
     };
-
-} // namespace decomposer
+}

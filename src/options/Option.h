@@ -64,7 +64,7 @@ namespace options {
         virtual void printHelp() const;
 
     protected:
-        static const int NAME_WIDTH = 22;
+        static const int NAME_WIDTH = 23;
 
         typedef std::vector<const Condition*> Conditions;
         Conditions conditions;

@@ -21,27 +21,25 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include "../Preprocessor.h"
-#include "../options/DefaultIntegerValueOption.h"
+#include "../../../SolverFactory.h"
+#include "../../../options/Option.h"
 
-#include <list>
+namespace solver {
+    namespace bdd {
+        namespace qsat {
 
-namespace preprocessor {
+            class QSatCNFEDMSolverFactory : public ::SolverFactory {
+            public:
+                QSatCNFEDMSolverFactory(Application& app, bool newDefault = false);
 
-    class SplitPreprocessor : public Preprocessor {
-    public:
-        SplitPreprocessor(Application& app, bool newDefault = false);
+                virtual std::unique_ptr<::Solver> newSolver() const override;
+                virtual BDD getBDDVariable(const std::string& type, const int position, const std::vector<htd::vertex_t>& vertices) const override;
+                virtual std::vector<Variable> getVariables() const override;
 
-        InstancePtr preprocess(const InstancePtr& instance) const override;
+            };
 
-    private:    
-        void split(InstancePtr& preprocessed, const std::vector < std::pair < std::string, bool>> &combinedEdge) const;
-        mutable int splitVarIndex = 0;
-        
-        static const std::string OPTION_SECTION;
-        options::DefaultIntegerValueOption optSplitSize;
-        options::Choice optSplitStrategy;
-        
-    };
 
-}
+
+        }
+    }
+} // namespace solver::bdd::qsat

@@ -5,6 +5,30 @@ project (DYNQBF)
 # Set project version numbers
 set (DYNQBF_VERSION_MAJOR 0)
 set (DYNQBF_VERSION_MINOR 3)
+set (DYNQBF_VERSION_PATCH 1)
+
+find_package(Git)
+if(GIT_FOUND)
+    execute_process(COMMAND ${GIT_EXECUTABLE} update-index --refresh WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
+    execute_process(COMMAND ${GIT_EXECUTABLE} describe --tags --always WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}" RESULT_VARIABLE DYNQBF_GIT_RETURN_VALUE OUTPUT_VARIABLE DYNQBF_GIT_CURRENT_COMMIT_ID)
+    if(NOT ${DYNQBF_GIT_RETURN_VALUE} EQUAL 0)
+        set(DYNQBF_GIT_COMMIT_ID "")
+        message(WARNING "Could not derive Git commit ID. Build will not contain Git revision info.")
+    endif()
+    string(REPLACE "\n" "" DYNQBF_GIT_COMMIT_ID "${DYNQBF_GIT_CURRENT_COMMIT_ID}")
+    
+    execute_process(COMMAND ${GIT_EXECUTABLE} update-index --refresh WORKING_DIRECTORY "${htd_dir}")
+    execute_process(COMMAND ${GIT_EXECUTABLE} describe --tags --always WORKING_DIRECTORY "${htd_dir}" RESULT_VARIABLE HTD_GIT_RETURN_VALUE OUTPUT_VARIABLE HTD_GIT_CURRENT_COMMIT_ID)
+    if(NOT ${HTD_GIT_RETURN_VALUE} EQUAL 0)
+        set(HTD_GIT_COMMIT_ID "")
+        message(WARNING "Could not derive Git commit ID. Build will not contain Git revision info.")
+    endif()
+    string(REPLACE "\n" "" HTD_GIT_COMMIT_ID "${HTD_GIT_CURRENT_COMMIT_ID}")
+else()
+    set(DYNQBF_GIT_COMMIT_ID "")
+    set(HTD_GIT_COMMIT_ID "")
+    message(WARNING "Could not find Git installation. Build will not contain Git revision info.")
+endif()
 
 # Configure the header file to pass some of the CMake settings to the source code
 configure_file (
@@ -20,7 +44,10 @@ set(CMAKE_CXX_FLAGS_PROFILER "-O3 -g")
 
 SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
 SET(BUILD_SHARED_LIBRARIES OFF)
-SET(CMAKE_EXE_LINKER_FLAGS "-static")
+
+if(NOT APPLE)
+    SET(CMAKE_EXE_LINKER_FLAGS "-static")
+endif()
 
 # Add additional directories for library search
 include_directories("/opt/local/include")
@@ -51,8 +78,10 @@ add_library(dynqbf-objects
     Instance.cpp
     Module.cpp
     BDDManager.cpp
-    NSFManager.cpp
-    Computation.cpp
+    nsf/NSF.cpp
+    nsf/Computation.cpp
+    nsf/CacheComputation.cpp
+    nsf/ComputationManager.cpp
     Variable.cpp
     HGInputParser.cpp
     parser/DIMACSDriver.cpp
@@ -63,17 +92,19 @@ add_library(dynqbf-objects
     preprocessor/SplitPreprocessor.cpp
     preprocessor/CombinedPreprocessor.cpp
     Decomposer.cpp
-    decomposer/Dummy.cpp
     decomposer/HTDTreeDecomposer.cpp
+    decomposer/SingleNodeDecomposer.cpp
     decomposer/HeightFitnessFunction.cpp
     decomposer/JoinNodeChildCountFitnessFunction.cpp
     decomposer/JoinNodeChildBagFitnessFunction.cpp
     decomposer/JoinNodeChildBagProductFitnessFunction.cpp
-    decomposer/JoinNodeChildRememberedProductFitnessFunction.cpp
+    decomposer/JoinNodeBagExponentialFitnessFunction.cpp
     decomposer/JoinNodeBagFitnessFunction.cpp
     decomposer/JoinNodeCountFitnessFunction.cpp
     decomposer/WidthFitnessFunction.cpp
     decomposer/VariableLevelFitnessFunction.cpp
+    decomposer/NSFSizeEstimationFitnessFunction.cpp
+    decomposer/NSFSizeJoinEstimationFitnessFunction.cpp
     Ordering.cpp
     ordering/InstanceOrdering.cpp
     ordering/LexicographicalOrdering.cpp
@@ -87,8 +118,9 @@ add_library(dynqbf-objects
     SolverFactory.cpp
     solver/dummy/DummySolver.cpp
     solver/dummy/SolverFactory.cpp
-    solver/bdd/qsat/QSatCNFSolverFactory.cpp
+    solver/bdd/qsat/QSatCNFEDMSolverFactory.cpp
     solver/bdd/qsat/QSatCNFEDMSolver.cpp
+    solver/bdd/qsat/QSatCNFLDMSolverFactory.cpp
     solver/bdd/qsat/QSatCNFLDMSolver.cpp
     solver/bdd/qsat/QSat2CNFSolverFactory.cpp
     solver/bdd/qsat/QSat2CNFEDMSolver.cpp
