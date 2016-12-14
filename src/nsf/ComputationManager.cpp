@@ -36,7 +36,7 @@ const std::string ComputationManager::NSFMANAGER_SECTION = "NSF Manager";
 ComputationManager::ComputationManager(Application& app)
 : app(app)
 , optPrintStats("print-NSF-stats", "Print NSF Manager statistics")
-, optMaxGlobalNSFSize("max-est-NSF-size", "s", "Split until the global estimated NSF size <s> is reached", 1000)
+, optMaxGlobalNSFSize("max-est-NSF-size", "s", "Split until the global estimated NSF size <s> is reached, -1 to disable limit", 1000)
 , optMaxBDDSize("max-BDD-size", "s", "Split if a BDD size exceeds <s> (may be overruled by max-est-NSF-size)", 3000)
 , optOptimizeInterval("opt-interval", "i", "Optimize NSF every <i>-th computation step,0 to disable", 4)
 , optUnsatCheckInterval("unsat-check", "i", "Check for unsatisfiability after every <i>-th NSF join, 0 to disable", 1)
@@ -141,7 +141,7 @@ void ComputationManager::optimize(Computation &c) {
         optIntervalCounter %= optOptimizeInterval.getValue();
 
         if (optIntervalCounter == 0) {
-            while (maxGlobalNSFSizeEstimation < optMaxGlobalNSFSize.getValue()) {
+            while ((maxGlobalNSFSizeEstimation < optMaxGlobalNSFSize.getValue()) || (optMaxGlobalNSFSize.getValue() <= -1)) {
                 divideGlobalNSFSizeEstimation(c.leavesCount());
                 if (!(c.optimize(left))) {
                     break;
