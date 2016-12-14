@@ -23,7 +23,7 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include <list>
 
-#include "QSatCNFSolver.h"
+#include "QSatCNFLDMSolver.h"
 #include "../../../Application.h"
 #include "../../../Printer.h"
 #include "../../../AbortException.h"

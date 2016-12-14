@@ -24,7 +24,7 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include <list>
 #include <algorithm>
 
-#include "QSatCNFSolver.h"
+#include "QSatCNFEDMSolver.h"
 #include "../../../Application.h"
 #include "../../../Printer.h"
 #include "../../../AbortException.h"

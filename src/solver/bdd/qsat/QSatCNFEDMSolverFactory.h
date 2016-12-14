@@ -21,37 +21,25 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include <map>
-#include "../../../Solver.h"
-#include "cuddObj.hh"
+#include "../../../SolverFactory.h"
+#include "../../../options/Option.h"
 
 namespace solver {
     namespace bdd {
         namespace qsat {
 
-            class QSatCNFEDMSolver : public Solver {
+            class QSatCNFEDMSolverFactory : public ::SolverFactory {
             public:
-                QSatCNFEDMSolver(const Application& app);
+                QSatCNFEDMSolverFactory(Application& app, bool newDefault = false);
 
-                Computation* compute(htd::vertex_t vertex) override;
+                virtual std::unique_ptr<::Solver> newSolver() const override;
+                virtual BDD getBDDVariable(const std::string& type, const int position, const std::vector<htd::vertex_t>& vertices) const override;
+                virtual std::vector<Variable> getVariables() const override;
 
-            private:
-                std::vector<BDD> getCubesAtLevels(htd::vertex_t currentNode) const;
-
-                BDD currentClauses(htd::vertex_t currentNode);
             };
-            
-            class QSatCNFLDMSolver : public Solver {
-            public:
-                QSatCNFLDMSolver(const Application& app);
 
-                Computation* compute(htd::vertex_t vertex) override;
 
-            private:
-                std::vector<BDD> getCubesAtLevels(htd::vertex_t currentNode) const;
 
-                BDD removedClauses(htd::vertex_t currentNode, htd::vertex_t childNode);
-            };
         }
     }
 } // namespace solver::bdd::qsat

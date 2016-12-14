@@ -19,8 +19,8 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
  */
 
-#include "QSatCNFSolverFactory.h"
-#include "QSatCNFSolver.h"
+#include "QSatCNFEDMSolverFactory.h"
+#include "QSatCNFEDMSolver.h"
 #include "../../../Application.h"
 
 #include "cuddObj.hh"
@@ -33,23 +33,15 @@ namespace solver {
     namespace bdd {
         namespace qsat {
 
-            const std::string QSatCNFSolverFactory::OPTION_SECTION = "QSAT (CNF) Problem options";
-
-            QSatCNFSolverFactory::QSatCNFSolverFactory(Application& app, bool newDefault)
-            : ::SolverFactory(app, "cnf", "solve CNF QSAT", newDefault)
-            , optUseLDM("ldm", "Use late decision method"){
-                app.getOptionHandler().addOption(optUseLDM, OPTION_SECTION);
+            QSatCNFEDMSolverFactory::QSatCNFEDMSolverFactory(Application& app, bool newDefault)
+            : SolverFactory(app, "edm", "solve CNF QSAT via early decision method", newDefault) {
             }
 
-            std::unique_ptr<::Solver> QSatCNFSolverFactory::newSolver() const {
-                if (optUseLDM.isUsed()) {
-                    return std::unique_ptr<::Solver>(new QSatCNFLDMSolver(app));
-                } else {
-                    return std::unique_ptr<::Solver>(new QSatCNFEDMSolver(app));
-                }
+            std::unique_ptr<::Solver> QSatCNFEDMSolverFactory::newSolver() const {
+                return std::unique_ptr<::Solver>(new QSatCNFEDMSolver(app));
             }
 
-            BDD QSatCNFSolverFactory::getBDDVariable(const std::string& type, const int position, const std::vector<htd::vertex_t>& vertices) const {
+            BDD QSatCNFEDMSolverFactory::getBDDVariable(const std::string& type, const int position, const std::vector<htd::vertex_t>& vertices) const {
                 if (vertices.size() > 1) {
                     throw std::runtime_error("Invalid variable call");
                 }
@@ -65,11 +57,11 @@ namespace solver {
                 }
             }
 
-            std::vector<Variable> QSatCNFSolverFactory::getVariables() const {
+            std::vector<Variable> QSatCNFEDMSolverFactory::getVariables() const {
                 std::vector<Variable> variables;
 
                 for (const auto& vertex : app.getInputInstance()->hypergraph->internalGraph().vertices()) {
-                    BDD var = QSatCNFSolverFactory::getBDDVariable("a", 0,{vertex});
+                    BDD var = QSatCNFEDMSolverFactory::getBDDVariable("a", 0,{vertex});
                     Variable v = Variable(var.getNode()->index, "a", 0, {
                         vertex
                     });
