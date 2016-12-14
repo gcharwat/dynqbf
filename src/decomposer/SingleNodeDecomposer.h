@@ -25,9 +25,9 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace decomposer {
 
-    class Dummy : public Decomposer {
+    class SingleNodeDecomposer : public Decomposer {
     public:
-        Dummy(Application& app, bool newDefault = false);
+        SingleNodeDecomposer(Application& app, bool newDefault = false);
 
         HTDDecompositionPtr decompose(const InstancePtr& instance) const override;
 

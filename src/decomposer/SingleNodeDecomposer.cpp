@@ -19,17 +19,17 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
  */
 
-#include "Dummy.h"
+#include "SingleNodeDecomposer.h"
 #include "../Application.h"
 #include "../Printer.h"
 
 namespace decomposer {
 
-    Dummy::Dummy(Application& app, bool newDefault)
-    : Decomposer(app, "dummy", "Do not decompose", newDefault) {
+    SingleNodeDecomposer::SingleNodeDecomposer(Application& app, bool newDefault)
+    : Decomposer(app, "single", "Tree decomposition with a single node containing all vertices", newDefault) {
     }
 
-    HTDDecompositionPtr Dummy::decompose(const InstancePtr& instance) const {
+    HTDDecompositionPtr SingleNodeDecomposer::decompose(const InstancePtr& instance) const {
 
         htd::IMutableTreeDecomposition * decompMutable = app.getHTDManager()->treeDecompositionFactory().createInstance();
         decompMutable->insertRoot();
@@ -38,7 +38,10 @@ namespace decomposer {
 
         std::copy(vertices.begin(), vertices.end(), std::back_inserter(bag));
 
+        // TODO: assign edges (induced)
+        
         HTDDecompositionPtr decomposition(decompMutable);
+        
         return decomposition;
     }
 
