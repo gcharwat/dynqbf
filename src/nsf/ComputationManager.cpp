@@ -39,15 +39,15 @@ ComputationManager::ComputationManager(Application& app)
 , optMaxGlobalNSFSize("max-global-NSF-size", "s", "Split until the global estimated NSF size <s> is reached", 1000)
 , optMaxBDDSize("max-BDD-size", "s", "Split if a BDD size exceeds <s> (may be overruled by max-global-NSF-size)", 3000)
 , optOptimizeInterval("opt-interval", "i", "Optimize NSF every <i>-th computation step,0 to disable", 4)
-, optUnsatCheckInterval("unsat-check-interval", "i", "Check for unsatisfiability every <i>-th computation step, 0 to disable", 4)
+, optUnsatCheckInterval("unsat-check-interval", "i", "Check for unsatisfiability after every <i>-th NSF join, 0 to disable", 1)
 , optSortBeforeJoining("sort-before-joining", "Sort NSFs by increasing size before joining; can increase subset check success rate")
 , maxGlobalNSFSizeEstimation(1)
 , optIntervalCounter(0)
 , optUnsatCheckCounter(0) {
     app.getOptionHandler().addOption(optOptimizeInterval, NSFMANAGER_SECTION);
+    app.getOptionHandler().addOption(optUnsatCheckInterval, NSFMANAGER_SECTION);
     app.getOptionHandler().addOption(optMaxGlobalNSFSize, NSFMANAGER_SECTION);
     app.getOptionHandler().addOption(optMaxBDDSize, NSFMANAGER_SECTION);
-    app.getOptionHandler().addOption(optUnsatCheckInterval, NSFMANAGER_SECTION);
     app.getOptionHandler().addOption(optSortBeforeJoining, NSFMANAGER_SECTION);
     app.getOptionHandler().addOption(optPrintStats, NSFMANAGER_SECTION);
 }
@@ -91,6 +91,18 @@ void ComputationManager::conjunct(Computation& c, Computation& other) {
     c.conjunct(other);
     multiplyGlobalNSFSizeEstimation(c.leavesCount());
     optimize(c);
+    
+    if (optUnsatCheckInterval.getValue() > 0) {
+        optUnsatCheckCounter++;
+        optUnsatCheckCounter %= optUnsatCheckInterval.getValue();
+
+        if (optUnsatCheckCounter == 0) {
+            RESULT result = decide(c);
+            if (result == RESULT::UNSAT) {
+                throw AbortException("Intermediate unsat check successful", RESULT::UNSAT);
+            }
+        }
+    }
 }
 
 void ComputationManager::remove(Computation& c, const BDD& variable, const unsigned int vl) {
@@ -136,18 +148,6 @@ void ComputationManager::optimize(Computation &c) {
                 }
                 left = !left;
                 multiplyGlobalNSFSizeEstimation(c.leavesCount());
-            }
-        }
-    }
-
-    if (optUnsatCheckInterval.getValue() > 0) {
-        optUnsatCheckCounter++;
-        optUnsatCheckCounter %= optUnsatCheckInterval.getValue();
-
-        if (optIntervalCounter == 0) {
-            RESULT result = decide(c);
-            if (result == RESULT::UNSAT) {
-                throw AbortException("Intermediate unsat check successful", RESULT::UNSAT);
             }
         }
     }
