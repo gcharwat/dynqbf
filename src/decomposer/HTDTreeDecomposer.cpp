@@ -52,7 +52,7 @@ namespace decomposer {
     , optEmptyLeaves("empty-leaves", "Add empty leaves to the tree decomposition")
     , optPathDecomposition("path-decomposition", "Create a path decomposition")
     , optRootSelectionFitnessFunction("rs", "f", "Use fitness function <f> for decomposition root node selection")
-    , optRootSelectionIterations("rsi", "i", "Randomly select <i> nodes as root, choose decomposition with best fitness value", 0)
+    , optRootSelectionIterations("rsi", "i", "Randomly select <i> nodes as root, choose decomposition with best fitness value, 0 for #td nodes", 1)
     , optDecompositionFitnessFunction("ds", "f", "Use fitness function <f> for decomposition selection")
     , optDecompositionIterations("dsi", "i", "Generate <i> tree decompositions, choose decomposition with best fitness value", 10) {
         optNormalization.addCondition(selected);
@@ -171,7 +171,7 @@ namespace decomposer {
             operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager());
         }
 
-        operation->setVertexSelectionStrategy(new htd::RandomVertexSelectionStrategy(optRootSelectionIterations.getValue()));
+        operation->setVertexSelectionStrategy(new htd::RandomVertexSelectionStrategy(optRootSelectionIterations.getValue() - 1));
 
         // Path decomposition
         if (optPathDecomposition.isUsed()) {
