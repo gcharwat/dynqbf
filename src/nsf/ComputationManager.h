@@ -33,6 +33,11 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "Computation.h"
 #include "CacheComputation.h"
 
+extern "C" 
+{
+#include "qdpll.h"
+}
+
 class Application;
 
 class ComputationManager {
@@ -84,6 +89,8 @@ private:
     bool left = true;
 
     unsigned int optUnsatCheckCounter;
+    
+    QDPLL* depqbf = NULL;
 };
 
 

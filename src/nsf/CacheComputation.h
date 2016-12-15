@@ -48,9 +48,10 @@ public:
 protected:
     virtual BDD evaluate(std::vector<BDD>& cubesAtlevels, bool keepFirstLevel) const override;
 
+    virtual void addToRemoveCache(BDD variable, const unsigned int vl);
+
 private:
 
-    void addToRemoveCache(BDD variable, const unsigned int vl);
     void addToRemoveCache(const std::vector<std::vector<BDD>>&variables);
     BDD popFromRemoveCache(const unsigned int vl);
     BDD popFirstFromRemoveCache(const unsigned int vl);

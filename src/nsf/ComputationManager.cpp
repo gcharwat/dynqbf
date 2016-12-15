@@ -30,6 +30,7 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "ComputationManager.h"
 #include "Computation.h"
 #include "CacheComputation.h"
+#include "DependencyCacheComputation.h"
 
 const std::string ComputationManager::NSFMANAGER_SECTION = "NSF Manager";
 
@@ -53,6 +54,9 @@ ComputationManager::ComputationManager(Application& app)
 }
 
 ComputationManager::~ComputationManager() {
+    if (depqbf != NULL) {
+        qdpll_delete(depqbf);
+    }
     printStatistics();
 }
 
@@ -62,7 +66,73 @@ Computation* ComputationManager::newComputation(const std::vector<NTYPE>& quanti
     if (quantifierSequence.size() >= 1 && quantifierSequence.at(0) == NTYPE::EXISTS) {
         keepFirstLevel = app.enumerate();
     }
-    return new CacheComputation(quantifierSequence, cubesAtLevels, bdd, optMaxBDDSize.getValue(), keepFirstLevel);
+    
+    if (depqbf == NULL) {
+        depqbf = qdpll_create ();
+        qdpll_configure (depqbf, "--dep-man=qdag");
+        unsigned int lv1 = 0;
+            unsigned int lv2 = 0;
+        for (unsigned int level = 1; level <= app.getInputInstance()->getQuantifierSequence().size(); level++) {
+            NTYPE quantifier = app.getInputInstance()->quantifier(level);
+            switch(quantifier) {
+                case NTYPE::EXISTS:
+                    qdpll_new_scope (depqbf, QDPLL_QTYPE_EXISTS);
+                    break;
+                case NTYPE::FORALL:
+                    qdpll_new_scope (depqbf, QDPLL_QTYPE_FORALL);
+                    break;
+                default:
+                    ;//error
+            }
+            
+            
+            
+            for (htd::vertex_t vertex : app.getInputInstance()->hypergraph->internalGraph().vertices()) {
+                unsigned int vertexLevel = htd::accessLabel<int>( app.getInputInstance()->hypergraph->internalGraph().vertexLabel("level", vertex));
+                if (level == vertexLevel) {
+                    qdpll_add (depqbf, vertex);
+                    if (level == 1) {
+                        lv1++;
+                    } else if (level == 2) {
+                        lv2++;
+                    }
+                }
+            }
+            qdpll_add (depqbf, 0); // end scope
+        }
+        
+        for (htd::Hyperedge edge : app.getInputInstance()->hypergraph->internalGraph().hyperedges()) {
+                    htd::id_t edgeId = edge.id();
+                    const std::vector<bool> &edgeSigns = htd::accessLabel < std::vector<bool>>(app.getInputInstance()->hypergraph->edgeLabel("signs", edgeId));
+                    
+                    std::vector<bool>::const_iterator index = edgeSigns.begin();
+                    for (const auto& vertex : edge) {
+                        if (*index) {
+                            qdpll_add (depqbf, vertex);
+                        } else {
+                            qdpll_add (depqbf, -vertex);
+                        }
+                        index++;
+                    }
+                qdpll_add (depqbf, 0); // end clause
+        }
+        
+        qdpll_init_deps (depqbf);
+        
+        unsigned int deps = 0;
+        for (htd::vertex_t v1 : app.getInputInstance()->hypergraph->internalGraph().vertices()) {
+            for (htd::vertex_t v2 : app.getInputInstance()->hypergraph->internalGraph().vertices()) {
+                if (qdpll_var_depends (depqbf, v1, v2)) {
+                    deps++;
+                }
+            }
+        }
+        std::cout << "Dependencies: " << deps << " / " << (lv1 * lv2) << "\t\t" << ((lv1 * lv2) - deps) << std::endl;
+        std::exit(2);
+    }
+    
+    return new DependencyCacheComputation(quantifierSequence, cubesAtLevels, bdd, optMaxBDDSize.getValue(), keepFirstLevel, *depqbf);
+//    return new CacheComputation(quantifierSequence, cubesAtLevels, bdd, optMaxBDDSize.getValue(), keepFirstLevel);
     //return new Computation(quantifierSequence, cubesAtLevels, bdd);
 }
 
