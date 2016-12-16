@@ -4,8 +4,8 @@ project (DYNQBF)
         
 # Set project version numbers
 set (DYNQBF_VERSION_MAJOR 0)
-set (DYNQBF_VERSION_MINOR 3)
-set (DYNQBF_VERSION_PATCH 1)
+set (DYNQBF_VERSION_MINOR 4)
+set (DYNQBF_VERSION_PATCH 0)
 
 find_package(Git)
 if(GIT_FOUND)

@@ -1,4 +1,4 @@
-dynQBF (version 0.3) 
+dynQBF (version 0.4.0) 
 ====================
 
 dynQBF is a structure-aware QBF solver. It handles QBF instances
@@ -21,6 +21,19 @@ Source:     https://github.com/gcharwat/dynqbf
 
 Version info 
 --------------
+
+2016-12-16: dynQBF 0.4.0
+- Major refactoring of the source code, yielding significantly better performance. Changes include
+..* remove cache now supports better balancing of NSF and BDD sizes
+..* improved global NSF size estimation
+..* tuning of removal and subset checks
+- Unsatisfiability checks can now be controlled via command line
+- Per default, large clauses are splitted in a preprocessing step
+- Added new root and decomposition selection strategies
+- Git version of dynqbf and htd can now be printed via option -v
+- Reworked command line interface options (description, default values, etc)
+- Compatibility with htd release 1.0.0
+(see https://github.com/mabseher/htd/releases/tag/1.0.0)
 
 2016-11-10: dynQBF 0.3
 - Heuristic TD and TD root node selection with various fitness functions, see options
@@ -64,22 +77,7 @@ Running dynQBF
 
 A simple program call is of the following form:
 
-    dynqbf --reorder lazy-sift --opt-interval 4 --max-NSF-size 1000 --max-BDD-size 3000 --check-unsat < $file
+    ./dynqbf < $file
 
-where (some of the available interesting) optimizations are configured by
- 
-    --reorder <h>          : Use dynamic BDD variable reordering heuristic <h>
-    --opt-interval <i>     : Optimize NSF every <i>-th computation step (default: 4, disable: 0)
-    --max-NSF-size <s>     : Split until NSF size <s> is reached (Recommended: 1000)
-    --max-BDD-size <s>     : Always split if a BDD size exceeds <s> (Recommended: 3000, overrules max-NSF-size)
-    --sort-before-joining  : Sort NSFs by increasing size before joining; can increase subset check success rate
-    --check-unsat          : Check for unsatisfiable computations
-
-Additional (interesting) options:
-
-    --enumerate            : Enumerate all minterms (outermost, existential quantifier, if instance is SAT)
-    --seed <s>             : Fix seed to obtain reproducable benchmark results
-    -o <ordering>          : Configure variable ordering in BDDs (min-cut, max-bag and max-clause are 
-                             currently experimental)
-    --output <module>      : Quiet, progress (more info), debug (most info)
-    -h                     : See the help for a complete list of all available options
+Run `./dynqbf -h` to get a complete list of all available options.
+In order to get reproducible results, you might want to fix the seed by using option `--seed <s>`. 
