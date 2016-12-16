@@ -77,7 +77,7 @@ Running dynQBF
 
 A simple program call is of the following form:
 
-    `./dynqbf < $file`
+    ./dynqbf < $file
 
 Run `./dynqbf -h` to get a complete list of all available options.
 In order to get reproducible results, you might want to fix the seed by using option `--seed <s>`. 
