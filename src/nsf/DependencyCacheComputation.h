@@ -21,6 +21,7 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "NSF.h"
 #include "CacheComputation.h"
+#include "../Variable.h"
 
 extern "C" 
 {
@@ -32,7 +33,7 @@ extern "C"
 
 class DependencyCacheComputation : public CacheComputation {
 public:
-    DependencyCacheComputation(const std::vector<NTYPE>& quantifierSequence, const std::vector<BDD>& cubesAtLevels, const BDD& bdd, unsigned int maxBDDsize, bool keepFirstLevel, QDPLL& depqbf);
+    DependencyCacheComputation(const std::vector<NTYPE>& quantifierSequence, const std::vector<BDD>& cubesAtLevels, const BDD& bdd, unsigned int maxBDDsize, bool keepFirstLevel, QDPLL& depqbf, std::vector<Variable>& variables);
     DependencyCacheComputation(const DependencyCacheComputation& other);
 
     ~DependencyCacheComputation();
@@ -43,4 +44,5 @@ protected:
 
 private:
     QDPLL& depqbf;
+    std::vector<Variable>& variables;
 };

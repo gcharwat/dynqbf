@@ -32,6 +32,7 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "../AbortException.h"
 #include "Computation.h"
 #include "CacheComputation.h"
+#include "../Variable.h"
 
 extern "C" 
 {
@@ -91,6 +92,7 @@ private:
     unsigned int optUnsatCheckCounter;
     
     QDPLL* depqbf = NULL;
+    std::vector<Variable>* variables = NULL; // for testing only
 };
 
 

@@ -22,15 +22,18 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 
 #include "DependencyCacheComputation.h"
+#include "cuddInt.h"
 
-DependencyCacheComputation::DependencyCacheComputation(const std::vector<NTYPE>& quantifierSequence, const std::vector<BDD>& cubesAtLevels, const BDD& bdd, unsigned int maxBDDsize, bool keepFirstLevel, QDPLL& depqbf)
+DependencyCacheComputation::DependencyCacheComputation(const std::vector<NTYPE>& quantifierSequence, const std::vector<BDD>& cubesAtLevels, const BDD& bdd, unsigned int maxBDDsize, bool keepFirstLevel, QDPLL& depqbf, std::vector<Variable>& variables)
 : CacheComputation(quantifierSequence, cubesAtLevels, bdd, maxBDDsize, keepFirstLevel)
-, depqbf(depqbf) {
+, depqbf(depqbf)
+, variables(variables) {
 }
 
 DependencyCacheComputation::DependencyCacheComputation(const DependencyCacheComputation& other)
 : CacheComputation(other)
-, depqbf(other.depqbf) {
+, depqbf(other.depqbf)
+, variables(other.variables) {
 }
 
 DependencyCacheComputation::~DependencyCacheComputation() {
@@ -38,6 +41,13 @@ DependencyCacheComputation::~DependencyCacheComputation() {
 
 
 void DependencyCacheComputation::addToRemoveCache(BDD variable, const unsigned int vl) {
+//    variable.getRegularNode()->index;
+//    if (qdpll_var_depends (depqbf, v1, v2)) {
+//        
+//    }
+    
+//    std::string vString = hypergraph->vertexName(v.getVertices()[0]);
+    
     CacheComputation::addToRemoveCache(variable, vl);
     
     
