@@ -40,8 +40,13 @@ DependencyCacheComputation::~DependencyCacheComputation() {
 }
 
 void DependencyCacheComputation::addToRemoveCache(BDD variable, const unsigned int vl) {
+    
     const std::vector<BDD>* variableDomain = getVariableDomain();
 
+//    CacheComputation::addToRemoveCache(variable, vl);
+//    return;
+//    
+    
     // always immediately remove innermost variables
     if (vl == variableDomain->size()) {
         Computation::remove(variable, vl);
@@ -63,7 +68,16 @@ void DependencyCacheComputation::addToRemoveCache(BDD variable, const unsigned i
 //            std::cout << removedOriginalId << " has dependencies" << std::endl;
             CacheComputation::addToRemoveCache(variable, vl);
         } else {
-//            std::cout << removedOriginalId << " has NO dependencies" << std::endl;
+            std::cout << removedOriginalId << " has NO dependencies" << std::endl;
+            
+            Computation::removeFromVariableDomain(variable, vl);
+            const std::vector<BDD> cubesAtLevels;
+            // TODO Quantors
+            Computation::apply(cubesAtLevels, [variable] (BDD bdd) -> BDD {
+               return bdd.UnivAbstract(variable);
+            });
+
+            
             Computation::remove(variable, vl);
         }
 
@@ -101,7 +115,7 @@ bool DependencyCacheComputation::isDependent(DdNode* f, unsigned int removedOrig
 
     unsigned int currentOriginalVertexId = cuddToOriginalIds.at(g->index);
 
-//    std::cout << removedOriginalVertexId << " -?> " << currentOriginalVertexId << std::endl;
+    std::cout << removedOriginalVertexId << " -?> " << currentOriginalVertexId << std::endl;
     
     if (qdpll_var_depends(&depqbf, removedOriginalVertexId, currentOriginalVertexId)) {
         return true;

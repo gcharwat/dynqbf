@@ -61,11 +61,13 @@ protected:
     NSF* _nsf;
 
     const std::vector<BDD>* getVariableDomain();
+
+    void removeFromVariableDomain(BDD cube, const unsigned int vl);
+
     
 private:
     void addToVariableDomain(BDD cube, const unsigned int vl);
     void addToVariableDomain(const std::vector<BDD>& cubesAtLevels);
-    void removeFromVariableDomain(BDD cube, const unsigned int vl);
     void removeFromVariableDomain(const std::vector<BDD>& cubesAtLevels);
     
     std::vector<BDD>* _variableDomain;
