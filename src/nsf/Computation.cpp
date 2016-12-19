@@ -166,6 +166,10 @@ void Computation::print() const {
     _nsf->print();
 }
 
+const std::vector<BDD>* Computation::getVariableDomain() {
+    return _variableDomain;
+}
+
 void Computation::addToVariableDomain(BDD cube, const unsigned int vl) {
     _variableDomain->at(vl - 1) *= cube;
 }

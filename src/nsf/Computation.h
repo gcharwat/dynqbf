@@ -59,6 +59,8 @@ protected:
     virtual BDD evaluate(std::vector<BDD>& cubesAtlevels, bool keepFirstLevel) const;
     
     NSF* _nsf;
+
+    const std::vector<BDD>* getVariableDomain();
     
 private:
     void addToVariableDomain(BDD cube, const unsigned int vl);

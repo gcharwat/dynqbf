@@ -22,6 +22,7 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 
 #include "CacheComputation.h"
+#include "cuddInt.h"
 
 CacheComputation::CacheComputation(const std::vector<NTYPE>& quantifierSequence, const std::vector<BDD>& cubesAtLevels, const BDD& bdd, unsigned int maxBDDsize, bool keepFirstLevel)
 : Computation(quantifierSequence, cubesAtLevels, bdd)
@@ -50,6 +51,7 @@ void CacheComputation::conjunct(const Computation& other) {
     try {
         // check if other contains a remove cache
         const CacheComputation& t = dynamic_cast<const CacheComputation&> (other);
+        // TODO: add checks not necessary
         addToRemoveCache(*(t._removeCache));
     } catch (std::bad_cast exp) {
     }

@@ -92,7 +92,7 @@ private:
     unsigned int optUnsatCheckCounter;
     
     QDPLL* depqbf = NULL;
-    std::vector<Variable>* variables = NULL; // for testing only
+    std::vector<unsigned int>* cuddToOriginalIds;
 };
 
 

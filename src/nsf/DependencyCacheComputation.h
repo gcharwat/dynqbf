@@ -33,7 +33,7 @@ extern "C"
 
 class DependencyCacheComputation : public CacheComputation {
 public:
-    DependencyCacheComputation(const std::vector<NTYPE>& quantifierSequence, const std::vector<BDD>& cubesAtLevels, const BDD& bdd, unsigned int maxBDDsize, bool keepFirstLevel, QDPLL& depqbf, std::vector<Variable>& variables);
+    DependencyCacheComputation(const std::vector<NTYPE>& quantifierSequence, const std::vector<BDD>& cubesAtLevels, const BDD& bdd, unsigned int maxBDDsize, bool keepFirstLevel, QDPLL& depqbf, std::vector<unsigned int>& cuddToOriginalIds);
     DependencyCacheComputation(const DependencyCacheComputation& other);
 
     ~DependencyCacheComputation();
@@ -43,6 +43,9 @@ protected:
     void addToRemoveCache(BDD variable, const unsigned int vl) override;
 
 private:
+    
+    bool isDependent(DdNode* n, unsigned int originalVertexId) const;
+    
     QDPLL& depqbf;
-    std::vector<Variable>& variables;
+    std::vector<unsigned int>& cuddToOriginalIds;
 };

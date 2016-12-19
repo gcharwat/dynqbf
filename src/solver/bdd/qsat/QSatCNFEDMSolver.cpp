@@ -82,6 +82,7 @@ namespace solver {
 //                        }
 
                         for (const auto& vertex : decomposition->forgottenVertices(currentNode, child)) {
+//                            std::cout << "node " << currentNode << " child " << child << " removed htd id: " << vertex << std::endl;
                             BDD variable = varMap.getBDDVariable("a", 0,{vertex});
                             unsigned int vertexLevel = htd::accessLabel<int>(app.getInputInstance()->hypergraph->internalGraph().vertexLabel("level", vertex));
                             nsfMan.remove(*tmpOuter, variable, vertexLevel);
