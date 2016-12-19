@@ -58,7 +58,6 @@ public:
     void remove(Computation& c, const std::vector<std::vector<BDD>>&removedVertices);
     void removeApply(Computation& c, const std::vector<std::vector<BDD>>&removedVertices, const std::vector<BDD>& cubesAtLevels, const BDD& clauses);
 
-//    const BDD evaluate(const Computation& c, std::vector<BDD>& cubesAtlevels, bool keepFirstLevel);
     bool isUnsat(const Computation& c) const;
     RESULT decide(const Computation& c) const;
     BDD solutions(const Computation& c) const;

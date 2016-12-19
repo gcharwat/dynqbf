@@ -22,6 +22,11 @@ Source:     https://github.com/gcharwat/dynqbf
 Version info 
 --------------
 
+2016-12-19: dynQBF 0.4.1
+- Fixed unnecessary iteration in unsatisfiability check
+- Compatibility with htd release 1.0.1
+(see https://github.com/mabseher/htd/releases/tag/1.0.1)
+
 2016-12-16: dynQBF 0.4.0
 - Major refactoring of the source code, yielding significantly better performance. Changes include
 ..* remove cache now supports better balancing of NSF and BDD sizes
