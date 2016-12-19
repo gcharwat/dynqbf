@@ -68,6 +68,12 @@ void Computation::conjunct(const Computation& other) {
     _nsf->conjunct(*(other._nsf));
 }
 
+void Computation::removeAbstract(const BDD& variable, const unsigned int vl) {
+    removeFromVariableDomain(variable, vl);
+    _nsf->removeAbstract(variable, vl);
+}
+
+
 void Computation::remove(const BDD& variable, const unsigned int vl) {
     removeFromVariableDomain(variable, vl);
     _nsf->remove(variable, vl);

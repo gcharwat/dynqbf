@@ -39,8 +39,7 @@ public:
     ~DependencyCacheComputation();
 
 protected:
-
-    void addToRemoveCache(BDD variable, const unsigned int vl) override;
+    bool reduceRemoveCache() override;
 
 private:
     

@@ -341,6 +341,24 @@ void NSF::conjunct(const NSF& other) {
 //    }
 //}
 
+void NSF::removeAbstract(const BDD& variable, const unsigned int vl) {
+    if (level() == vl) {
+        if (isExistentiallyQuantified()) {
+            apply([&variable] (BDD b) -> BDD {
+                return b.ExistAbstract(variable, 0);
+            });
+        } else {
+            apply([&variable] (BDD b) -> BDD {
+                return b.UnivAbstract(variable);
+            });
+        }
+    } else {
+        for (NSF* n : nestedSet()) {
+            n->removeAbstract(variable, vl);
+        }
+    }
+}
+
 void NSF::remove(const BDD& variable, const unsigned int vl) {
     if (level() == vl) {
         if (isLeaf()) {

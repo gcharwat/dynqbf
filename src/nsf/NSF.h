@@ -72,6 +72,8 @@ public:
     void conjunct(const NSF& other);
     //    void conjunctOptimize(const NSF& other);
 
+    void removeAbstract(const BDD& variable, const unsigned int vl);
+    
     void remove(const BDD& variable, const unsigned int vl);
     void remove(const std::vector<std::vector<BDD>>&removedVertices);
 

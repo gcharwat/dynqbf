@@ -82,6 +82,7 @@ private:
     options::DefaultIntegerValueOption optOptimizeInterval;
     options::DefaultIntegerValueOption optUnsatCheckInterval;
     options::Option optSortBeforeJoining;
+    options::Option optWithDependencyScheme;
 
     long maxGlobalNSFSizeEstimation;
 

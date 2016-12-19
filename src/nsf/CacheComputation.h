@@ -49,19 +49,24 @@ protected:
     virtual BDD evaluate(std::vector<BDD>& cubesAtlevels, bool keepFirstLevel) const override;
 
     virtual void addToRemoveCache(BDD variable, const unsigned int vl);
-
-private:
-
     void addToRemoveCache(const std::vector<std::vector<BDD>>&variables);
     BDD popFromRemoveCache(const unsigned int vl);
     BDD popFirstFromRemoveCache(const unsigned int vl);
-    bool isRemovableAtRemoveCacheLevel(const unsigned int vl) const;
-    bool isRemovableRemoveCache() const;
 
     bool isRemoveCacheReducible();
-    bool reduceRemoveCache();
-
+    virtual bool reduceRemoveCache();
+    bool isRemovableAtRemoveCacheLevel(const unsigned int vl) const;
+    bool isRemovableRemoveCache() const;
+    
+    
     std::vector<std::vector<BDD>>*_removeCache;
+    
+private:
+
+
+
+    
+
     unsigned int _maxBDDsize;
     bool _keepFirstLevel;
 };
