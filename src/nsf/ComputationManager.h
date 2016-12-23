@@ -82,7 +82,7 @@ private:
     options::DefaultIntegerValueOption optOptimizeInterval;
     options::DefaultIntegerValueOption optUnsatCheckInterval;
     options::Option optSortBeforeJoining;
-    options::Option optWithDependencyScheme;
+    options::Choice optDependencyScheme;
 
     long maxGlobalNSFSizeEstimation;
 
@@ -93,6 +93,8 @@ private:
     
     QDPLL* depqbf = NULL;
     std::vector<unsigned int>* cuddToOriginalIds;
+    
+    std::vector<unsigned int>* variablesAtLevels;
 };
 
 

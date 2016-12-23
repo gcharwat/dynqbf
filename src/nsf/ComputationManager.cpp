@@ -33,6 +33,7 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "DependencyCacheComputation.h"
 #include "../SolverFactory.h"
 #include "../Utils.h"
+#include "SimpleDependencyCacheComputation.h"
 
 const std::string ComputationManager::NSFMANAGER_SECTION = "NSF Manager";
 
@@ -44,7 +45,7 @@ ComputationManager::ComputationManager(Application& app)
 , optOptimizeInterval("opt-interval", "i", "Optimize NSF every <i>-th computation step,0 to disable", 4)
 , optUnsatCheckInterval("unsat-check", "i", "Check for unsatisfiability after every <i>-th NSF join, 0 to disable", 2)
 , optSortBeforeJoining("sort-before-joining", "Sort NSFs by increasing size before joining; can increase subset check success rate")
-, optWithDependencyScheme("sds", "Use standard dependency scheme")
+, optDependencyScheme("dep-scheme", "d", "Use dependency scheme <d>")
 , maxGlobalNSFSizeEstimation(1)
 , optIntervalCounter(0)
 , optUnsatCheckCounter(0) {
@@ -53,13 +54,22 @@ ComputationManager::ComputationManager(Application& app)
     app.getOptionHandler().addOption(optMaxGlobalNSFSize, NSFMANAGER_SECTION);
     app.getOptionHandler().addOption(optMaxBDDSize, NSFMANAGER_SECTION);
     app.getOptionHandler().addOption(optSortBeforeJoining, NSFMANAGER_SECTION);
-    app.getOptionHandler().addOption(optWithDependencyScheme, NSFMANAGER_SECTION);
+    optDependencyScheme.addChoice("none", "use no dependency scheme", true);
+    optDependencyScheme.addChoice("simple", "use simple dependency scheme");
+    optDependencyScheme.addChoice("standard", "use standard dependency scheme (experimental)");
+    app.getOptionHandler().addOption(optDependencyScheme, NSFMANAGER_SECTION);
     app.getOptionHandler().addOption(optPrintStats, NSFMANAGER_SECTION);
 }
 
 ComputationManager::~ComputationManager() {
     if (depqbf != NULL) {
         qdpll_delete(depqbf);
+    }
+    if (cuddToOriginalIds != NULL) {
+        delete cuddToOriginalIds;
+    }
+    if (variablesAtLevels != NULL) {
+        delete variablesAtLevels;
     }
     printStatistics();
 }
@@ -71,10 +81,14 @@ Computation* ComputationManager::newComputation(const std::vector<NTYPE>& quanti
         keepFirstLevel = app.enumerate();
     }
 
-    if (optWithDependencyScheme.isUsed()) {
+    if (optDependencyScheme.getValue() == "standard") {
         if (depqbf == NULL) {
             depqbf = qdpll_create();
-            qdpll_configure(depqbf, "--dep-man=qdag");
+            //qdpll_configure(depqbf, "--dep-man=qdag");
+            std::string depMan = "--dep-man=simple";
+            std::vector<char> depManC(depMan.begin(), depMan.end());
+            depManC.push_back('\0');
+            qdpll_configure(depqbf, &depManC[0]);
 
             for (unsigned int level = 1; level <= app.getInputInstance()->getQuantifierSequence().size(); level++) {
                 NTYPE quantifier = app.getInputInstance()->quantifier(level);
@@ -169,6 +183,18 @@ Computation* ComputationManager::newComputation(const std::vector<NTYPE>& quanti
             }
         }
         return new DependencyCacheComputation(quantifierSequence, cubesAtLevels, bdd, optMaxBDDSize.getValue(), keepFirstLevel, *depqbf, *cuddToOriginalIds);
+    } else if (optDependencyScheme.getValue() == "simple") {
+
+        if (variablesAtLevels == NULL) {
+            variablesAtLevels = new vector<unsigned int>(quantifierSequence.size(), 0);
+
+            for (htd::vertex_t vertex : app.getInputInstance()->hypergraph->internalGraph().vertices()) {
+                unsigned int vertexLevel = htd::accessLabel<int>(app.getInputInstance()->hypergraph->internalGraph().vertexLabel("level", vertex));
+                variablesAtLevels->at(vertexLevel-1) += 1;
+            }
+        }
+
+        return new SimpleDependencyCacheComputation(quantifierSequence, cubesAtLevels, bdd, optMaxBDDSize.getValue(), keepFirstLevel, *variablesAtLevels);
     } else {
         return new CacheComputation(quantifierSequence, cubesAtLevels, bdd, optMaxBDDSize.getValue(), keepFirstLevel);
     }

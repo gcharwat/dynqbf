@@ -84,6 +84,7 @@ add_library(dynqbf-objects
     nsf/Computation.cpp
     nsf/CacheComputation.cpp
     nsf/DependencyCacheComputation.cpp    
+    nsf/SimpleDependencyCacheComputation.cpp    
     nsf/ComputationManager.cpp
     Variable.cpp
     HGInputParser.cpp
