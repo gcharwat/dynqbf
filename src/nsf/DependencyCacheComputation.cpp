@@ -20,23 +20,53 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include <iostream>
+#include <vector>
+#include <algorithm>
+#include <iterator>
 
 #include "DependencyCacheComputation.h"
 #include "cuddInt.h"
 
-DependencyCacheComputation::DependencyCacheComputation(const std::vector<NTYPE>& quantifierSequence, const std::vector<BDD>& cubesAtLevels, const BDD& bdd, unsigned int maxBDDsize, bool keepFirstLevel, QDPLL& depqbf, std::vector<unsigned int>& cuddToOriginalIds)
+DependencyCacheComputation::DependencyCacheComputation(const std::vector<NTYPE>& quantifierSequence, const std::vector<BDD>& cubesAtLevels, const BDD& bdd, unsigned int maxBDDsize, bool keepFirstLevel, QDPLL& depqbf, std::vector<unsigned int>& cuddToOriginalIds, std::vector<std::set<htd::vertex_t>>&notYetRemovedAtLevels)
 : CacheComputation(quantifierSequence, cubesAtLevels, bdd, maxBDDsize, keepFirstLevel)
 , depqbf(depqbf)
-, cuddToOriginalIds(cuddToOriginalIds) {
+, cuddToOriginalIds(cuddToOriginalIds)
+, notYetRemovedAtLevels(notYetRemovedAtLevels) {
 }
 
 DependencyCacheComputation::DependencyCacheComputation(const DependencyCacheComputation& other)
 : CacheComputation(other)
 , depqbf(other.depqbf)
 , cuddToOriginalIds(other.cuddToOriginalIds) {
+    for (std::set<htd::vertex_t> otherNotYetRemoved : other.notYetRemovedAtLevels) {
+        std::set<htd::vertex_t> thisNotYestRemoved(otherNotYetRemoved);
+
+        notYetRemovedAtLevels.push_back(thisNotYestRemoved);
+    }
 }
 
 DependencyCacheComputation::~DependencyCacheComputation() {
+}
+
+void DependencyCacheComputation::conjunct(const Computation& other) {
+    CacheComputation::conjunct(other);
+    try {
+        const DependencyCacheComputation& t = dynamic_cast<const DependencyCacheComputation&> (other);
+        // TODO: add checks not necessary
+        for (unsigned int i = 0; i < t.notYetRemovedAtLevels.size(); i++) {
+
+            std::set<htd::vertex_t> own = notYetRemovedAtLevels.at(i);
+            std::set<htd::vertex_t> other = t.notYetRemovedAtLevels.at(i);
+            std::set<htd::vertex_t> target;
+
+            std::set_intersection(own.begin(), own.end(),
+                    other.begin(), other.end(),
+                    std::inserter(target, target.begin()));
+
+            notYetRemovedAtLevels.at(i) = target;
+        }
+    } catch (std::bad_cast exp) {
+    }
 }
 
 bool DependencyCacheComputation::reduceRemoveCache() {
@@ -47,24 +77,24 @@ bool DependencyCacheComputation::reduceRemoveCache() {
                 BDD toRemove = popFirstFromRemoveCache(vl); // simulate fifo
                 unsigned int removedOriginalId = cuddToOriginalIds.at(toRemove.getRegularNode()->index);
 
-                const std::vector<BDD>* variableDomain = getVariableDomain();
-
                 bool dependent = false;
-                for (unsigned int level = vl + 1; level <= variableDomain->size(); level++) {
-                    BDD cubesAtLevel = variableDomain->at(level - 1);
-                    if (isDependent(cubesAtLevel.getNode(), removedOriginalId)) {
-                        dependent = true;
-                        break;
+                for (unsigned int level = vl + 1; level <= notYetRemovedAtLevels.size(); level++) {
+                    for (htd::vertex_t notYetRemoved : notYetRemovedAtLevels.at(level - 1)) {
+                        if (qdpll_var_depends(&depqbf, removedOriginalId, notYetRemoved)) {
+                            dependent = true;
+                        }
                     }
                 }
 
                 if (dependent) {
                     Computation::remove(toRemove, vl);
                 } else {
-//                    std::cout << removedOriginalId << " has NO dependencies" << std::endl;
+                    //                    std::cout << removedOriginalId << " has NO dependencies" << std::endl;
 
                     Computation::removeAbstract(toRemove, vl);
                 }
+
+                notYetRemovedAtLevels.at(vl - 1).erase(removedOriginalId);
 
                 return true;
 
@@ -74,104 +104,37 @@ bool DependencyCacheComputation::reduceRemoveCache() {
     return false;
 }
 
-//void DependencyCacheComputation::reduceRemoveCache() {
-//
-//    const std::vector<BDD>* variableDomain = getVariableDomain();
-//
-//    //    CacheComputation::addToRemoveCache(variable, vl);
-//    //    return;
-//    //    
-//
-//    // always immediately remove innermost variables
-//    if (vl == variableDomain->size()) {
-//        Computation::remove(variable, vl);
-//        return;
-//    } else {
-//        unsigned int removedOriginalId = cuddToOriginalIds.at(variable.getRegularNode()->index);
-//
-//
-//        bool dependent = false;
-//        for (unsigned int level = vl + 1; level <= variableDomain->size(); level++) {
-//            BDD cubesAtLevel = variableDomain->at(level - 1);
-//            if (isDependent(cubesAtLevel.getNode(), removedOriginalId)) {
-//                dependent = true;
-//                break;
-//            }
-//        }
-//
-//        if (dependent) {
-//            //            std::cout << removedOriginalId << " has dependencies" << std::endl;
-//            CacheComputation::addToRemoveCache(variable, vl);
-//        } else {
-//            std::cout << removedOriginalId << " has NO dependencies" << std::endl;
-//
-//            Computation::removeFromVariableDomain(variable, vl);
-//            const std::vector<BDD> cubesAtLevels;
-//            // TODO Quantors
-//            Computation::apply(cubesAtLevels, [variable] (BDD bdd) -> BDD {
-//                return bdd.UnivAbstract(variable);
-//            });
-//
-//
-//        }
-//
-//    }
-//
-//    //    variable.getRegularNode()->index;
-//    //    if (qdpll_var_depends (depqbf, v1, v2)) {
-//    //        
-//    //    }
-//
-//    //    std::string vString = hypergraph->vertexName(v.getVertices()[0]);
-//
-//
-//
-//
-//    //    // always immediately remove innermost variables
-//    //    if (vl == _removeCache->size()) {
-//    //        Computation::remove(variable, vl);
-//    //        return;
-//    //    }
-//    //    if (_removeCache->size() < vl) {
-//    //        for (unsigned int i = _removeCache->size(); i < vl; i++) {
-//    //            std::vector<BDD> bddsAtLevel;
-//    //            _removeCache->push_back(bddsAtLevel);
-//    //        }
-//    //    }
-//    //    _removeCache->at(vl - 1).push_back(variable);
-//}
+void DependencyCacheComputation::addToRemoveCache(BDD variable, const unsigned int vl) {
+    unsigned int removedOriginalId = cuddToOriginalIds.at(variable.getRegularNode()->index);
 
-bool DependencyCacheComputation::isDependent(DdNode* f, unsigned int removedOriginalVertexId) const {
-    DdNode* g = Cudd_Regular(f);
-    if (cuddIsConstant(g)) {
-        return false;
-    }
-
-    unsigned int currentOriginalVertexId = cuddToOriginalIds.at(g->index);
-
-//    std::cout << removedOriginalVertexId << " -?> " << currentOriginalVertexId;
-
-    if (qdpll_var_depends(&depqbf, removedOriginalVertexId, currentOriginalVertexId)) {
-//        std::cout << " yes" << std::endl;
-        return true;
-    }
-//    std::cout << " no" << std::endl;
-
-    DdNode* n = cuddT(g);
-    if (!cuddIsConstant(n)) {
-        if (isDependent(n, removedOriginalVertexId)) {
-            return true;
+    bool dependent = false;
+    for (unsigned int level = vl + 1; level <= notYetRemovedAtLevels.size(); level++) {
+        for (htd::vertex_t notYetRemoved : notYetRemovedAtLevels.at(level - 1)) {
+            if (qdpll_var_depends(&depqbf, removedOriginalId, notYetRemoved)) {
+                dependent = true;
+            }
         }
     }
 
-    n = cuddE(g);
-    DdNode* N = Cudd_Regular(n);
-    if (!cuddIsConstant(N)) {
-        if (isDependent(n, removedOriginalVertexId)) {
-            return true;
+    if (!dependent) {
+        Computation::removeAbstract(variable, vl);
+        notYetRemovedAtLevels.at(vl - 1).erase(removedOriginalId);
+        //        std::cout << "immediately abstract at level " << vl << std::endl;
+        return;
+    }
+    if (_removeCache->size() < vl) {
+        for (unsigned int i = _removeCache->size(); i < vl; i++) {
+            std::vector<BDD> bddsAtLevel;
+            _removeCache->push_back(bddsAtLevel);
         }
     }
+    _removeCache->at(vl - 1).push_back(variable);
+}
 
-
-    return false;
+void DependencyCacheComputation::print() const {
+    std::cout << "Not yet removed at levels (size):" << std::endl;
+    for (unsigned int level = 1; level <= notYetRemovedAtLevels.size(); level++) {
+        std::cout << level << ": " << notYetRemovedAtLevels.at(level - 1).size() << std::endl;
+    }
+    CacheComputation::print();
 }

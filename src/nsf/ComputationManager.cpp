@@ -131,22 +131,22 @@ Computation* ComputationManager::newComputation(const std::vector<NTYPE>& quanti
 
             qdpll_init_deps(depqbf);
 
-            unsigned int deps = 0;
-            unsigned int maxDeps = 0;
-            for (htd::vertex_t v1 : app.getInputInstance()->hypergraph->internalGraph().vertices()) {
-                unsigned int vl1 = htd::accessLabel<int>(app.getInputInstance()->hypergraph->internalGraph().vertexLabel("level", v1));
-                for (htd::vertex_t v2 : app.getInputInstance()->hypergraph->internalGraph().vertices()) {
-                    unsigned int vl2 = htd::accessLabel<int>(app.getInputInstance()->hypergraph->internalGraph().vertexLabel("level", v2));
-                    if (qdpll_var_depends(depqbf, v1, v2)) {
-                        deps++;
-                    }
-                    if (vl1 < vl2) {
-                        maxDeps++;
-                    }
-
-                }
-            }
-            std::cout << "Dependencies: " << deps << " / " << maxDeps << "\t\t" << (maxDeps - deps) << std::endl;
+            //            unsigned int deps = 0;
+            //            unsigned int maxDeps = 0;
+            //            for (htd::vertex_t v1 : app.getInputInstance()->hypergraph->internalGraph().vertices()) {
+            //                unsigned int vl1 = htd::accessLabel<int>(app.getInputInstance()->hypergraph->internalGraph().vertexLabel("level", v1));
+            //                for (htd::vertex_t v2 : app.getInputInstance()->hypergraph->internalGraph().vertices()) {
+            //                    unsigned int vl2 = htd::accessLabel<int>(app.getInputInstance()->hypergraph->internalGraph().vertexLabel("level", v2));
+            //                    if (qdpll_var_depends(depqbf, v1, v2)) {
+            //                        deps++;
+            //                    }
+            //                    if (vl1 < vl2) {
+            //                        maxDeps++;
+            //                    }
+            //
+            //                }
+            //            }
+            //            std::cout << "Dependencies: " << deps << " / " << maxDeps << "\t\t" << (maxDeps - deps) << std::endl;
 
             if (cuddToOriginalIds == NULL) {
                 std::vector<int> htdToCuddIds = app.getVertexOrdering();
@@ -181,8 +181,24 @@ Computation* ComputationManager::newComputation(const std::vector<NTYPE>& quanti
                 //                std::cout << index << ": " << cuddToOriginalIds->at(index) << std::endl;
                 //            }
             }
+
+
         }
-        return new DependencyCacheComputation(quantifierSequence, cubesAtLevels, bdd, optMaxBDDSize.getValue(), keepFirstLevel, *depqbf, *cuddToOriginalIds);
+
+        std::vector<std::set<htd::vertex_t>>* notYetRemovedAtLevels = new std::vector<std::set < htd::vertex_t >> ();
+
+        for (unsigned int lv = 1; lv <= quantifierSequence.size(); lv++) {
+            std::set<htd::vertex_t> notYetRemoved;
+            notYetRemovedAtLevels->push_back(notYetRemoved);
+        }
+
+        for (htd::vertex_t vertex : app.getInputInstance()->hypergraph->internalGraph().vertices()) {
+            unsigned int vertexLevel = htd::accessLabel<int>(app.getInputInstance()->hypergraph->internalGraph().vertexLabel("level", vertex));
+            notYetRemovedAtLevels->at(vertexLevel - 1).insert(vertex);
+        }
+
+
+        return new DependencyCacheComputation(quantifierSequence, cubesAtLevels, bdd, optMaxBDDSize.getValue(), keepFirstLevel, *depqbf, *cuddToOriginalIds, *notYetRemovedAtLevels);
     } else if (optDependencyScheme.getValue() == "simple") {
 
         if (variablesAtLevels == NULL) {
@@ -190,7 +206,7 @@ Computation* ComputationManager::newComputation(const std::vector<NTYPE>& quanti
 
             for (htd::vertex_t vertex : app.getInputInstance()->hypergraph->internalGraph().vertices()) {
                 unsigned int vertexLevel = htd::accessLabel<int>(app.getInputInstance()->hypergraph->internalGraph().vertexLabel("level", vertex));
-                variablesAtLevels->at(vertexLevel-1) += 1;
+                variablesAtLevels->at(vertexLevel - 1) += 1;
             }
         }
 

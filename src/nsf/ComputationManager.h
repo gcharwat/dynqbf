@@ -95,6 +95,7 @@ private:
     std::vector<unsigned int>* cuddToOriginalIds;
     
     std::vector<unsigned int>* variablesAtLevels;
+    
 };
 
 
