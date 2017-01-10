@@ -83,136 +83,23 @@ Computation* ComputationManager::newComputation(const std::vector<NTYPE>& quanti
 
     if (optDependencyScheme.getValue() == "standard") {
         if (depqbf == NULL) {
-            depqbf = qdpll_create();
-            //qdpll_configure(depqbf, "--dep-man=qdag");
-            std::string depMan = "--dep-man=simple";
-            std::vector<char> depManC(depMan.begin(), depMan.end());
-            depManC.push_back('\0');
-            qdpll_configure(depqbf, &depManC[0]);
-
-            for (unsigned int level = 1; level <= app.getInputInstance()->getQuantifierSequence().size(); level++) {
-                NTYPE quantifier = app.getInputInstance()->quantifier(level);
-                switch (quantifier) {
-                    case NTYPE::EXISTS:
-                        qdpll_new_scope(depqbf, QDPLL_QTYPE_EXISTS);
-                        break;
-                    case NTYPE::FORALL:
-                        qdpll_new_scope(depqbf, QDPLL_QTYPE_FORALL);
-                        break;
-                    default:
-                        ; //error
-                }
-
-
-                for (htd::vertex_t vertex : app.getInputInstance()->hypergraph->internalGraph().vertices()) {
-                    unsigned int vertexLevel = htd::accessLabel<int>(app.getInputInstance()->hypergraph->internalGraph().vertexLabel("level", vertex));
-                    if (level == vertexLevel) {
-                        qdpll_add(depqbf, vertex);
-                    }
-                }
-                qdpll_add(depqbf, 0); // end scope
-            }
-
-            for (htd::Hyperedge edge : app.getInputInstance()->hypergraph->internalGraph().hyperedges()) {
-                htd::id_t edgeId = edge.id();
-                const std::vector<bool> &edgeSigns = htd::accessLabel < std::vector<bool>>(app.getInputInstance()->hypergraph->edgeLabel("signs", edgeId));
-
-                std::vector<bool>::const_iterator index = edgeSigns.begin();
-                for (const auto& vertex : edge) {
-                    if (*index) {
-                        qdpll_add(depqbf, vertex);
-                    } else {
-                        qdpll_add(depqbf, -vertex);
-                    }
-                    index++;
-                }
-                qdpll_add(depqbf, 0); // end clause
-            }
-
-            qdpll_init_deps(depqbf);
-
-            //            unsigned int deps = 0;
-            //            unsigned int maxDeps = 0;
-            //            for (htd::vertex_t v1 : app.getInputInstance()->hypergraph->internalGraph().vertices()) {
-            //                unsigned int vl1 = htd::accessLabel<int>(app.getInputInstance()->hypergraph->internalGraph().vertexLabel("level", v1));
-            //                for (htd::vertex_t v2 : app.getInputInstance()->hypergraph->internalGraph().vertices()) {
-            //                    unsigned int vl2 = htd::accessLabel<int>(app.getInputInstance()->hypergraph->internalGraph().vertexLabel("level", v2));
-            //                    if (qdpll_var_depends(depqbf, v1, v2)) {
-            //                        deps++;
-            //                    }
-            //                    if (vl1 < vl2) {
-            //                        maxDeps++;
-            //                    }
-            //
-            //                }
-            //            }
-            //            std::cout << "Dependencies: " << deps << " / " << maxDeps << "\t\t" << (maxDeps - deps) << std::endl;
-
-            if (cuddToOriginalIds == NULL) {
-                std::vector<int> htdToCuddIds = app.getVertexOrdering();
-                cuddToOriginalIds = new std::vector<unsigned int>(htdToCuddIds.size() - 1, 0);
-
-                for (unsigned int htdVertexId = 1; htdVertexId < htdToCuddIds.size(); htdVertexId++) {
-                    int cuddId = htdToCuddIds.at(htdVertexId);
-                    //                std::string vertexName = app.getInputInstance()->hypergraph->vertexName(htdVertexId);
-                    //                unsigned int originalId = utils::strToInt(vertexName, vertexName);
-                    // TODO rename
-                    cuddToOriginalIds->at(cuddId) = htdVertexId;
-                }
-
-                //        if (variables == NULL) {
-                //            variables = new std::vector<Variable>(app.getSolverFactory().getVariables());
-                //            std::list<Variable> variablesList(variables->begin(), variables->end());
-                //            variablesList.sort([this] (Variable v1, Variable v2) -> bool {
-                //                int ind1 = app.getVertexOrdering()[v1.getVertices()[0]];
-                //                int ind2 = app.getVertexOrdering()[v2.getVertices()[0]];
-                //                v1.
-                //                return (ind1 < ind2);
-                //            });
-                //        }
-
-                //            std::cout << "htd-id : " << "cudd-id" << std::endl;
-                //            for (unsigned int index = 0; index < htdToCuddIds.size(); index++) {
-                //                std::cout << index << ": " << htdToCuddIds[index] << std::endl;
-                //            }
-                //
-                //            std::cout << "cudd-id : " << "original-id" << std::endl;
-                //            for (unsigned int index = 0; index < cuddToOriginalIds->size(); index++) {
-                //                std::cout << index << ": " << cuddToOriginalIds->at(index) << std::endl;
-                //            }
-            }
-
-
+            initializeDepqbf();
         }
-
-        std::vector<std::set<htd::vertex_t>>* notYetRemovedAtLevels = new std::vector<std::set < htd::vertex_t >> ();
-
-        for (unsigned int lv = 1; lv <= quantifierSequence.size(); lv++) {
-            std::set<htd::vertex_t> notYetRemoved;
-            notYetRemovedAtLevels->push_back(notYetRemoved);
+        if (cuddToOriginalIds == NULL) {
+            initializeCuddToOriginalIds();
         }
+        // always return a new vector
+        std::vector<std::set < htd::vertex_t>> alreadyAbstractedAtLevels = initializeAlreadyAbstractedAtLevels();
 
-        for (htd::vertex_t vertex : app.getInputInstance()->hypergraph->internalGraph().vertices()) {
-            unsigned int vertexLevel = htd::accessLabel<int>(app.getInputInstance()->hypergraph->internalGraph().vertexLabel("level", vertex));
-            notYetRemovedAtLevels->at(vertexLevel - 1).insert(vertex);
-        }
-
-
-        return new DependencyCacheComputation(quantifierSequence, cubesAtLevels, bdd, optMaxBDDSize.getValue(), keepFirstLevel, *depqbf, *cuddToOriginalIds, *notYetRemovedAtLevels);
+        return new DependencyCacheComputation(*this, quantifierSequence, cubesAtLevels, bdd, optMaxBDDSize.getValue(), keepFirstLevel, *depqbf, *cuddToOriginalIds, alreadyAbstractedAtLevels);
     } else if (optDependencyScheme.getValue() == "simple") {
-
         if (variablesAtLevels == NULL) {
-            variablesAtLevels = new vector<unsigned int>(quantifierSequence.size(), 0);
-
-            for (htd::vertex_t vertex : app.getInputInstance()->hypergraph->internalGraph().vertices()) {
-                unsigned int vertexLevel = htd::accessLabel<int>(app.getInputInstance()->hypergraph->internalGraph().vertexLabel("level", vertex));
-                variablesAtLevels->at(vertexLevel - 1) += 1;
-            }
+            initializeVariablesAtLevels();
         }
 
-        return new SimpleDependencyCacheComputation(quantifierSequence, cubesAtLevels, bdd, optMaxBDDSize.getValue(), keepFirstLevel, *variablesAtLevels);
+        return new SimpleDependencyCacheComputation(*this, quantifierSequence, cubesAtLevels, bdd, optMaxBDDSize.getValue(), keepFirstLevel, *variablesAtLevels);
     } else {
-        return new CacheComputation(quantifierSequence, cubesAtLevels, bdd, optMaxBDDSize.getValue(), keepFirstLevel);
+        return new CacheComputation(*this, quantifierSequence, cubesAtLevels, bdd, optMaxBDDSize.getValue(), keepFirstLevel);
     }
     //return new Computation(quantifierSequence, cubesAtLevels, bdd);
 }
@@ -316,11 +203,25 @@ BDD ComputationManager::solutions(const Computation& c) const {
     return c.solutions();
 }
 
+void ComputationManager::incrementInternalAbstractCount() {
+    internalAbstractCount++;
+}
+
+void ComputationManager::incrementAbstractCount() {
+    abstractCount++;
+}
+
+void ComputationManager::incrementShiftCount() {
+    shiftCount++;
+}
+
 void ComputationManager::printStatistics() const {
     if (!optPrintStats.isUsed()) {
         return;
     }
-    std::cout << "*** NSF Manager statistics ***" << std::endl;
+    std::cout << "NSF (abstract count): " << abstractCount << std::endl;
+    std::cout << "NSF (internal abstract count): " << internalAbstractCount << std::endl;
+    std::cout << "NSF (shift count): " << shiftCount << std::endl;
     //std::cout << "Number of subset checks: " << subsetChecks << std::endl;
     //std::cout << "Number of successful subset checks: " << subsetChecksSuccessful << std::endl;
     //std::cout << "Subset check success rate: " << ((subsetChecksSuccessful * 1.0) / subsetChecks)*100 << std::endl;
@@ -335,4 +236,88 @@ void ComputationManager::divideGlobalNSFSizeEstimation(int value) {
 
 void ComputationManager::multiplyGlobalNSFSizeEstimation(int value) {
     maxGlobalNSFSizeEstimation *= value;
+}
+
+void ComputationManager::initializeDepqbf() {
+    depqbf = qdpll_create();
+    //qdpll_configure(depqbf, "--dep-man=qdag");
+    std::string depMan = "--dep-man=qdag";
+    std::vector<char> depManC(depMan.begin(), depMan.end());
+    depManC.push_back('\0');
+    qdpll_configure(depqbf, &depManC[0]);
+
+    for (unsigned int level = 1; level <= app.getInputInstance()->getQuantifierSequence().size(); level++) {
+        NTYPE quantifier = app.getInputInstance()->quantifier(level);
+        switch (quantifier) {
+            case NTYPE::EXISTS:
+                qdpll_new_scope(depqbf, QDPLL_QTYPE_EXISTS);
+                break;
+            case NTYPE::FORALL:
+                qdpll_new_scope(depqbf, QDPLL_QTYPE_FORALL);
+                break;
+            default:
+                ; //error
+        }
+
+        for (htd::vertex_t vertex : app.getInputInstance()->hypergraph->internalGraph().vertices()) {
+            unsigned int vertexLevel = htd::accessLabel<int>(app.getInputInstance()->hypergraph->internalGraph().vertexLabel("level", vertex));
+            if (level == vertexLevel) {
+                qdpll_add(depqbf, vertex);
+            }
+        }
+        qdpll_add(depqbf, 0); // end scope
+    }
+
+    for (htd::Hyperedge edge : app.getInputInstance()->hypergraph->internalGraph().hyperedges()) {
+        htd::id_t edgeId = edge.id();
+        const std::vector<bool> &edgeSigns = htd::accessLabel < std::vector<bool>>(app.getInputInstance()->hypergraph->edgeLabel("signs", edgeId));
+
+        std::vector<bool>::const_iterator index = edgeSigns.begin();
+        for (const auto& vertex : edge) {
+            if (*index) {
+                qdpll_add(depqbf, vertex);
+            } else {
+                qdpll_add(depqbf, -vertex);
+            }
+            index++;
+        }
+        qdpll_add(depqbf, 0); // end clause
+    }
+
+    qdpll_init_deps(depqbf);
+}
+
+void ComputationManager::initializeCuddToOriginalIds() {
+    std::vector<int> htdToCuddIds = app.getVertexOrdering();
+    cuddToOriginalIds = new std::vector<unsigned int>(htdToCuddIds.size() - 1, 0);
+
+    for (unsigned int htdVertexId = 1; htdVertexId < htdToCuddIds.size(); htdVertexId++) {
+        int cuddId = htdToCuddIds.at(htdVertexId);
+        // TODO rename
+        cuddToOriginalIds->at(cuddId) = htdVertexId;
+    }
+}
+
+std::vector<std::set < htd::vertex_t>> ComputationManager::initializeAlreadyAbstractedAtLevels() {
+    std::vector<std::set < htd::vertex_t>> alreadyAbstractedAtLevels; // = new std::vector<std::set < htd::vertex_t >> ();
+
+    for (htd::vertex_t vertex : app.getInputInstance()->hypergraph->internalGraph().vertices()) {
+        unsigned int vertexLevel = htd::accessLabel<int>(app.getInputInstance()->hypergraph->internalGraph().vertexLabel("level", vertex));
+        while (alreadyAbstractedAtLevels.size() < vertexLevel) {
+            std::set<htd::vertex_t> notYetRemoved;
+            alreadyAbstractedAtLevels.push_back(notYetRemoved);
+        }
+        alreadyAbstractedAtLevels.at(vertexLevel - 1).insert(vertex);
+    }
+    return alreadyAbstractedAtLevels;
+}
+
+void ComputationManager::initializeVariablesAtLevels() {
+    for (htd::vertex_t vertex : app.getInputInstance()->hypergraph->internalGraph().vertices()) {
+        unsigned int vertexLevel = htd::accessLabel<int>(app.getInputInstance()->hypergraph->internalGraph().vertexLabel("level", vertex));
+        while (variablesAtLevels->size() < vertexLevel) {
+            variablesAtLevels->push_back(0);
+        }
+        variablesAtLevels->at(vertexLevel - 1) += 1;
+    }
 }

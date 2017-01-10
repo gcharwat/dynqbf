@@ -23,7 +23,8 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Computation.h"
 
-Computation::Computation(const std::vector<NTYPE>& quantifierSequence, const std::vector<BDD>& cubesAtLevels, const BDD& bdd) {
+Computation::Computation(ComputationManager& manager, const std::vector<NTYPE>& quantifierSequence, const std::vector<BDD>& cubesAtLevels, const BDD& bdd)
+: manager(manager) {
     unsigned int level = quantifierSequence.size();
     unsigned int depth = 0;
     NSF* current = new NSF(level, depth, quantifierSequence.at(level - 1));
@@ -43,7 +44,8 @@ Computation::Computation(const std::vector<NTYPE>& quantifierSequence, const std
     }
 }
 
-Computation::Computation(const Computation& other) {
+Computation::Computation(const Computation& other)
+: manager(other.manager) {
     _nsf = new NSF(*(other._nsf));
     _variableDomain = new std::vector<BDD>(*(other._variableDomain));
 }

@@ -18,15 +18,14 @@ You should have received a copy of the GNU General Public License
 along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
  */
+#pragma once
 
 #include "NSF.h"
-
-
-#pragma once
+//#include "ComputationManager.h"
 
 class Computation {
 public:
-    Computation(const std::vector<NTYPE>& quantifierSequence, const std::vector<BDD>& cubesAtLevels, const BDD& bdd);
+    Computation(ComputationManager& manager, const std::vector<NTYPE>& quantifierSequence, const std::vector<BDD>& cubesAtLevels, const BDD& bdd);
     Computation(const Computation& other);
 
     virtual ~Computation();
@@ -60,14 +59,14 @@ public:
 protected:
     virtual BDD evaluate(std::vector<BDD>& cubesAtlevels, bool keepFirstLevel) const;
     
+    ComputationManager& manager;
     NSF* _nsf;
 
     const std::vector<BDD>* getVariableDomain();
-
     void removeFromVariableDomain(BDD cube, const unsigned int vl);
 
-    
 private:
+        
     void addToVariableDomain(BDD cube, const unsigned int vl);
     void addToVariableDomain(const std::vector<BDD>& cubesAtLevels);
     void removeFromVariableDomain(const std::vector<BDD>& cubesAtLevels);

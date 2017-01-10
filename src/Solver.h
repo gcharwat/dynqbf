@@ -31,7 +31,6 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 class Application;
 
 
-
 class Solver {
 public:
 

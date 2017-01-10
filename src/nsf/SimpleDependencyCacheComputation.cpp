@@ -24,8 +24,8 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "SimpleDependencyCacheComputation.h"
 #include "cuddInt.h"
 
-SimpleDependencyCacheComputation::SimpleDependencyCacheComputation(const std::vector<NTYPE>& quantifierSequence, const std::vector<BDD>& cubesAtLevels, const BDD& bdd, unsigned int maxBDDsize, bool keepFirstLevel, const std::vector<unsigned int>& variablesAtLevels)
-: CacheComputation(quantifierSequence, cubesAtLevels, bdd, maxBDDsize, keepFirstLevel)
+SimpleDependencyCacheComputation::SimpleDependencyCacheComputation(ComputationManager& manager, const std::vector<NTYPE>& quantifierSequence, const std::vector<BDD>& cubesAtLevels, const BDD& bdd, unsigned int maxBDDsize, bool keepFirstLevel, const std::vector<unsigned int>& variablesAtLevels)
+: CacheComputation(manager, quantifierSequence, cubesAtLevels, bdd, maxBDDsize, keepFirstLevel)
 , completelyRemovedAtLevel(quantifierSequence.size(), 0)
 , variablesAtLevels(variablesAtLevels) {
 }
@@ -58,18 +58,22 @@ bool SimpleDependencyCacheComputation::reduceRemoveCache() {
         for (unsigned int vl = _removeCache->size(); vl >= 1; vl--) {
             if (isRemovableAtRemoveCacheLevel(vl)) {
                 BDD toRemove = popFirstFromRemoveCache(vl); // simulate fifo
-                
+
                 bool abstractable = isAbstractableAtLevel(vl);
-                    
+
                 if (abstractable) {
-//                    std::cout << "heuristically abstract at level " << vl << std::endl;
+                    //                    std::cout << "heuristically abstract at level " << vl << std::endl;
                     Computation::removeAbstract(toRemove, vl);
+                    manager.incrementAbstractCount();
+                    if (vl < completelyRemovedAtLevel.size()) {
+                        manager.incrementInternalAbstractCount();
+                    }
                 } else {
                     Computation::remove(toRemove, vl);
                 }
-                
-                completelyRemovedAtLevel.at(vl-1) += 1;
-                
+
+                completelyRemovedAtLevel.at(vl - 1) += 1;
+
                 return true;
             }
         }
@@ -80,8 +84,13 @@ bool SimpleDependencyCacheComputation::reduceRemoveCache() {
 void SimpleDependencyCacheComputation::addToRemoveCache(BDD variable, const unsigned int vl) {
     if (isAbstractableAtLevel(vl)) {
         Computation::removeAbstract(variable, vl);
-        completelyRemovedAtLevel.at(vl-1) += 1;
-//        std::cout << "immediately abstract at level " << vl << std::endl;
+        completelyRemovedAtLevel.at(vl - 1) += 1;
+
+        manager.incrementAbstractCount();
+        if (vl < completelyRemovedAtLevel.size()) {
+            manager.incrementInternalAbstractCount();
+        }
+        //        std::cout << "immediately abstract at level " << vl << std::endl;
         return;
     }
     if (_removeCache->size() < vl) {
@@ -95,15 +104,15 @@ void SimpleDependencyCacheComputation::addToRemoveCache(BDD variable, const unsi
 
 bool SimpleDependencyCacheComputation::isAbstractableAtLevel(unsigned int vl) {
     bool isAbstractable = true;
-    
-//    std::cout << "Counters: ";
+
+    //    std::cout << "Counters: ";
     for (unsigned int i = vl; i < variablesAtLevels.size(); i++) {
         if (completelyRemovedAtLevel.at(i) < variablesAtLevels.at(i)) {
             isAbstractable = false;
         }
-//        std::cout << completelyRemovedAtLevel.at(i) << "/" << variablesAtLevels.at(i) << "\t";
+        //        std::cout << completelyRemovedAtLevel.at(i) << "/" << variablesAtLevels.at(i) << "\t";
     }
-//    std::cout << std::endl;
-    
+    //    std::cout << std::endl;
+
     return isAbstractable;
 }

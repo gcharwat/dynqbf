@@ -81,11 +81,11 @@ add_library(dynqbf-objects
     Module.cpp
     BDDManager.cpp
     nsf/NSF.cpp
+    nsf/ComputationManager.cpp
     nsf/Computation.cpp
     nsf/CacheComputation.cpp
     nsf/DependencyCacheComputation.cpp    
     nsf/SimpleDependencyCacheComputation.cpp    
-    nsf/ComputationManager.cpp
     Variable.cpp
     HGInputParser.cpp
     parser/DIMACSDriver.cpp

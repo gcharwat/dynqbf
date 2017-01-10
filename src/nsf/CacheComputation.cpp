@@ -24,8 +24,8 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "CacheComputation.h"
 #include "cuddInt.h"
 
-CacheComputation::CacheComputation(const std::vector<NTYPE>& quantifierSequence, const std::vector<BDD>& cubesAtLevels, const BDD& bdd, unsigned int maxBDDsize, bool keepFirstLevel)
-: Computation(quantifierSequence, cubesAtLevels, bdd)
+CacheComputation::CacheComputation(ComputationManager& manager, const std::vector<NTYPE>& quantifierSequence, const std::vector<BDD>& cubesAtLevels, const BDD& bdd, unsigned int maxBDDsize, bool keepFirstLevel)
+: Computation(manager, quantifierSequence, cubesAtLevels, bdd)
 , _maxBDDsize(maxBDDsize)
 , _keepFirstLevel(keepFirstLevel) {
     _removeCache = new std::vector<std::vector < BDD >> (quantifierSequence.size());

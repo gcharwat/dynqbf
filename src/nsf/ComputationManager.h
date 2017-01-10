@@ -63,6 +63,10 @@ public:
     BDD solutions(const Computation& c) const;
 
     void optimize(Computation &c);
+    
+    void incrementInternalAbstractCount();
+    void incrementAbstractCount();
+    void incrementShiftCount();
 
 protected:
 
@@ -91,10 +95,22 @@ private:
 
     unsigned int optUnsatCheckCounter;
     
+    // for standard depencency scheme handling (provided by DepQBF)
+    void initializeDepqbf();
+    void initializeCuddToOriginalIds();
+    std::vector<std::set < htd::vertex_t>> initializeAlreadyAbstractedAtLevels();
     QDPLL* depqbf = NULL;
     std::vector<unsigned int>* cuddToOriginalIds;
     
+    // for simple dependency scheme handling
+    void initializeVariablesAtLevels();
     std::vector<unsigned int>* variablesAtLevels;
+    
+    
+    // Statistics
+    unsigned int shiftCount;
+    unsigned int internalAbstractCount;
+    unsigned int abstractCount;
     
 };
 

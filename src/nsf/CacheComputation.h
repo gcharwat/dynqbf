@@ -19,14 +19,14 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
  */
 
+#pragma once
+
 #include "NSF.h"
 #include "Computation.h"
 
-#pragma once
-
 class CacheComputation : public Computation {
 public:
-    CacheComputation(const std::vector<NTYPE>& quantifierSequence, const std::vector<BDD>& cubesAtLevels, const BDD& bdd, unsigned int maxBDDsize, bool keepFirstLevel);
+    CacheComputation(ComputationManager& manager, const std::vector<NTYPE>& quantifierSequence, const std::vector<BDD>& cubesAtLevels, const BDD& bdd, unsigned int maxBDDsize, bool keepFirstLevel);
     CacheComputation(const CacheComputation& other);
 
     ~CacheComputation();
@@ -58,15 +58,9 @@ protected:
     bool isRemovableAtRemoveCacheLevel(const unsigned int vl) const;
     bool isRemovableRemoveCache() const;
     
-    
     std::vector<std::vector<BDD>>*_removeCache;
     
 private:
-
-
-
-    
-
     unsigned int _maxBDDsize;
     bool _keepFirstLevel;
 };

@@ -18,22 +18,20 @@ You should have received a copy of the GNU General Public License
 along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
  */
+#pragma once
 
 #include "NSF.h"
 #include "CacheComputation.h"
-#include "../Variable.h"
+#include "ComputationManager.h"
 
 extern "C" 
 {
 #include "qdpll.h"
 }
 
-
-#pragma once
-
 class DependencyCacheComputation : public CacheComputation {
 public:
-    DependencyCacheComputation(const std::vector<NTYPE>& quantifierSequence, const std::vector<BDD>& cubesAtLevels, const BDD& bdd, unsigned int maxBDDsize, bool keepFirstLevel, QDPLL& depqbf, std::vector<unsigned int>& cuddToOriginalIds, std::vector<std::set<htd::vertex_t>>& notYetRemovedAtLevels);
+    DependencyCacheComputation(ComputationManager& manager, const std::vector<NTYPE>& quantifierSequence, const std::vector<BDD>& cubesAtLevels, const BDD& bdd, unsigned int maxBDDsize, bool keepFirstLevel, QDPLL& depqbf, std::vector<unsigned int>& cuddToOriginalIds, std::vector<std::set<htd::vertex_t>>& notYetRemovedAtLevels);
     DependencyCacheComputation(const DependencyCacheComputation& other);
 
     ~DependencyCacheComputation();
