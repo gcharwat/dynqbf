@@ -68,6 +68,7 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "printer/Quiet.h"
 #include "printer/Progress.h"
 #include "printer/Debug.h"
+#include "printer/Verbose.h"
 #include "printer/Performance.h"
 
 const std::string Application::MODULE_SECTION = "Module selection";
@@ -147,6 +148,7 @@ int Application::run(int argc, char** argv) {
     printer::Quiet quietPrinter(*this, true);
     printer::Progress progressPrinter(*this);
     printer::Debug debugPrinter(*this);
+    printer::Verbose verbosePrinter(*this);
     printer::Performance performancePrinter(*this);
 
     bddManager = new BDDManager(*this);

@@ -207,26 +207,28 @@ const unsigned int NSF::nsfCount() const {
     }
 }
 
-void NSF::print() const {
-    if (nestedSet().size() == 0) {
-        std::cout << std::endl;
-        _value.print(0, 2);
-        std::cout << std::endl;
-    } else {
-        std::cout << "{ ";
-        for (const auto& childComp : nestedSet()) {
-            childComp->print();
-        }
-        std::cout << "} ";
-    }
-}
+//void NSF::print() const {
+//    if (nestedSet().size() == 0) {
+//        std::cout << std::endl;
+//        _value.print(0, 2);
+//        std::cout << std::endl;
+//    } else {
+//        std::cout << "{ ";
+//        for (const auto& childComp : nestedSet()) {
+//            childComp->print();
+//        }
+//        std::cout << "} ";
+//    }
+//}
 
-void NSF::printCompact() const {
-    if (isExistentiallyQuantified()) std::cout << "E";
-    else if (isUniversiallyQuantified()) std::cout << "A";
-    else std::cout << "U";
-    std::cout << "l" << _level;
-    std::cout << "d" << _depth;
+void NSF::print(bool verbose) const {
+    if (verbose) {
+        if (isExistentiallyQuantified()) std::cout << "E";
+        else if (isUniversiallyQuantified()) std::cout << "A";
+        else std::cout << "U";
+        std::cout << " l" << _level;
+        std::cout << " d" << _depth << " ";
+    }
     if (isLeaf()) {
         if (value().IsZero()) {
             std::cout << "[B]";
@@ -234,12 +236,16 @@ void NSF::printCompact() const {
             std::cout << "[T]";
         } else {
             std::cout << "[" << _value.nodeCount() << "]";
-//            _value.print(0, 2);
+            if (verbose) {
+                std::cout << std::endl;
+                _value.print(0, 2);
+                std::cout << std::endl;
+            }
         }
     } else {
         std::cout << "{";
         for (const auto& childComp : nestedSet()) {
-            childComp->printCompact();
+            childComp->print(verbose);
         }
         std::cout << "}";
     }

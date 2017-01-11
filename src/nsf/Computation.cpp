@@ -166,12 +166,12 @@ BDD Computation::solutions() const {
     return evaluate(cubesAtlevels, true);
 }
 
-void Computation::print() const {
+void Computation::print(bool verbose) const {
     std::cout << "Variable domain (size):" << std::endl;
     for (unsigned int level = 1; level <= _variableDomain->size(); level++) {
         std::cout << level << ": " << (_variableDomain->at(level - 1).CountPath() - 1) << std::endl;
     }
-    _nsf->printCompact();
+    _nsf->print(verbose);
 }
 
 const std::vector<BDD>* Computation::getVariableDomain() {

@@ -54,7 +54,7 @@ public:
     const unsigned int leavesCount() const;
     const unsigned int nsfCount() const;
 
-    virtual void print() const;
+    virtual void print(bool verbose) const;
 
 protected:
     virtual BDD evaluate(std::vector<BDD>& cubesAtlevels, bool keepFirstLevel) const;

@@ -162,10 +162,10 @@ void DependencyCacheComputation::addToRemoveCache(BDD variable, const unsigned i
     _removeCache->at(vl - 1).push_back(variable);
 }
 
-void DependencyCacheComputation::print() const {
+void DependencyCacheComputation::print(bool verbose) const {
     std::cout << "Not yet removed at levels (size):" << std::endl;
     for (unsigned int level = 1; level <= notYetRemovedAtLevels.size(); level++) {
         std::cout << level << ": " << notYetRemovedAtLevels.at(level - 1).size() << std::endl;
     }
-    CacheComputation::print();
+    CacheComputation::print(verbose);
 }

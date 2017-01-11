@@ -182,7 +182,7 @@ void Printer::beforeComputation() {
 
 void Printer::resultComputation(const Computation& computation) {
     std::cout << "Computation: ";
-    computation.print();
+    computation.print(true);
 }
 
 void Printer::result(const RESULT result) {

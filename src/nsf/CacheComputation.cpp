@@ -119,12 +119,12 @@ bool CacheComputation::optimize(bool left) {
     return false;
 }
 
-void CacheComputation::print() const {
+void CacheComputation::print(bool verbose) const {
     std::cout << "Remove cache (size):" << std::endl;
     for (unsigned int level = 1; level <= _removeCache->size(); level++) {
         std::cout << level << ": " << _removeCache->at(level - 1).size() << std::endl;
     }
-    Computation::print();
+    Computation::print(verbose);
 }
 
 bool CacheComputation::isRemoveCacheReducible() {

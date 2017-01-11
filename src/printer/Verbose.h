@@ -19,25 +19,21 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
  */
 
-#include <iostream>
+#pragma once
 
-#include "Debug.h"
-#include "../Application.h"
-#include "../Utils.h"
+#include "../Printer.h"
+#include "../options/SingleValueOption.h"
+#include "cuddObj.hh"
 
 namespace printer {
 
-    Debug::Debug(Application& app, bool newDefault)
-    : Printer(app, "debug", "Debug output writer", newDefault) {
-    }
-    void Debug::beforeComputation() {
-        std::cout << "### Computation ###" << std::endl;
-    }
-    
-    void Debug::solverInvocationResult(const htd::vertex_t vertex, const Computation& computation) {
-        std::cout << "Node " << vertex << ": " << std::endl;
-        computation.print(false);
-        std::cout << std::endl;
-    }
+    class Verbose : public Printer {
+    public:
+        Verbose(Application& app, bool newDefault = false);
 
-} // namespace printer
+        virtual void beforeComputation() override;
+        virtual void solverInvocationResult(const htd::vertex_t vertex, const Computation& computation) override;
+
+    };
+
+}

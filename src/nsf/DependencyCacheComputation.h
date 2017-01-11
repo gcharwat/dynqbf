@@ -38,7 +38,7 @@ public:
 
     virtual void conjunct(const Computation& other) override;
     
-    virtual void print() const override;
+    virtual void print(bool verbose) const override;
     
 protected:
     bool reduceRemoveCache() override;

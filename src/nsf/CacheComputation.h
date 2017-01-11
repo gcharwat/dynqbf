@@ -43,7 +43,7 @@ public:
     virtual bool optimize() override;
     virtual bool optimize(bool left) override;
 
-    virtual void print() const override;
+    virtual void print(bool verbose) const override;
 
 protected:
     virtual BDD evaluate(std::vector<BDD>& cubesAtlevels, bool keepFirstLevel) const override;

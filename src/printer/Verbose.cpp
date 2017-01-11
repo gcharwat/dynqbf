@@ -21,22 +21,23 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
 
-#include "Debug.h"
+#include "Verbose.h"
 #include "../Application.h"
 #include "../Utils.h"
 
 namespace printer {
 
-    Debug::Debug(Application& app, bool newDefault)
-    : Printer(app, "debug", "Debug output writer", newDefault) {
+    Verbose::Verbose(Application& app, bool newDefault)
+    : Printer(app, "verbose", "Vebose output writer (including BDDs)", newDefault) {
     }
-    void Debug::beforeComputation() {
+    
+    void Verbose::beforeComputation() {
         std::cout << "### Computation ###" << std::endl;
     }
     
-    void Debug::solverInvocationResult(const htd::vertex_t vertex, const Computation& computation) {
+    void Verbose::solverInvocationResult(const htd::vertex_t vertex, const Computation& computation) {
         std::cout << "Node " << vertex << ": " << std::endl;
-        computation.print(false);
+        computation.print(true);
         std::cout << std::endl;
     }
 

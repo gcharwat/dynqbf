@@ -135,6 +135,7 @@ add_library(dynqbf-objects
     printer/Quiet.cpp
     printer/Progress.cpp
     printer/Debug.cpp
+    printer/Verbose.cpp
     printer/Performance.cpp
 )
 

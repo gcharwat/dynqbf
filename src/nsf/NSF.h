@@ -62,9 +62,7 @@ public:
     const unsigned int leavesCount() const;
     const unsigned int nsfCount() const;
 
-    void print() const;
-    void printCompact() const;
-
+    void print(bool verbose = false) const;
 
     void apply(std::function<BDD(const BDD&)> f);
     void apply(const BDD& clauses);
