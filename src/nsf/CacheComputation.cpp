@@ -173,6 +173,11 @@ void CacheComputation::addToRemoveCache(const std::vector<std::vector<BDD>>&vari
     }
 }
 
+void CacheComputation::removeFromRemoveCache(BDD variable, const unsigned int vl) {
+    std::vector<BDD>::iterator position = std::find(_removeCache->at(vl-1).begin(), _removeCache->at(vl-1).end(), variable);
+    _removeCache->at(vl - 1).erase(position);
+}
+
 BDD CacheComputation::popFromRemoveCache(const unsigned int vl) {
     // TODO: We assume isRemovableAtRemoveCacheLevel() to be called first
     BDD b = _removeCache->at(vl - 1).back();

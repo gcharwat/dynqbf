@@ -64,6 +64,7 @@ protected:
 
     const std::vector<BDD>* getVariableDomain();
     void removeFromVariableDomain(BDD cube, const unsigned int vl);
+    virtual void shiftVariableLevel(BDD cube, const unsigned int from, const unsigned int to);
 
 private:
         

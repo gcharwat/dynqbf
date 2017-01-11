@@ -77,11 +77,11 @@ bool DependencyCacheComputation::reduceRemoveCache() {
                 unsigned int removedOriginalId = cuddToOriginalIds.at(toRemove.getRegularNode()->index);
 
                 bool dependent = false;
-                
+
                 unsigned int independentUntilLevel = vl;
-                
+
                 for (unsigned int level = vl + 1; level <= notYetRemovedAtLevels.size(); level++) {
-                    
+
                     for (htd::vertex_t notYetRemoved : notYetRemovedAtLevels.at(level - 1)) {
                         if (qdpll_var_depends(&depqbf, removedOriginalId, notYetRemoved)) {
                             dependent = true;
@@ -94,24 +94,31 @@ bool DependencyCacheComputation::reduceRemoveCache() {
                         independentUntilLevel = level;
                     }
                 }
-                
-                if (independentUntilLevel != vl) {
-                    manager.incrementShiftCount();
-//                    std::cout << removedOriginalId << " could be shifted from level " << vl << " to " << independentUntilLevel << std::endl;
-                }
-                
+
+
+
                 if (dependent) {
-                    Computation::remove(toRemove, vl);
+                    if (independentUntilLevel >= (vl + 2)) {
+                        if ((independentUntilLevel - vl) % 2 == 1) {
+                            independentUntilLevel--;
+                        }
+                        shiftVariableLevel(toRemove, vl, independentUntilLevel);
+                        manager.incrementShiftCount();
+//                        std::cout << removedOriginalId << " could be shifted from level " << vl << " to " << independentUntilLevel << std::endl;
+                    }
+
+                    Computation::remove(toRemove, independentUntilLevel); // instead of vl
                 } else {
                     manager.incrementAbstractCount();
                     if (vl < notYetRemovedAtLevels.size()) {
                         manager.incrementInternalAbstractCount();
-//                        std::cout << removedOriginalId << " abstract at level " << vl << std::endl;
+                        //                        std::cout << removedOriginalId << " abstract at level " << vl << std::endl;
                     }
-                    
-                    Computation::removeAbstract(toRemove, vl);
+
+                    // we abstract at vl since it does not make a difference
+                    Computation::removeAbstract(toRemove, vl); // instead of vl
                     // only remove if it is abstracted (hack)
-                    notYetRemovedAtLevels.at(vl - 1).erase(removedOriginalId);
+                    notYetRemovedAtLevels.at(vl - 1).erase(removedOriginalId); // here we remove at vl, since variable was not shifted in notYetRemovedAtLevels
                 }
                 return true;
             }
@@ -138,11 +145,11 @@ void DependencyCacheComputation::addToRemoveCache(BDD variable, const unsigned i
     if (!dependent) {
         Computation::removeAbstract(variable, vl);
         notYetRemovedAtLevels.at(vl - 1).erase(removedOriginalId);
-        
+
         manager.incrementAbstractCount();
         if (vl < notYetRemovedAtLevels.size()) {
             manager.incrementInternalAbstractCount();
-//            std::cout << removedOriginalId << " immediately abstract at level " << vl << std::endl;
+            //            std::cout << removedOriginalId << " immediately abstract at level " << vl << std::endl;
         }
         return;
     }

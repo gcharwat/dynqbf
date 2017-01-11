@@ -171,7 +171,7 @@ void Computation::print() const {
     for (unsigned int level = 1; level <= _variableDomain->size(); level++) {
         std::cout << level << ": " << (_variableDomain->at(level - 1).CountPath() - 1) << std::endl;
     }
-    _nsf->print();
+    _nsf->printCompact();
 }
 
 const std::vector<BDD>* Computation::getVariableDomain() {
@@ -196,4 +196,9 @@ void Computation::removeFromVariableDomain(const std::vector<BDD>& cubesAtLevels
     for (unsigned int level = 1; level <= cubesAtLevels.size(); level++) {
         removeFromVariableDomain(cubesAtLevels.at(level - 1), level);
     }
+}
+
+void Computation::shiftVariableLevel(BDD cube, const unsigned int from, const unsigned int to) {
+    removeFromVariableDomain(cube, from);
+    addToVariableDomain(cube, to);
 }

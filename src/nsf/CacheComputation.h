@@ -50,6 +50,7 @@ protected:
 
     virtual void addToRemoveCache(BDD variable, const unsigned int vl);
     void addToRemoveCache(const std::vector<std::vector<BDD>>&variables);
+    void removeFromRemoveCache(BDD variable, const unsigned int vl);
     BDD popFromRemoveCache(const unsigned int vl);
     BDD popFirstFromRemoveCache(const unsigned int vl);
 
@@ -57,7 +58,7 @@ protected:
     virtual bool reduceRemoveCache();
     bool isRemovableAtRemoveCacheLevel(const unsigned int vl) const;
     bool isRemovableRemoveCache() const;
-    
+        
     std::vector<std::vector<BDD>>*_removeCache;
     
 private:
