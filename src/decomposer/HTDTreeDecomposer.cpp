@@ -35,6 +35,7 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "NSFSizeJoinEstimationFitnessFunction.h"
 #include "InverseNSFSizeJoinEstimationFitnessFunction.h"
 #include "VariableLevelFitnessFunction.h"
+#include "RemovedLevelFitnessFunction.h"
 
 #include <htd/main.hpp>
 
@@ -84,7 +85,8 @@ namespace decomposer {
         optRootSelectionFitnessFunction.addCondition(selected);
         optRootSelectionFitnessFunction.addChoice("none", "do not optimize selected root", true);
         optRootSelectionFitnessFunction.addChoice("height", "minimize decomposition height");
-        optRootSelectionFitnessFunction.addChoice("variable-level", "prefer innermost variables to be removed first");
+        optRootSelectionFitnessFunction.addChoice("variable-level", "prefer innermost variables to be removed first (relative location in td and removal)");
+        optRootSelectionFitnessFunction.addChoice("removed-level", "prefer innermost variables to be removed first (punish removal of variables with lower level)");
         optRootSelectionFitnessFunction.addChoice("join-child-bag-prod", "minimize the sum over products of join node children bag sizes");
         optRootSelectionFitnessFunction.addChoice("nsf", "minimize the estimated total size of computed NSFs");
         optRootSelectionFitnessFunction.addChoice("join-nsf", "minimize the estimated total size of computed NSFs in join nodes");
@@ -154,6 +156,9 @@ namespace decomposer {
         } else if (optRootSelectionFitnessFunction.getValue() == "variable-level") {
             VariableLevelFitnessFunction variableLevelFitnessFunction(app);
             operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager(), variableLevelFitnessFunction);
+        } else if (optRootSelectionFitnessFunction.getValue() == "removed-level") {
+            RemovedLevelFitnessFunction removedLevelFitnessFunction(app);
+            operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager(), removedLevelFitnessFunction);
         } else if (optRootSelectionFitnessFunction.getValue() == "join-child-bag-prod") {
             JoinNodeChildBagProductFitnessFunction joinNodeChildBagProductFitnessFunction;
             operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager(), joinNodeChildBagProductFitnessFunction);

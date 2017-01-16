@@ -107,6 +107,7 @@ add_library(dynqbf-objects
     decomposer/JoinNodeCountFitnessFunction.cpp
     decomposer/WidthFitnessFunction.cpp
     decomposer/VariableLevelFitnessFunction.cpp
+    decomposer/RemovedLevelFitnessFunction.cpp
     decomposer/NSFSizeEstimationFitnessFunction.cpp
     decomposer/NSFSizeJoinEstimationFitnessFunction.cpp
     decomposer/InverseNSFSizeJoinEstimationFitnessFunction.cpp
