@@ -20,15 +20,35 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include <iostream>
+#include <csignal>
+
 
 #include "Utils.h"
 #include "Application.h"
 
+Application* app;
+
+void signalHandler(int signum) {
+    std::cout << "Terminated (signal): " << signum << std::endl;
+    if (app != NULL) {
+        delete app;
+    }
+    exit(signum);
+}
+
 int main(int argc, char** argv) {
+    signal(SIGINT, signalHandler);
+    
+    int ret = 0;
     try {
-        return Application(argv[0]).run(argc - 1, argv + 1);
+        app = new Application(argv[0]);
+        ret = app->run(argc - 1, argv + 1);
     } catch (const std::exception& e) {
         std::cerr << std::endl << "Error: " << e.what() << std::endl;
-        return 2;
+        ret = 2;
     }
+    if (app != NULL) {
+        delete app;
+    }
+    return ret;
 }

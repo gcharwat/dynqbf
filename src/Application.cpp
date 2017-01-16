@@ -94,6 +94,18 @@ Application::Application(const std::string& binaryName)
 , optSeed("seed", "s", "Initialize random number generator with seed <s>") {
 }
 
+Application::~Application() {
+    if (nsfManager != NULL) {
+        delete nsfManager;
+    } 
+    if (bddManager != NULL) {
+        delete bddManager;
+    }
+    if (htdManager != NULL) {
+        delete htdManager;
+    }
+}
+
 int Application::run(int argc, char** argv) {
 
     opts.addOption(optHelp);
@@ -169,7 +181,7 @@ int Application::run(int argc, char** argv) {
 
     if (optVersion.isUsed()) {
         version();
-        std::exit(0);
+        return RESULT::UNDECIDED;
     }
 
     srand(seed);
@@ -226,9 +238,6 @@ int Application::run(int argc, char** argv) {
         result = e.getResult();
         std::cout << "Notice: " << e.what() << std::endl;
     }
-
-    delete bddManager;
-    delete nsfManager;
 
     int exitCode = RETURN_UNFINISHED;
 

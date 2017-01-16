@@ -60,6 +60,7 @@ class Application {
 public:
     
     Application(const std::string& binaryName);
+    ~Application();
 
     // We assume that argv[0] contains the first option, NOT the binary name
     int run(int argc, char** argv);
