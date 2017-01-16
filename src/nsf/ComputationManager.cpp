@@ -96,7 +96,6 @@ Computation* ComputationManager::newComputation(const std::vector<NTYPE>& quanti
         if (variablesAtLevels == NULL) {
             initializeVariablesAtLevels();
         }
-
         return new SimpleDependencyCacheComputation(*this, quantifierSequence, cubesAtLevels, bdd, optMaxBDDSize.getValue(), keepFirstLevel, *variablesAtLevels);
     } else {
         return new CacheComputation(*this, quantifierSequence, cubesAtLevels, bdd, optMaxBDDSize.getValue(), keepFirstLevel);
@@ -313,6 +312,7 @@ std::vector<std::set < htd::vertex_t>> ComputationManager::initializeAlreadyAbst
 }
 
 void ComputationManager::initializeVariablesAtLevels() {
+    variablesAtLevels = new std::vector<unsigned int>();
     for (htd::vertex_t vertex : app.getInputInstance()->hypergraph->internalGraph().vertices()) {
         unsigned int vertexLevel = htd::accessLabel<int>(app.getInputInstance()->hypergraph->internalGraph().vertexLabel("level", vertex));
         while (variablesAtLevels->size() < vertexLevel) {
