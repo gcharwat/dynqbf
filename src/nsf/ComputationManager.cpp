@@ -19,21 +19,17 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
  */
 
-/**
- TODO:
- * elegant handling of when to optimize
- * elegant handling of maxBDDzie and maxNSFsize (refactor)
- * XXX: removeCache handling
- */
-
 #include "../Application.h"
 #include "ComputationManager.h"
 #include "Computation.h"
 #include "CacheComputation.h"
-#include "DependencyCacheComputation.h"
 #include "../SolverFactory.h"
 #include "../Utils.h"
 #include "SimpleDependencyCacheComputation.h"
+
+#ifdef DEPQBF_ENABLED
+#include "DependencyCacheComputation.h"
+#endif
 
 const std::string ComputationManager::NSFMANAGER_SECTION = "NSF Manager";
 
@@ -56,18 +52,22 @@ ComputationManager::ComputationManager(Application& app)
     app.getOptionHandler().addOption(optSortBeforeJoining, NSFMANAGER_SECTION);
     optDependencyScheme.addChoice("none", "use no dependency scheme", true);
     optDependencyScheme.addChoice("simple", "use simple dependency scheme");
-    optDependencyScheme.addChoice("standard", "use standard dependency scheme (experimental)");
+#ifdef DEPQBF_ENABLED
+    optDependencyScheme.addChoice("standard", "use standard dependency scheme");
+#endif
     app.getOptionHandler().addOption(optDependencyScheme, NSFMANAGER_SECTION);
     app.getOptionHandler().addOption(optPrintStats, NSFMANAGER_SECTION);
 }
 
 ComputationManager::~ComputationManager() {
+#ifdef DEPQBF_ENABLED
     if (depqbf != NULL) {
         qdpll_delete(depqbf);
     }
     if (cuddToOriginalIds != NULL) {
         delete cuddToOriginalIds;
     }
+#endif    
     if (variablesAtLevels != NULL) {
         delete variablesAtLevels;
     }
@@ -80,7 +80,7 @@ Computation* ComputationManager::newComputation(const std::vector<NTYPE>& quanti
     if (quantifierSequence.size() >= 1 && quantifierSequence.at(0) == NTYPE::EXISTS) {
         keepFirstLevel = app.enumerate();
     }
-
+#ifdef DEPQBF_ENABLED
     if (optDependencyScheme.getValue() == "standard") {
         if (depqbf == NULL) {
             initializeDepqbf();
@@ -92,7 +92,9 @@ Computation* ComputationManager::newComputation(const std::vector<NTYPE>& quanti
         std::vector<std::set < htd::vertex_t>> alreadyAbstractedAtLevels = initializeAlreadyAbstractedAtLevels();
 
         return new DependencyCacheComputation(*this, quantifierSequence, cubesAtLevels, bdd, optMaxBDDSize.getValue(), keepFirstLevel, *depqbf, *cuddToOriginalIds, alreadyAbstractedAtLevels);
-    } else if (optDependencyScheme.getValue() == "simple") {
+    } else 
+#endif
+    if (optDependencyScheme.getValue() == "simple") {
         if (variablesAtLevels == NULL) {
             initializeVariablesAtLevels();
         }
@@ -237,6 +239,7 @@ void ComputationManager::multiplyGlobalNSFSizeEstimation(int value) {
     maxGlobalNSFSizeEstimation *= value;
 }
 
+#ifdef DEPQBF_ENABLED
 void ComputationManager::initializeDepqbf() {
     depqbf = qdpll_create();
     //qdpll_configure(depqbf, "--dep-man=qdag");
@@ -310,6 +313,7 @@ std::vector<std::set < htd::vertex_t>> ComputationManager::initializeAlreadyAbst
     }
     return alreadyAbstractedAtLevels;
 }
+#endif
 
 void ComputationManager::initializeVariablesAtLevels() {
     variablesAtLevels = new std::vector<unsigned int>();

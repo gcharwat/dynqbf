@@ -34,10 +34,12 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "CacheComputation.h"
 #include "../Variable.h"
 
+#ifdef DEPQBF_ENABLED
 extern "C" 
 {
 #include "qdpll.h"
 }
+#endif
 
 class Application;
 
@@ -96,11 +98,13 @@ private:
     unsigned int optUnsatCheckCounter;
     
     // for standard depencency scheme handling (provided by DepQBF)
+#ifdef DEPQBF_ENABLED
     void initializeDepqbf();
     void initializeCuddToOriginalIds();
     std::vector<std::set < htd::vertex_t>> initializeAlreadyAbstractedAtLevels();
     QDPLL* depqbf = NULL;
     std::vector<unsigned int>* cuddToOriginalIds;
+#endif
     
     // for simple dependency scheme handling
     void initializeVariablesAtLevels();

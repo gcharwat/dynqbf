@@ -42,8 +42,8 @@ add_definitions("-Wall -pedantic -std=gnu++11")
 set(CMAKE_CXX_FLAGS_GPROF "-O3 -g -pg")
 set(CMAKE_CXX_FLAGS_PROFILER "-O3 -g")
 
-SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
-SET(BUILD_SHARED_LIBRARIES OFF)
+set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+set(BUILD_SHARED_LIBRARIES OFF)
 
 if(NOT APPLE)
     SET(CMAKE_EXE_LINKER_FLAGS "-static")
@@ -56,17 +56,29 @@ include_directories("/opt/local/include")
 include_directories("${PROJECT_BINARY_DIR}")
 
 # Include the library header files
-include_directories(${cudd_dir} ${cudd_dir}/cudd ${cudd_dir}/cplusplus ${cudd_dir}/st ${cudd_dir}/mtr ${cudd_dir}/epd ${cudd_dir}/util ${htd_dir}/include ${depqbf_dir})
+include_directories(${cudd_dir} ${cudd_dir}/cudd ${cudd_dir}/cplusplus ${cudd_dir}/st ${cudd_dir}/mtr ${cudd_dir}/epd ${cudd_dir}/util ${htd_dir}/include)
 
 # Add required libraries for linking
 add_library(htd STATIC IMPORTED)
 set_target_properties(htd PROPERTIES IMPORTED_LOCATION ${htd_lib})
 add_library(cudd STATIC IMPORTED)
 set_target_properties(cudd PROPERTIES IMPORTED_LOCATION ${cudd_lib})
-add_library(qdpll STATIC IMPORTED)
-set_target_properties(qdpll PROPERTIES IMPORTED_LOCATION ${depqbf_lib})
 
-add_library(dynqbf-objects
+# Optionally compile with DepQBF support
+if(${depqbf_enabled})
+    add_definitions(-DDEPQBF_ENABLED=${depqbf_enabled})
+    include_directories(${depqbf_dir})
+    add_library(qdpll STATIC IMPORTED)
+    set_target_properties(qdpll PROPERTIES IMPORTED_LOCATION ${depqbf_lib})
+    set(dynqbf-sources 
+        nsf/DependencyCacheComputation.cpp
+    )
+    #set(dynqbf-linking
+    #    qdpll)
+    #target_link_libraries(dynqbf qdpll)
+endif()
+
+set(dynqbf-sources ${dynqbf-sources}
     Utils.cpp
     Application.cpp
     options/Option.cpp
@@ -84,7 +96,6 @@ add_library(dynqbf-objects
     nsf/ComputationManager.cpp
     nsf/Computation.cpp
     nsf/CacheComputation.cpp
-    nsf/DependencyCacheComputation.cpp    
     nsf/SimpleDependencyCacheComputation.cpp    
     Variable.cpp
     HGInputParser.cpp
@@ -139,10 +150,17 @@ add_library(dynqbf-objects
     printer/Verbose.cpp
     printer/Performance.cpp
 )
+            
+add_library(dynqbf-objects ${dynqbf-sources})
 
 # add the executable
 add_executable(dynqbf main.cpp)
 
-# link the libraries 
-target_link_libraries(dynqbf dynqbf-objects cudd htd qdpll)
-    
+# link the libraries
+#set(dynqbf-linking dynqbf-objects cudd htd ${dynqbf-linking})
+
+if(${depqbf_enabled})
+    target_link_libraries(dynqbf dynqbf-objects cudd htd qdpll)
+else()
+    target_link_libraries(dynqbf dynqbf-objects cudd htd)
+endif()

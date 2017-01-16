@@ -4,6 +4,7 @@ cudd_lib=$(cudd_dir)/cudd/.libs/libcudd.a
 htd_dir=$(CURDIR)/../htd-lib/current
 htd_lib=$(htd_dir)/lib/libhtd.a
 
+depqbf_enabled=true
 depqbf_dir=$(CURDIR)/../depqbf
 depqbf_lib=$(depqbf_dir)/libqdpll.a
 
@@ -24,6 +25,7 @@ release:
 		-Dcudd_lib=$(cudd_lib) \
 		-Dhtd_dir=$(htd_dir) \
 		-Dhtd_lib=$(htd_lib) \
+		-Ddepqbf_enabled=$(depqbf_enabled) \
 		-Ddepqbf_dir=$(depqbf_dir) \
 		-Ddepqbf_lib=$(depqbf_lib) \
 	&& $(MAKE)
@@ -39,6 +41,7 @@ debug:
 		-Dcudd_lib=$(cudd_lib) \
 		-Dhtd_dir=$(htd_dir) \
 		-Dhtd_lib=$(htd_lib) \
+		-Ddepqbf_enabled=$(depqbf_enabled) \
 		-Ddepqbf_dir=$(depqbf_dir) \
 		-Ddepqbf_lib=$(depqbf_lib) \
 	&& $(MAKE)
@@ -54,6 +57,7 @@ gprof:
 		-Dcudd_lib=$(cudd_lib) \
 		-Dhtd_dir=$(htd_dir) \
 		-Dhtd_lib=$(htd_lib) \
+		-Ddepqbf_enabled=$(depqbf_enabled) \
 		-Ddepqbf_dir=$(depqbf_dir) \
 		-Ddepqbf_lib=$(depqbf_lib) \
 	&& $(MAKE)
@@ -69,6 +73,7 @@ profiler:
 		-Dcudd_lib=$(cudd_lib) \
 		-Dhtd_dir=$(htd_dir) \
 		-Dhtd_lib=$(htd_lib) \
+		-Ddepqbf_enabled=$(depqbf_enabled) \
 		-Ddepqbf_dir=$(depqbf_dir) \
 		-Ddepqbf_lib=$(depqbf_lib) \
 	&& $(MAKE)
