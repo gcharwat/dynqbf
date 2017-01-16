@@ -92,7 +92,7 @@ Computation* ComputationManager::newComputation(const std::vector<NTYPE>& quanti
         std::vector<std::set < htd::vertex_t>> alreadyAbstractedAtLevels = initializeAlreadyAbstractedAtLevels();
 
         return new DependencyCacheComputation(*this, quantifierSequence, cubesAtLevels, bdd, optMaxBDDSize.getValue(), keepFirstLevel, *depqbf, *cuddToOriginalIds, alreadyAbstractedAtLevels);
-    } else 
+    } 
 #endif
     if (optDependencyScheme.getValue() == "simple") {
         if (variablesAtLevels == NULL) {
@@ -242,7 +242,6 @@ void ComputationManager::multiplyGlobalNSFSizeEstimation(int value) {
 #ifdef DEPQBF_ENABLED
 void ComputationManager::initializeDepqbf() {
     depqbf = qdpll_create();
-    //qdpll_configure(depqbf, "--dep-man=qdag");
     std::string depMan = "--dep-man=qdag";
     std::vector<char> depManC(depMan.begin(), depMan.end());
     depManC.push_back('\0');
