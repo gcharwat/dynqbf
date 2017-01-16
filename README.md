@@ -1,4 +1,4 @@
-dynQBF (version 0.4.0) 
+dynQBF 
 ====================
 
 dynQBF is a structure-aware QBF solver. It handles QBF instances
