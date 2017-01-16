@@ -121,10 +121,12 @@ Cudd& BDDManager::getManager() const {
 }
 
 BDDManager::~BDDManager() {
-    if (optPrintCUDDStats.isUsed()) {
-        manager->info();
+    if (manager != NULL) {
+        if (optPrintCUDDStats.isUsed()) {
+            manager->info();
+        }
+        delete manager;
     }
-    delete manager;
 }
 
 
