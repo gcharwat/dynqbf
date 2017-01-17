@@ -22,6 +22,14 @@ Source:     https://github.com/gcharwat/dynqbf
 Version info 
 --------------
 
+2017-01-17: dynQBF 0.5.0
+- Added support for dependency schemes (none, simple and standard)
+- "standard" is computed by DepQBF, its integration can be deactivated by modifying the Makefile, see the INSTALL file
+- Added RemovedLevelFitness function (that should work well in combination with the "standard" and "simple" dependency schemes)
+- Implemented signal handling: Benchmark information is now printed before exit
+- The new "verbose" printer prints all computation steps, including the computed BDDs
+- The "debug" printer now only prints the size of the BDDs in the NSF data structure
+
 2016-12-19: dynQBF 0.4.1
 - Fixed unnecessary iteration in unsatisfiability check
 - Compatibility with htd release 1.0.1

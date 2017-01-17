@@ -5,11 +5,17 @@ Compilation of dynQBF has been tested with the following versions of the depende
 - CUDD (http://vlsi.colorado.edu/~fabio/CUDD/), version 3.0.0
   Note: C++ support must be enabled with:
       ./configure --enable-obj
-- HTD (https://github.com/mabseher/htd)
+- HTD (https://github.com/mabseher/htd), version 1.0.1
   Note: You should build a static htd library with:
       cmake -DBUILD_SHARED_LIBS=OFF
+- Optional: DepQBF (https://github.com/lonsing/depqbf), version 5.01
+  Note: DepQBF integration is required for computing and using the "standard" dependency scheme
+  You can deactivate this dependency by setting
+      depqbf_enabled=false
+  in the Makefile
+
 Compilation was tested with the stated version numbers and GCC 4.8.1. Unless the developers of the 
 dependencies introduce incompatible changes, later versions should work too. (Older versions might work if you're lucky.)
 
-You need to adjust the paths in the Makefile. In particular, the variables cudd_dir and htd_dir.
+You need to adjust the paths in the Makefile. In particular, the variables cudd_dir and htd_dir (and optionally depqbf_dir).
 Then, running "make" in the dynQBF top-level directory should build the binary at build/release/dynqbf.
