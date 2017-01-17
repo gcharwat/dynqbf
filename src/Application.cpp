@@ -269,10 +269,16 @@ void Application::usage() const {
 }
 
 void Application::version() const {
-    std::cerr << "Version:          " << DYNQBF_VERSION_MAJOR << "." << DYNQBF_VERSION_MINOR << "." << DYNQBF_VERSION_PATCH << std::endl;
-    std::cerr << "Github Commit ID: " << DYNQBF_GIT_COMMIT_ID << std::endl;
-    std::cerr << " with HTD Commit: " << HTD_GIT_COMMIT_ID << std::endl;
-    std::cerr << "Built on:         " << __DATE__ << " at " << __TIME__ << std::endl;
+    std::cerr << "Version:            " << DYNQBF_VERSION_MAJOR << "." << DYNQBF_VERSION_MINOR << "." << DYNQBF_VERSION_PATCH << std::endl;
+    std::cerr << "Github Commit ID:   " << DYNQBF_GIT_COMMIT_ID << std::endl;
+    std::cerr << " with HTD Commit:   " << HTD_GIT_COMMIT_ID << std::endl;
+    std::cerr << "DepQBF integration: ";
+#ifdef DEPQBF_ENABLED
+    std::cerr << "yes" << std::endl;
+#else
+    std::cerr << "no" << std::endl;
+#endif
+    std::cerr << "Built on:           " << __DATE__ << " at " << __TIME__ << std::endl;
 }
 
 InstancePtr Application::getInputInstance() const {
