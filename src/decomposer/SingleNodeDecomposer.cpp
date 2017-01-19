@@ -1,5 +1,5 @@
 /*
-Copyright 2016, Guenther Charwat
+Copyright 2016-2017, Guenther Charwat
 WWW: <http://dbai.tuwien.ac.at/proj/decodyn/dynqbf>.
 
 This file is part of dynQBF.
