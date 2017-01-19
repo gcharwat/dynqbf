@@ -159,15 +159,6 @@ void ComputationManager::remove(Computation& c, const std::vector<std::vector<BD
 }
 
 void ComputationManager::removeApply(Computation& c, const std::vector<std::vector<BDD>>&removedVertices, const std::vector<BDD>& cubesAtLevels, const BDD& clauses) {
-    //    for (unsigned int level = 1; level <= removedVertices.size(); level++) {
-    //        for (BDD variable : removedVertices.at(level - 1)) {
-    //            divideGlobalNSFSizeEstimation(c.leavesCount());
-    //            c.removeApply(variable, level, cubesAtLevels, clauses);
-    //            multiplyGlobalNSFSizeEstimation(c.leavesCount());
-    //            optimize(c);
-    //        }
-    //    }
-
     divideGlobalNSFSizeEstimation(c.leavesCount());
     c.removeApply(removedVertices, cubesAtLevels, clauses);
     multiplyGlobalNSFSizeEstimation(c.leavesCount());
@@ -223,9 +214,6 @@ void ComputationManager::printStatistics() const {
     std::cout << "NSF (abstract count): " << abstractCount << std::endl;
     std::cout << "NSF (internal abstract count): " << internalAbstractCount << std::endl;
     std::cout << "NSF (shift count): " << shiftCount << std::endl;
-    //std::cout << "Number of subset checks: " << subsetChecks << std::endl;
-    //std::cout << "Number of successful subset checks: " << subsetChecksSuccessful << std::endl;
-    //std::cout << "Subset check success rate: " << ((subsetChecksSuccessful * 1.0) / subsetChecks)*100 << std::endl;
 }
 
 void ComputationManager::divideGlobalNSFSizeEstimation(int value) {

@@ -66,22 +66,8 @@ namespace solver {
                         Computation* tmpOuter = childComputations[childIndex];
 
                         app.getPrinter().solverIntermediateEvent(currentNode, *tmpOuter, "removing variables");
-                        
-//                        // only for testing on 2QBFs!!!
-//                        bool noInnermostVariable = true;
-//                        for (const auto& vertex : decomposition->bagContent(currentNode)) {
-//                            unsigned int vertexLevel = htd::accessLabel<int>(app.getInputInstance()->hypergraph->internalGraph().vertexLabel("level", vertex));
-//                            if (vertexLevel == 2) {
-//                                noInnermostVariable = false;
-//                                break;
-//                            }
-//                        }
-//                        
-//                        if (noInnermostVariable) {
-//                            std::cout << "forgotten without innermost left: " << decomposition->forgottenVertices(currentNode, child).size() << std::endl;
-//                        }
 
-                                                // Do removal
+                        // Do removal
                         const htd::ConstCollection<htd::vertex_t> forgottenVertices = decomposition->forgottenVertices(currentNode, child);
                         std::vector<htd::vertex_t> forgottenVerticesSorted(forgottenVertices.begin(), forgottenVertices.end());
                         std::sort(forgottenVerticesSorted.begin(), forgottenVerticesSorted.end(), [this] (htd::vertex_t x1, htd::vertex_t x2) -> bool {
@@ -89,10 +75,8 @@ namespace solver {
                             unsigned int vl2 = htd::accessLabel<int>(app.getInputInstance()->hypergraph->internalGraph().vertexLabel("level", x2));
                             return (vl1 > vl2); // vertices with higher level are to be removed first
                         });
-                        
-//                        for (const auto& vertex : decomposition->forgottenVertices(currentNode, child)) {
+
                         for (const auto& vertex : forgottenVerticesSorted) {
-//                            std::cout << "node " << currentNode << " child " << child << " removed htd id: " << vertex << std::endl;
                             BDD variable = varMap.getBDDVariable("a", 0,{vertex});
                             unsigned int vertexLevel = htd::accessLabel<int>(app.getInputInstance()->hypergraph->internalGraph().vertexLabel("level", vertex));
                             nsfMan.remove(*tmpOuter, variable, vertexLevel);
@@ -148,7 +132,7 @@ namespace solver {
                 BDD clauses = manager.bddOne();
 
                 // const htd::ConstCollection<htd::Hyperedge> &inducedEdges = htd::accessLabel<htd::ConstCollection < htd::Hyperedge >> (decomposition->vertexLabel(htd::IntroducedSubgraphLabelingOperation::INTRODUCED_SUBGRAPH_LABEL_IDENTIFIER, currentNode));
-                
+
                 const htd::FilteredHyperedgeCollection &inducedEdges = decomposition->inducedHyperedges(currentNode);
 
                 for (const auto& inducedEdge : inducedEdges) {

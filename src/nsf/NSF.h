@@ -68,15 +68,11 @@ public:
     void apply(const BDD& clauses);
 
     void conjunct(const NSF& other);
-    //    void conjunctOptimize(const NSF& other);
 
     void removeAbstract(const BDD& variable, const unsigned int vl);
     
     void remove(const BDD& variable, const unsigned int vl);
     void remove(const std::vector<std::vector<BDD>>&removedVertices);
-
-//    void removeApply(const std::vector<std::vector<BDD>>&removedVertices, const BDD& restrict, const BDD& clauses);
-//    void removeApply(const BDD& variable, const unsigned int vl, const BDD& clauses);
 
     const BDD evaluate(const std::vector<BDD>& cubesAtlevels, const bool keepFirstLevel) const;
     bool isUnsat() const;

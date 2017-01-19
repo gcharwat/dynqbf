@@ -105,14 +105,11 @@ void SimpleDependencyCacheComputation::addToRemoveCache(BDD variable, const unsi
 bool SimpleDependencyCacheComputation::isAbstractableAtLevel(unsigned int vl) {
     bool isAbstractable = true;
 
-    //    std::cout << "Counters: ";
     for (unsigned int i = vl; i < variablesAtLevels.size(); i++) {
         if (completelyRemovedAtLevel.at(i) < variablesAtLevels.at(i)) {
             isAbstractable = false;
         }
-        //        std::cout << completelyRemovedAtLevel.at(i) << "/" << variablesAtLevels.at(i) << "\t";
     }
-    //    std::cout << std::endl;
 
     return isAbstractable;
 }
