@@ -29,18 +29,18 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
 StandardDependencyCacheComputation::StandardDependencyCacheComputation(ComputationManager& manager, const std::vector<NTYPE>& quantifierSequence, const std::vector<BDD>& cubesAtLevels, const BDD& bdd, unsigned int maxBDDsize, bool keepFirstLevel, QDPLL& depqbf, std::vector<unsigned int>& cuddToOriginalIds, std::vector<std::set<htd::vertex_t>>&notYetRemovedAtLevels)
 : CacheComputation(manager, quantifierSequence, cubesAtLevels, bdd, maxBDDsize, keepFirstLevel)
-, depqbf(depqbf)
-, cuddToOriginalIds(cuddToOriginalIds)
-, notYetRemovedAtLevels(notYetRemovedAtLevels) {
+, _depqbf(depqbf)
+, _cuddToOriginalIds(cuddToOriginalIds)
+, _notYetRemovedAtLevels(notYetRemovedAtLevels) {
 }
 
 StandardDependencyCacheComputation::StandardDependencyCacheComputation(const StandardDependencyCacheComputation& other)
 : CacheComputation(other)
-, depqbf(other.depqbf)
-, cuddToOriginalIds(other.cuddToOriginalIds) {
-    for (std::set<htd::vertex_t> otherNotYetRemoved : other.notYetRemovedAtLevels) {
+, _depqbf(other._depqbf)
+, _cuddToOriginalIds(other._cuddToOriginalIds) {
+    for (std::set<htd::vertex_t> otherNotYetRemoved : other._notYetRemovedAtLevels) {
         std::set<htd::vertex_t> thisNotYestRemoved(otherNotYetRemoved);
-        notYetRemovedAtLevels.push_back(thisNotYestRemoved);
+        _notYetRemovedAtLevels.push_back(thisNotYestRemoved);
     }
 }
 
@@ -52,17 +52,17 @@ void StandardDependencyCacheComputation::conjunct(const Computation& other) {
     try {
         const StandardDependencyCacheComputation& t = dynamic_cast<const StandardDependencyCacheComputation&> (other);
         // TODO: add checks not necessary
-        for (unsigned int i = 0; i < t.notYetRemovedAtLevels.size(); i++) {
+        for (unsigned int i = 0; i < t._notYetRemovedAtLevels.size(); i++) {
 
-            std::set<htd::vertex_t> own = notYetRemovedAtLevels.at(i);
-            std::set<htd::vertex_t> other = t.notYetRemovedAtLevels.at(i);
+            std::set<htd::vertex_t> own = _notYetRemovedAtLevels.at(i);
+            std::set<htd::vertex_t> other = t._notYetRemovedAtLevels.at(i);
             std::set<htd::vertex_t> target;
 
             std::set_intersection(own.begin(), own.end(),
                     other.begin(), other.end(),
                     std::inserter(target, target.begin()));
 
-            notYetRemovedAtLevels.at(i) = target;
+            _notYetRemovedAtLevels.at(i) = target;
         }
     } catch (std::bad_cast exp) {
     }
@@ -74,16 +74,16 @@ bool StandardDependencyCacheComputation::reduceRemoveCache() {
         for (unsigned int vl = _removeCache->size(); vl >= 1; vl--) {
             if (isRemovableAtRemoveCacheLevel(vl)) {
                 BDD toRemove = popFirstFromRemoveCache(vl); // simulate fifo
-                unsigned int removedOriginalId = cuddToOriginalIds.at(toRemove.getRegularNode()->index);
+                unsigned int removedOriginalId = _cuddToOriginalIds.at(toRemove.getRegularNode()->index);
 
                 bool dependent = false;
 
                 unsigned int independentUntilLevel = vl;
 
-                for (unsigned int level = vl + 1; level <= notYetRemovedAtLevels.size(); level++) {
+                for (unsigned int level = vl + 1; level <= _notYetRemovedAtLevels.size(); level++) {
 
-                    for (htd::vertex_t notYetRemoved : notYetRemovedAtLevels.at(level - 1)) {
-                        if (qdpll_var_depends(&depqbf, removedOriginalId, notYetRemoved)) {
+                    for (htd::vertex_t notYetRemoved : _notYetRemovedAtLevels.at(level - 1)) {
+                        if (qdpll_var_depends(&_depqbf, removedOriginalId, notYetRemoved)) {
                             dependent = true;
                             break;
                         }
@@ -109,14 +109,14 @@ bool StandardDependencyCacheComputation::reduceRemoveCache() {
                     Computation::remove(toRemove, independentUntilLevel); // instead of vl
                 } else {
                     manager.incrementAbstractCount();
-                    if (vl < notYetRemovedAtLevels.size()) {
+                    if (vl < _notYetRemovedAtLevels.size()) {
                         manager.incrementInternalAbstractCount();
                     }
 
                     // we abstract at vl since it does not make a difference
                     Computation::removeAbstract(toRemove, vl); // instead of vl
                     // only remove if it is abstracted (hack)
-                    notYetRemovedAtLevels.at(vl - 1).erase(removedOriginalId); // here we remove at vl, since variable was not shifted in notYetRemovedAtLevels
+                    _notYetRemovedAtLevels.at(vl - 1).erase(removedOriginalId); // here we remove at vl, since variable was not shifted in notYetRemovedAtLevels
                 }
                 return true;
             }
@@ -126,12 +126,12 @@ bool StandardDependencyCacheComputation::reduceRemoveCache() {
 }
 
 void StandardDependencyCacheComputation::addToRemoveCache(BDD variable, const unsigned int vl) {
-    unsigned int removedOriginalId = cuddToOriginalIds.at(variable.getRegularNode()->index);
+    unsigned int removedOriginalId = _cuddToOriginalIds.at(variable.getRegularNode()->index);
 
     bool dependent = false;
-    for (unsigned int level = vl + 1; level <= notYetRemovedAtLevels.size(); level++) {
-        for (htd::vertex_t notYetRemoved : notYetRemovedAtLevels.at(level - 1)) {
-            if (qdpll_var_depends(&depqbf, removedOriginalId, notYetRemoved)) {
+    for (unsigned int level = vl + 1; level <= _notYetRemovedAtLevels.size(); level++) {
+        for (htd::vertex_t notYetRemoved : _notYetRemovedAtLevels.at(level - 1)) {
+            if (qdpll_var_depends(&_depqbf, removedOriginalId, notYetRemoved)) {
                 dependent = true;
                 break;
             }
@@ -142,10 +142,10 @@ void StandardDependencyCacheComputation::addToRemoveCache(BDD variable, const un
     }
     if (!dependent) {
         Computation::removeAbstract(variable, vl);
-        notYetRemovedAtLevels.at(vl - 1).erase(removedOriginalId);
+        _notYetRemovedAtLevels.at(vl - 1).erase(removedOriginalId);
 
         manager.incrementAbstractCount();
-        if (vl < notYetRemovedAtLevels.size()) {
+        if (vl < _notYetRemovedAtLevels.size()) {
             manager.incrementInternalAbstractCount();
             //            std::cout << removedOriginalId << " immediately abstract at level " << vl << std::endl;
         }
@@ -162,8 +162,8 @@ void StandardDependencyCacheComputation::addToRemoveCache(BDD variable, const un
 
 void StandardDependencyCacheComputation::print(bool verbose) const {
     std::cout << "Not yet removed at levels (size):" << std::endl;
-    for (unsigned int level = 1; level <= notYetRemovedAtLevels.size(); level++) {
-        std::cout << level << ": " << notYetRemovedAtLevels.at(level - 1).size() << std::endl;
+    for (unsigned int level = 1; level <= _notYetRemovedAtLevels.size(); level++) {
+        std::cout << level << ": " << _notYetRemovedAtLevels.at(level - 1).size() << std::endl;
     }
     CacheComputation::print(verbose);
 }

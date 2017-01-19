@@ -46,8 +46,8 @@ protected:
 
 private:
     
-    QDPLL& depqbf;
-    std::vector<unsigned int>& cuddToOriginalIds;
+    QDPLL& _depqbf;
+    std::vector<unsigned int>& _cuddToOriginalIds;
     
-    std::vector<std::set<htd::vertex_t>> notYetRemovedAtLevels;
+    std::vector<std::set<htd::vertex_t>> _notYetRemovedAtLevels;
 };
