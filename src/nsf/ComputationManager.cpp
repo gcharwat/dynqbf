@@ -28,7 +28,7 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "SimpleDependencyCacheComputation.h"
 
 #ifdef DEPQBF_ENABLED
-#include "DependencyCacheComputation.h"
+#include "StandardDependencyCacheComputation.h"
 #endif
 
 const std::string ComputationManager::NSFMANAGER_SECTION = "NSF Manager";
@@ -91,7 +91,7 @@ Computation* ComputationManager::newComputation(const std::vector<NTYPE>& quanti
         // always return a new vector
         std::vector<std::set < htd::vertex_t>> alreadyAbstractedAtLevels = initializeAlreadyAbstractedAtLevels();
 
-        return new DependencyCacheComputation(*this, quantifierSequence, cubesAtLevels, bdd, optMaxBDDSize.getValue(), keepFirstLevel, *depqbf, *cuddToOriginalIds, alreadyAbstractedAtLevels);
+        return new StandardDependencyCacheComputation(*this, quantifierSequence, cubesAtLevels, bdd, optMaxBDDSize.getValue(), keepFirstLevel, *depqbf, *cuddToOriginalIds, alreadyAbstractedAtLevels);
     } 
 #endif
     if (optDependencyScheme.getValue() == "simple") {

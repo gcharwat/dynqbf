@@ -71,7 +71,7 @@ if(${depqbf_enabled})
     add_library(qdpll STATIC IMPORTED)
     set_target_properties(qdpll PROPERTIES IMPORTED_LOCATION ${depqbf_lib})
     set(dynqbf-sources 
-        nsf/DependencyCacheComputation.cpp
+        nsf/StandardDependencyCacheComputation.cpp
     )
     #set(dynqbf-linking
     #    qdpll)

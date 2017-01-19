@@ -24,17 +24,17 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include <algorithm>
 #include <iterator>
 
-#include "DependencyCacheComputation.h"
+#include "StandardDependencyCacheComputation.h"
 #include "cuddInt.h"
 
-DependencyCacheComputation::DependencyCacheComputation(ComputationManager& manager, const std::vector<NTYPE>& quantifierSequence, const std::vector<BDD>& cubesAtLevels, const BDD& bdd, unsigned int maxBDDsize, bool keepFirstLevel, QDPLL& depqbf, std::vector<unsigned int>& cuddToOriginalIds, std::vector<std::set<htd::vertex_t>>&notYetRemovedAtLevels)
+StandardDependencyCacheComputation::StandardDependencyCacheComputation(ComputationManager& manager, const std::vector<NTYPE>& quantifierSequence, const std::vector<BDD>& cubesAtLevels, const BDD& bdd, unsigned int maxBDDsize, bool keepFirstLevel, QDPLL& depqbf, std::vector<unsigned int>& cuddToOriginalIds, std::vector<std::set<htd::vertex_t>>&notYetRemovedAtLevels)
 : CacheComputation(manager, quantifierSequence, cubesAtLevels, bdd, maxBDDsize, keepFirstLevel)
 , depqbf(depqbf)
 , cuddToOriginalIds(cuddToOriginalIds)
 , notYetRemovedAtLevels(notYetRemovedAtLevels) {
 }
 
-DependencyCacheComputation::DependencyCacheComputation(const DependencyCacheComputation& other)
+StandardDependencyCacheComputation::StandardDependencyCacheComputation(const StandardDependencyCacheComputation& other)
 : CacheComputation(other)
 , depqbf(other.depqbf)
 , cuddToOriginalIds(other.cuddToOriginalIds) {
@@ -44,13 +44,13 @@ DependencyCacheComputation::DependencyCacheComputation(const DependencyCacheComp
     }
 }
 
-DependencyCacheComputation::~DependencyCacheComputation() {
+StandardDependencyCacheComputation::~StandardDependencyCacheComputation() {
 }
 
-void DependencyCacheComputation::conjunct(const Computation& other) {
+void StandardDependencyCacheComputation::conjunct(const Computation& other) {
     CacheComputation::conjunct(other);
     try {
-        const DependencyCacheComputation& t = dynamic_cast<const DependencyCacheComputation&> (other);
+        const StandardDependencyCacheComputation& t = dynamic_cast<const StandardDependencyCacheComputation&> (other);
         // TODO: add checks not necessary
         for (unsigned int i = 0; i < t.notYetRemovedAtLevels.size(); i++) {
 
@@ -68,7 +68,7 @@ void DependencyCacheComputation::conjunct(const Computation& other) {
     }
 }
 
-bool DependencyCacheComputation::reduceRemoveCache() {
+bool StandardDependencyCacheComputation::reduceRemoveCache() {
     if (isRemoveCacheReducible()) {
         // TODO add options for removal strategies (orderings) here
         for (unsigned int vl = _removeCache->size(); vl >= 1; vl--) {
@@ -104,7 +104,6 @@ bool DependencyCacheComputation::reduceRemoveCache() {
                         }
                         shiftVariableLevel(toRemove, vl, independentUntilLevel);
                         manager.incrementShiftCount();
-//                        std::cout << removedOriginalId << " could be shifted from level " << vl << " to " << independentUntilLevel << std::endl;
                     }
 
                     Computation::remove(toRemove, independentUntilLevel); // instead of vl
@@ -112,7 +111,6 @@ bool DependencyCacheComputation::reduceRemoveCache() {
                     manager.incrementAbstractCount();
                     if (vl < notYetRemovedAtLevels.size()) {
                         manager.incrementInternalAbstractCount();
-                        //                        std::cout << removedOriginalId << " abstract at level " << vl << std::endl;
                     }
 
                     // we abstract at vl since it does not make a difference
@@ -127,7 +125,7 @@ bool DependencyCacheComputation::reduceRemoveCache() {
     return false;
 }
 
-void DependencyCacheComputation::addToRemoveCache(BDD variable, const unsigned int vl) {
+void StandardDependencyCacheComputation::addToRemoveCache(BDD variable, const unsigned int vl) {
     unsigned int removedOriginalId = cuddToOriginalIds.at(variable.getRegularNode()->index);
 
     bool dependent = false;
@@ -162,7 +160,7 @@ void DependencyCacheComputation::addToRemoveCache(BDD variable, const unsigned i
     _removeCache->at(vl - 1).push_back(variable);
 }
 
-void DependencyCacheComputation::print(bool verbose) const {
+void StandardDependencyCacheComputation::print(bool verbose) const {
     std::cout << "Not yet removed at levels (size):" << std::endl;
     for (unsigned int level = 1; level <= notYetRemovedAtLevels.size(); level++) {
         std::cout << level << ": " << notYetRemovedAtLevels.at(level - 1).size() << std::endl;

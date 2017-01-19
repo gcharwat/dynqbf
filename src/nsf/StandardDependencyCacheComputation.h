@@ -29,12 +29,12 @@ extern "C"
 #include "qdpll.h"
 }
 
-class DependencyCacheComputation : public CacheComputation {
+class StandardDependencyCacheComputation : public CacheComputation {
 public:
-    DependencyCacheComputation(ComputationManager& manager, const std::vector<NTYPE>& quantifierSequence, const std::vector<BDD>& cubesAtLevels, const BDD& bdd, unsigned int maxBDDsize, bool keepFirstLevel, QDPLL& depqbf, std::vector<unsigned int>& cuddToOriginalIds, std::vector<std::set<htd::vertex_t>>& notYetRemovedAtLevels);
-    DependencyCacheComputation(const DependencyCacheComputation& other);
+    StandardDependencyCacheComputation(ComputationManager& manager, const std::vector<NTYPE>& quantifierSequence, const std::vector<BDD>& cubesAtLevels, const BDD& bdd, unsigned int maxBDDsize, bool keepFirstLevel, QDPLL& depqbf, std::vector<unsigned int>& cuddToOriginalIds, std::vector<std::set<htd::vertex_t>>& notYetRemovedAtLevels);
+    StandardDependencyCacheComputation(const StandardDependencyCacheComputation& other);
 
-    ~DependencyCacheComputation();
+    ~StandardDependencyCacheComputation();
 
     virtual void conjunct(const Computation& other) override;
     
