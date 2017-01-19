@@ -33,7 +33,7 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include <htd/IMutableHypertreeDecomposition.hpp>
 
 enum RESULT {
-    SAT, UNSAT, UNDECIDED
+    SAT, UNSAT, UNDECIDED, TIMEDOUT
 };
 
 #define RETURN_SAT 10

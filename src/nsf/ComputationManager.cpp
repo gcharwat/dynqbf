@@ -38,10 +38,11 @@ ComputationManager::ComputationManager(Application& app)
 , optPrintStats("print-NSF-stats", "Print NSF Manager statistics")
 , optMaxGlobalNSFSize("max-est-NSF-size", "s", "Split until the global estimated NSF size <s> is reached, -1 to disable limit", 1000)
 , optMaxBDDSize("max-BDD-size", "s", "Split if a BDD size exceeds <s> (may be overruled by max-est-NSF-size)", 3000)
-, optOptimizeInterval("opt-interval", "i", "Optimize NSF every <i>-th computation step,0 to disable", 4)
+, optOptimizeInterval("opt-interval", "i", "Optimize NSF every <i>-th computation step, 0 to disable", 4)
 , optUnsatCheckInterval("unsat-check", "i", "Check for unsatisfiability after every <i>-th NSF join, 0 to disable", 2)
 , optSortBeforeJoining("sort-before-joining", "Sort NSFs by increasing size before joining; can increase subset check success rate")
 , optDependencyScheme("dep-scheme", "d", "Use dependency scheme <d>")
+, optTimeout("timeout", "t", "Timeout per computation iteration, 0 to disable", 0)
 , maxGlobalNSFSizeEstimation(1)
 , optIntervalCounter(0)
 , optUnsatCheckCounter(0) {
@@ -57,6 +58,10 @@ ComputationManager::ComputationManager(Application& app)
 #endif
     app.getOptionHandler().addOption(optDependencyScheme, NSFMANAGER_SECTION);
     app.getOptionHandler().addOption(optPrintStats, NSFMANAGER_SECTION);
+    
+    app.getOptionHandler().addOption(optTimeout, NSFMANAGER_SECTION);
+    
+    beginClock = std::clock();
 }
 
 ComputationManager::~ComputationManager() {
@@ -111,16 +116,19 @@ Computation* ComputationManager::copyComputation(const Computation& c) {
 }
 
 void ComputationManager::apply(Computation& c, const std::vector<BDD>& cubesAtLevels, std::function<BDD(const BDD&)> f) {
+    timedOut();
     c.apply(cubesAtLevels, f);
     optimize(c);
 }
 
 void ComputationManager::apply(Computation& c, const std::vector<BDD>& cubesAtLevels, const BDD& clauses) {
+    timedOut();
     c.apply(cubesAtLevels, clauses);
     optimize(c);
 }
 
 void ComputationManager::conjunct(Computation& c, Computation& other) {
+    timedOut();
     divideGlobalNSFSizeEstimation(c.leavesCount());
     divideGlobalNSFSizeEstimation(other.leavesCount());
     if (optSortBeforeJoining.isUsed()) {
@@ -145,6 +153,7 @@ void ComputationManager::conjunct(Computation& c, Computation& other) {
 }
 
 void ComputationManager::remove(Computation& c, const BDD& variable, const unsigned int vl) {
+    timedOut();
     divideGlobalNSFSizeEstimation(c.leavesCount());
     c.remove(variable, vl);
     multiplyGlobalNSFSizeEstimation(c.leavesCount());
@@ -152,6 +161,7 @@ void ComputationManager::remove(Computation& c, const BDD& variable, const unsig
 }
 
 void ComputationManager::remove(Computation& c, const std::vector<std::vector<BDD>>&removedVertices) {
+    timedOut();
     divideGlobalNSFSizeEstimation(c.leavesCount());
     c.remove(removedVertices);
     multiplyGlobalNSFSizeEstimation(c.leavesCount());
@@ -167,7 +177,7 @@ void ComputationManager::removeApply(Computation& c, const std::vector<std::vect
     //            optimize(c);
     //        }
     //    }
-
+    timedOut();
     divideGlobalNSFSizeEstimation(c.leavesCount());
     c.removeApply(removedVertices, cubesAtLevels, clauses);
     multiplyGlobalNSFSizeEstimation(c.leavesCount());
@@ -175,6 +185,7 @@ void ComputationManager::removeApply(Computation& c, const std::vector<std::vect
 }
 
 void ComputationManager::optimize(Computation &c) {
+    timedOut();
     if (optOptimizeInterval.getValue() > 0) {
         optIntervalCounter++;
         optIntervalCounter %= optOptimizeInterval.getValue();
@@ -237,6 +248,19 @@ void ComputationManager::divideGlobalNSFSizeEstimation(int value) {
 
 void ComputationManager::multiplyGlobalNSFSizeEstimation(int value) {
     maxGlobalNSFSizeEstimation *= value;
+}
+
+void ComputationManager::timedOut() {
+    if (optTimeout.getValue() == 0) {
+        return;
+    }
+    
+    std::clock_t currentClock = std::clock();
+    double elapsed_total_secs = double(currentClock - beginClock) / CLOCKS_PER_SEC;
+    if (elapsed_total_secs > optTimeout.getValue()) {
+        beginClock = std::clock();
+        throw AbortException("Timeout", RESULT::TIMEDOUT);
+    }
 }
 
 #ifdef DEPQBF_ENABLED

@@ -89,7 +89,11 @@ private:
     options::DefaultIntegerValueOption optUnsatCheckInterval;
     options::Option optSortBeforeJoining;
     options::Choice optDependencyScheme;
-
+    
+    options::DefaultIntegerValueOption optTimeout;
+    std::clock_t beginClock;
+    void timedOut();
+    
     long maxGlobalNSFSizeEstimation;
 
     unsigned int optIntervalCounter;

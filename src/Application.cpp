@@ -97,7 +97,7 @@ Application::Application(const std::string& binaryName)
 Application::~Application() {
     if (nsfManager != NULL) {
         delete nsfManager;
-    } 
+    }
     if (bddManager != NULL) {
         delete bddManager;
     }
@@ -207,32 +207,46 @@ int Application::run(int argc, char** argv) {
         inputInstance = preprocessor->preprocess(inputInstance);
         printer->preprocessedInstance(inputInstance);
 
-        // Decompose instance
-        decomposition = decomposer->decompose(inputInstance);
-        printer->decomposerResult(decomposition);
-        if (optOnlyDecomposeInstance.isUsed()) {
-            return RETURN_UNFINISHED;
-        }
-
-        vertexOrdering = ordering->computeVertexOrder(inputInstance, decomposition);
-        printer->vertexOrdering(vertexOrdering);
-
         // Initialize CUDD manager
         bddManager->init(inputInstance->hypergraph->vertexCount());
 
-        // Solve the problem
-        printer->beforeComputation();
-        std::unique_ptr<Solver> solver = solverFactory->newSolver();
-        Computation* computation = solver->compute(decomposition->root());
+//        for (unsigned int iterations = 1; iterations <= 10; iterations++) {
+        while (true) {
+            
+            // Decompose instance
+            decomposition = decomposer->decompose(inputInstance);
+            printer->decomposerResult(decomposition);
+            if (optOnlyDecomposeInstance.isUsed()) {
+                return RETURN_UNFINISHED;
+            }
 
-        // Return result
-        result = nsfManager->decide(*computation);
-        if (enumerate()) {
-            BDD answer = nsfManager->solutions(*computation);
-            printer->models(answer, solverFactory->getVariables());
+            vertexOrdering = ordering->computeVertexOrder(inputInstance, decomposition);
+            printer->vertexOrdering(vertexOrdering);
+
+            // Solve the problem
+            printer->beforeComputation();
+            std::unique_ptr<Solver> solver = solverFactory->newSolver();
+            Computation* computation = NULL;
+            try {
+                computation = solver->compute(decomposition->root());
+            } catch (AbortException e) {
+                if (e.getResult() == RESULT::TIMEDOUT) {
+                    std::cout << "timed out" << std::endl;
+                    continue;
+                } else {
+                    throw e;
+                }
+            }
+            // Return result
+            result = nsfManager->decide(*computation);
+            if (enumerate()) {
+                BDD answer = nsfManager->solutions(*computation);
+                printer->models(answer, solverFactory->getVariables());
+            }
+
+            delete computation;
+            break;
         }
-
-        delete computation;
 
     } catch (AbortException e) {
         result = e.getResult();
@@ -249,6 +263,9 @@ int Application::run(int argc, char** argv) {
             exitCode = RETURN_UNSAT;
             break;
         case UNDECIDED:
+            exitCode = RETURN_UNDECIDED;
+            break;
+        case TIMEDOUT:
             exitCode = RETURN_UNDECIDED;
             break;
     }
