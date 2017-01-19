@@ -22,6 +22,10 @@ Source:     https://github.com/gcharwat/dynqbf
 Version info 
 --------------
 
+2017-01-19: dynQBF 0.5.1
+- Fixed a bug related to the default setting of the selected decomposition strategy
+- Minor code cleaning
+
 2017-01-17: dynQBF 0.5.0
 - Added support for dependency schemes (none, simple and standard)
 - "standard" is computed by DepQBF, its integration can be deactivated by modifying the Makefile, see the INSTALL file
@@ -37,9 +41,9 @@ Version info
 
 2016-12-16: dynQBF 0.4.0
 - Major refactoring of the source code, yielding significantly better performance. Changes include
-..* remove cache now supports better balancing of NSF and BDD sizes
-..* improved global NSF size estimation
-..* tuning of removal and subset checks
+  * remove cache now supports better balancing of NSF and BDD sizes
+  * improved global NSF size estimation
+  * tuning of removal and subset checks
 - Unsatisfiability checks can now be controlled via command line
 - Per default, large clauses are splitted in a preprocessing step
 - Added new root and decomposition selection strategies
@@ -49,15 +53,14 @@ Version info
 (see https://github.com/mabseher/htd/releases/tag/1.0.0)
 
 2016-11-10: dynQBF 0.3
-- Heuristic TD and TD root node selection with various fitness functions, see options
-   --root-strategy <f> 
-   --decomposition-strategy <f>
+- Heuristic TD and TD root node selection with various fitness functions, see options for
+  * root strategy (iterations)
+  * decomposition strategy (iterations)
 - Added an experimental implementation for a 2QBF solver that
-  uses only a single BDD, see option 
-   -p cnf2
+  uses only a single BDD
 - This version adds initial support for preprocessing 
-  - conversion to 3CNF
-  - unit literals
+  * conversion to 3CNF
+  * unit literals
 - Improved option handling, refactored instance handling
 - Improved subset checking (should improve performance)
 - Compatibility and tested with HTD release htd 1.0.0 (beta1) 
