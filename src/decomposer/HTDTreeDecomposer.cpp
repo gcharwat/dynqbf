@@ -200,7 +200,7 @@ namespace decomposer {
         htd::ITreeDecompositionAlgorithm* algorithm = app.getHTDManager()->treeDecompositionAlgorithmFactory().createInstance();
         algorithm->addManipulationOperation(operation);
 
-        if (optDecompositionFitnessFunction.isUsed() && optDecompositionFitnessFunction.getValue() != "none") {
+        if (optDecompositionFitnessFunction.getValue() != "none") {
             htd::IterativeImprovementTreeDecompositionAlgorithm* iterativeAlgorithm;
             if (optDecompositionFitnessFunction.getValue() == "width") {
                 WidthFitnessFunction fitnessFunction;
