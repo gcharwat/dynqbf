@@ -141,13 +141,13 @@ void StandardDependencyCacheComputation::addToRemoveCache(BDD variable, const un
         }
     }
     if (!dependent) {
+        // TODO: only if we do not enumerate or level > 1!
         Computation::removeAbstract(variable, vl);
         _notYetRemovedAtLevels.at(vl - 1).erase(removedOriginalId);
 
         manager.incrementAbstractCount();
         if (vl < _notYetRemovedAtLevels.size()) {
             manager.incrementInternalAbstractCount();
-            //            std::cout << removedOriginalId << " immediately abstract at level " << vl << std::endl;
         }
         return;
     }
