@@ -264,11 +264,11 @@ void Printer::modelsRec(BDD bdd, std::list<Variable> variables, std::vector<std:
         } else {
 
             std::vector<std::string> model1 = model;
-            model1.push_back("+" + vertex);
+            model1.push_back("+" + std::to_string(vertex));
             modelsRec(bdd1, variables, model1);
 
             std::vector<std::string> model0 = model;
-            model0.push_back("-" + vertex);
+            model0.push_back("-" + std::to_string(vertex));
             modelsRec(bdd0, variables, model0);
         }
     }
