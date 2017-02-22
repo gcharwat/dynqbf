@@ -22,8 +22,6 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "JoinNodeBagFitnessFunction.h"
 #include <math.h> 
 
-// TODO: This will soon be removed!
-
 namespace decomposer {
 
     JoinNodeBagFitnessFunction::JoinNodeBagFitnessFunction(void) {
