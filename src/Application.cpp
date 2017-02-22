@@ -138,7 +138,7 @@ int Application::run(int argc, char** argv) {
     opts.addOption(optSolver, MODULE_SECTION);
     solver::bdd::qsat::QSatCNFEDMSolverFactory qsatSolverCNFEDMFactory(*this, true);
     solver::bdd::qsat::QSatCNFLDMSolverFactory qsatSolverCNFLDMFactory(*this);
-    solver::bdd::qsat::QSat2CNFSolverFactory qsat2SolverCNFFactory(*this);
+    //solver::bdd::qsat::QSat2CNFSolverFactory qsat2SolverCNFFactory(*this);
     solver::bdd::qsat::QSatBDDSolverFactory qsatSolverBDDFactory(*this);
     // solver::dummy::SolverFactory dummySolverFactory(*this);
 
