@@ -19,6 +19,8 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
  */
 
+#include <numeric> 
+
 #include "SingleNodeDecomposer.h"
 #include "../Application.h"
 #include "../Printer.h"
