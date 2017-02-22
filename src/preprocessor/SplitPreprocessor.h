@@ -35,8 +35,7 @@ namespace preprocessor {
         InstancePtr preprocess(const InstancePtr& instance) const override;
 
     private:    
-        void split(InstancePtr& preprocessed, const std::vector < std::pair < std::string, bool>> &combinedEdge) const;
-        mutable int splitVarIndex = 0;
+        void split(InstancePtr& preprocessed, const std::vector < std::pair < vertexNameType, bool>> &combinedEdge) const;
         
         static const std::string OPTION_SECTION;
         options::DefaultIntegerValueOption optSplitSize;

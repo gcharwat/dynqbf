@@ -53,8 +53,6 @@ namespace parser {
 
         while (getline(input, line)) {
 
-            std::cout << line << std::endl;
-
             if (line.length() == 0) continue;
             char firstChar = line.at(0);
             std::istringstream lineStream(line);
@@ -72,11 +70,12 @@ namespace parser {
                     std::getline(lineStream, lineElement, ' '); // skip first character
                     while (std::getline(lineStream, lineElement, ' ')) {
                         if (lineElement == "0") break;
-                        htd::vertex_t vertexId = instance->hypergraph->addVertex(lineElement);
+                        vertexNameType vertex = utils::strToInt(lineElement, "Error converting element");
+                        htd::vertex_t vertexId = instance->hypergraph->addVertex(vertex);
                         if (vertexId > maxVertexId) {
                             maxVertexId = vertexId;
                         }
-                        instance->hypergraph->setVertexLabel("level", lineElement, new htd::Label<int>(instance->quantifierCount()));
+                        instance->hypergraph->setVertexLabel("level", vertex, new htd::Label<int>(instance->quantifierCount()));
                     }
                     break;
                 case 'a':
@@ -86,48 +85,50 @@ namespace parser {
                     std::getline(lineStream, lineElement, ' '); // skip first character
                     while (std::getline(lineStream, lineElement, ' ')) {
                         if (lineElement == "0") break;
-                        htd::vertex_t vertexId = instance->hypergraph->addVertex(lineElement);
+                        vertexNameType vertex = utils::strToInt(lineElement, "Error converting element");
+                        htd::vertex_t vertexId = instance->hypergraph->addVertex(vertex);
                         if (vertexId > maxVertexId) {
                             maxVertexId = vertexId;
                         }
-                        instance->hypergraph->setVertexLabel("level", lineElement, new htd::Label<int>(instance->quantifierCount()));
+                        instance->hypergraph->setVertexLabel("level", vertex, new htd::Label<int>(instance->quantifierCount()));
                     }
                     break;
                 default:
                     if (clauses == 0) error("invalid number of clauses");
                     std::vector<bool> signs;
-                    std::vector<std::string> atoms;
+                    std::vector<vertexNameType> atoms;
 
                     while (std::getline(lineStream, lineElement, ' ')) {
                         if (lineElement == "0") break;
                         if (lineElement.length() == 0) continue;
-                        std::string vertexName;
+                        int parsedLiteral = utils::strToInt(lineElement, "Error converting element");
+                        
                         bool sign = true;
-                        if (lineElement.at(0) == '-') {
+                        if (parsedLiteral < 0) {
                             sign = false;
-                            vertexName = lineElement.substr(1, lineElement.length());
-                        } else {
-                            vertexName = lineElement;
-                        }
+                            parsedLiteral *= -1;
+                        } 
+                        vertexNameType vertex = parsedLiteral;
+                        
                         // Does the vertex already exist?
-                        htd::vertex_t vertexId = instance->hypergraph->addVertex(vertexName);
+                        htd::vertex_t vertexId = instance->hypergraph->addVertex(vertex);
                         if (vertexId > maxVertexId) {
                             maxVertexId = vertexId;
                             // if not, shift all levels by 1
                             if (instance->quantifier(1) != NTYPE::EXISTS) {
                                 instance->pushFrontQuantifier(NTYPE::EXISTS);
-                                for (const auto& oldVertex : instance->hypergraph->internalGraph().vertices()) {
-                                    if (oldVertex != vertexId) {
-                                        const std::string oldVertexName = instance->hypergraph->vertexName(oldVertex);
-                                        int oldVertexLevel = htd::accessLabel<int>(instance->hypergraph->internalGraph().vertexLabel("level", oldVertex));
+                                for (const auto& oldVertexId : instance->hypergraph->internalGraph().vertices()) {
+                                    if (oldVertexId != vertexId) {
+                                        const vertexNameType oldVertex = instance->hypergraph->vertexName(oldVertexId);
+                                        int oldVertexLevel = htd::accessLabel<int>(instance->hypergraph->internalGraph().vertexLabel("level", oldVertexId));
                                         int newVertexLevel = oldVertexLevel + 1;
-                                        instance->hypergraph->setVertexLabel("level", oldVertexName, new htd::Label<int>(newVertexLevel));
+                                        instance->hypergraph->setVertexLabel("level", oldVertex, new htd::Label<int>(newVertexLevel));
                                     }
                                 }
                             }
-                            instance->hypergraph->setVertexLabel("level", vertexName, new htd::Label<int>(1)); // insert at level 1
+                            instance->hypergraph->setVertexLabel("level", vertex, new htd::Label<int>(1)); // insert at level 1
                         }
-                        atoms.push_back(vertexName);
+                        atoms.push_back(vertex);
                         signs.push_back(sign);
                     }
                     // immediately abort

@@ -24,7 +24,7 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "htd/main.hpp"
 #include "Application.h"
 
-typedef std::string vertexNameType;
+typedef unsigned int vertexNameType;
 typedef std::string edgeNameType;
 typedef htd::NamedMultiHypergraph<vertexNameType, edgeNameType> HTDHypergraph;
 

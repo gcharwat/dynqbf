@@ -31,16 +31,16 @@ namespace ordering {
     }
 
     std::vector<int> LexicographicalOrdering::computeVertexOrder(const InstancePtr& instance, const HTDDecompositionPtr& decomposition) const {
-        std::vector<std::string> vNames;
-        for (const auto& vName : instance->hypergraph->vertices()) {
-            vNames.push_back(vName);
+        std::vector<vertexNameType> vertices;
+        for (const auto vertex : instance->hypergraph->vertices()) {
+            vertices.push_back(vertex);
         }
-        std::sort(vNames.begin(), vNames.end());
+        std::sort(vertices.begin(), vertices.end());
 
         std::vector<int> orderingIndex(instance->hypergraph->vertexCount() + 1); // "0" vertex is skipped by HTD
         for (const auto& vertexId : instance->hypergraph->internalGraph().vertices()) {
-            std::string vName = instance->hypergraph->vertexName(vertexId);
-            int index = std::find(vNames.begin(), vNames.end(), vName) - vNames.begin();
+            vertexNameType vertex = instance->hypergraph->vertexName(vertexId);
+            int index = std::find(vertices.begin(), vertices.end(), vertex) - vertices.begin();
             orderingIndex[vertexId] = index;
         }
 

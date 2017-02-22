@@ -37,39 +37,42 @@ namespace preprocessor {
         InstancePtr preprocessed(new Instance(app));
         for (const auto q : instance->getQuantifierSequence()) {
             preprocessed->pushBackQuantifier(q);
-        }
 
-        if (preprocessed->innermostQuantifier() != NTYPE::EXISTS) {
-            preprocessed->pushBackQuantifier(NTYPE::EXISTS);
         }
 
         // TODO: Improve copy efficiency for vertices
-        for (const std::string vertex : instance->hypergraph->vertices()) {
+        for (vertexNameType vertex : instance->hypergraph->vertices()) {
             preprocessed->hypergraph->addVertex(vertex);
             int vertexLevel = htd::accessLabel<int>(instance->hypergraph->vertexLabel("level", vertex));
             preprocessed->hypergraph->setVertexLabel("level", vertex, new htd::Label<int>(vertexLevel));
         }
 
-        int splitVarIndex = 0;
+        vertexNameType nextVertex = 0;
+        for (const auto vertex : preprocessed->hypergraph->vertices()) {
+            if (nextVertex < vertex) {
+                nextVertex = vertex;
+            }
+        }
 
-        for (const htd::NamedVertexHyperedge<std::string> edge : instance->hypergraph->hyperedges()) {
+        for (const htd::NamedVertexHyperedge<vertexNameType> edge : instance->hypergraph->hyperedges()) {
             const std::vector<bool> &edgeSigns = htd::accessLabel < std::vector<bool>>(instance->hypergraph->edgeLabel("signs", edge.id()));
             if (edge.size() < 4) {
-                std::vector<std::string> vertices(edge.begin(), edge.end());
+                std::vector<vertexNameType> vertices(edge.begin(), edge.end());
                 htd::id_t newEdgeId = preprocessed->hypergraph->addEdge(vertices);
                 preprocessed->hypergraph->setEdgeLabel("signs", newEdgeId, new htd::Label < std::vector<bool>>(edgeSigns));
             } else {
-                splitVarIndex++;
-                std::vector<std::string> vertices;
+                if (preprocessed->innermostQuantifier() != NTYPE::EXISTS) {
+                    preprocessed->pushBackQuantifier(NTYPE::EXISTS);
+                }
+
+                std::vector<vertexNameType> vertices;
                 vertices.push_back(edge[0]);
                 vertices.push_back(edge[1]);
-                std::stringstream ss;
-                ss << "_" << splitVarIndex;
-                std::string splitVar = ss.str();
-                vertices.push_back(splitVar);
+                nextVertex++;
+                vertices.push_back(nextVertex);
 
-                preprocessed->hypergraph->addVertex(splitVar);
-                preprocessed->hypergraph->setVertexLabel("level", splitVar, new htd::Label<int>(instance->quantifierCount()));
+                preprocessed->hypergraph->addVertex(nextVertex);
+                preprocessed->hypergraph->setVertexLabel("level", nextVertex, new htd::Label<int>(preprocessed->quantifierCount()));
 
                 std::vector<bool> signs;
                 signs.push_back(edgeSigns[0]);
@@ -81,51 +84,39 @@ namespace preprocessor {
 
                 for (unsigned int i = 2; i < edge.size() - 2; i++) {
 
-                    std::vector<std::string> verticesInt;
-                    std::stringstream ssInt1;
-                    ssInt1 << "_" << splitVarIndex;
-                    std::string splitVarInt1 = ssInt1.str();
-                    verticesInt.push_back(splitVarInt1);
+                    std::vector<vertexNameType> verticesIntermediate;
+                    verticesIntermediate.push_back(nextVertex);
+                    verticesIntermediate.push_back(edge[i]);
+                    nextVertex++;
+                    verticesIntermediate.push_back(nextVertex);
 
-                    verticesInt.push_back(edge[i]);
-                    
-                    splitVarIndex++;
-                    std::stringstream ssInt2;
-                    ssInt2 << "_" << splitVarIndex;
-                    std::string splitVarInt2 = ssInt2.str();
-                    verticesInt.push_back(splitVarInt2);
-                    
-                    preprocessed->hypergraph->addVertex(splitVarInt2);
-                    preprocessed->hypergraph->setVertexLabel("level", splitVarInt2, new htd::Label<int>(instance->quantifierCount()));
-                    
-                    std::vector<bool> signsInt;
-                    signsInt.push_back(false);
-                    signsInt.push_back(edgeSigns[i]);
-                    signsInt.push_back(true);
+                    preprocessed->hypergraph->addVertex(nextVertex);
+                    preprocessed->hypergraph->setVertexLabel("level", nextVertex, new htd::Label<int>(preprocessed->quantifierCount()));
 
-                    htd::id_t newEdgeIdInt = preprocessed->hypergraph->addEdge(verticesInt);
-                    preprocessed->hypergraph->setEdgeLabel("signs", newEdgeIdInt, new htd::Label<std::vector<bool>>(signsInt));
+                    std::vector<bool> signsIntermediate;
+                    signsIntermediate.push_back(false);
+                    signsIntermediate.push_back(edgeSigns[i]);
+                    signsIntermediate.push_back(true);
+
+                    htd::id_t newEdgeIdIntermediate = preprocessed->hypergraph->addEdge(verticesIntermediate);
+                    preprocessed->hypergraph->setEdgeLabel("signs", newEdgeIdIntermediate, new htd::Label < std::vector<bool>>(signsIntermediate));
 
                 }
-                
-                std::vector<std::string> verticesEnd;
-                
-                std::stringstream ssEnd;
-                ssEnd << "_" << splitVarIndex;
-                std::string splitVarEnd = ssEnd.str();
-                verticesEnd.push_back(splitVarEnd);
 
-                verticesEnd.push_back(edge[edge.size()-2]);
-                verticesEnd.push_back(edge[edge.size()-1]);
-                
+                std::vector<vertexNameType> verticesEnd;
+
+                verticesEnd.push_back(nextVertex);
+                verticesEnd.push_back(edge[edge.size() - 2]);
+                verticesEnd.push_back(edge[edge.size() - 1]);
+
                 std::vector<bool> signsEnd;
                 signsEnd.push_back(false);
-                signsEnd.push_back(edgeSigns[edge.size()-2]);
-                signsEnd.push_back(edgeSigns[edge.size()-1]);
+                signsEnd.push_back(edgeSigns[edge.size() - 2]);
+                signsEnd.push_back(edgeSigns[edge.size() - 1]);
 
                 htd::id_t newEdgeIdEnd = preprocessed->hypergraph->addEdge(verticesEnd);
                 preprocessed->hypergraph->setEdgeLabel("signs", newEdgeIdEnd, new htd::Label < std::vector<bool>>(signsEnd));
-                
+
             }
         }
 

@@ -96,7 +96,7 @@ namespace preprocessor {
             preprocessed->pushBackQuantifier(q);
         }
         
-        for (const std::string vertex : instance->hypergraph->vertices()) {
+        for (const vertexNameType vertex : instance->hypergraph->vertices()) {
             htd::vertex_t vertexId = instance->hypergraph->lookupVertex(vertex);
             if ((std::find(unitLiteralsPos.begin(), unitLiteralsPos.end(), vertexId) == unitLiteralsPos.end()) && 
                 (std::find(unitLiteralsNeg.begin(), unitLiteralsNeg.end(), vertexId) == unitLiteralsNeg.end())) {
@@ -110,7 +110,7 @@ namespace preprocessor {
             const std::vector<bool> &edgeSigns = htd::accessLabel < std::vector<bool>>(instance->hypergraph->edgeLabel("signs", clause.id()));
 
             bool deleteClause = false;
-            std::vector<std::string> newClause;
+            std::vector<vertexNameType> newClause;
             std::vector<bool> newSigns;
 
             for (unsigned int i = 0; i < clause.size(); i++) {

@@ -252,7 +252,7 @@ void Printer::modelsRec(BDD bdd, std::list<Variable> variables, std::vector<std:
 
         HTDHypergraph* hypergraph = app.getInputInstance()->hypergraph;
         // Only works for simple variables! (one type, one number, one vertex)
-        std::string vString = hypergraph->vertexName(v.getVertices()[0]);
+        vertexNameType vertex = hypergraph->vertexName(v.getVertices()[0]);
 
         BDD bdd1 = bdd.Restrict(app.getBDDManager().getManager().bddVar(v.getId()));
         BDD bdd0 = bdd.Restrict(!(app.getBDDManager().getManager().bddVar(v.getId())));
@@ -264,11 +264,11 @@ void Printer::modelsRec(BDD bdd, std::list<Variable> variables, std::vector<std:
         } else {
 
             std::vector<std::string> model1 = model;
-            model1.push_back("+" + vString);
+            model1.push_back("+" + vertex);
             modelsRec(bdd1, variables, model1);
 
             std::vector<std::string> model0 = model;
-            model0.push_back("-" + vString);
+            model0.push_back("-" + vertex);
             modelsRec(bdd0, variables, model0);
         }
     }
