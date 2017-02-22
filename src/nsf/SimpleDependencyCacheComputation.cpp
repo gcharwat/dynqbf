@@ -44,7 +44,6 @@ void SimpleDependencyCacheComputation::conjunct(const Computation& other) {
     try {
         // check if other contains a remove cache
         const SimpleDependencyCacheComputation& t = dynamic_cast<const SimpleDependencyCacheComputation&> (other);
-        // TODO: add checks not necessary
         for (unsigned int i = 0; i < t._completelyRemovedAtLevel.size(); i++) {
             _completelyRemovedAtLevel[i] += t._completelyRemovedAtLevel.at(i);
         }
@@ -54,15 +53,12 @@ void SimpleDependencyCacheComputation::conjunct(const Computation& other) {
 
 bool SimpleDependencyCacheComputation::reduceRemoveCache() {
     if (isRemoveCacheReducible()) {
-        // TODO add options for removal strategies (orderings) here
         for (unsigned int vl = _removeCache->size(); vl >= 1; vl--) {
             if (isRemovableAtRemoveCacheLevel(vl)) {
                 BDD toRemove = popFirstFromRemoveCache(vl); // simulate fifo
 
                 bool abstractable = isAbstractableAtLevel(vl);
-
                 if (abstractable) {
-                    //                    std::cout << "heuristically abstract at level " << vl << std::endl;
                     Computation::removeAbstract(toRemove, vl);
                     manager.incrementAbstractCount();
                     if (vl < _completelyRemovedAtLevel.size()) {
@@ -71,9 +67,7 @@ bool SimpleDependencyCacheComputation::reduceRemoveCache() {
                 } else {
                     Computation::remove(toRemove, vl);
                 }
-
                 _completelyRemovedAtLevel.at(vl - 1) += 1;
-
                 return true;
             }
         }
@@ -90,7 +84,6 @@ void SimpleDependencyCacheComputation::addToRemoveCache(BDD variable, const unsi
         if (vl < _completelyRemovedAtLevel.size()) {
             manager.incrementInternalAbstractCount();
         }
-        //        std::cout << "immediately abstract at level " << vl << std::endl;
         return;
     }
     if (_removeCache->size() < vl) {

@@ -93,7 +93,6 @@ Computation* ComputationManager::newComputation(const std::vector<NTYPE>& quanti
         optDependencyScheme.setValue("naive");
     }
 
-    // TODO: dynamically return Computation with or without cache
     bool keepFirstLevel = false;
     if (quantifierSequence.size() >= 1 && quantifierSequence.at(0) == NTYPE::EXISTS) {
         keepFirstLevel = app.enumerate();

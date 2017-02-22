@@ -50,4 +50,5 @@ private:
     std::vector<unsigned int>& _cuddToOriginalIds;
     
     std::vector<std::set<htd::vertex_t>> _notYetRemovedAtLevels;
+    
 };

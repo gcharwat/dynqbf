@@ -29,7 +29,6 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "cuddObj.hh"
 #include "htd/main.hpp"
 
-#include "../Application.h" // TODO Remove
 #include "../BDDManager.h"
 #include "../Instance.h"
 
