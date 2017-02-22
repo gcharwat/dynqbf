@@ -50,11 +50,16 @@ ComputationManager::ComputationManager(Application& app)
     app.getOptionHandler().addOption(optMaxGlobalNSFSize, NSFMANAGER_SECTION);
     app.getOptionHandler().addOption(optMaxBDDSize, NSFMANAGER_SECTION);
     app.getOptionHandler().addOption(optSortBeforeJoining, NSFMANAGER_SECTION);
-    optDependencyScheme.addChoice("none", "use no dependency scheme", true);
-    optDependencyScheme.addChoice("simple", "use simple dependency scheme");
 #ifdef DEPQBF_ENABLED
-    optDependencyScheme.addChoice("standard", "use standard dependency scheme");
+    optDependencyScheme.addChoice("dynamic", "naive for 2-QBFs, standard for other instances", true);
+    optDependencyScheme.addChoice("standard", "standard dependency scheme");
+    optDependencyScheme.addChoice("simple", "quantifier prefix");
+    optDependencyScheme.addChoice("naive", "innermost variables");
 #endif
+#ifndef DEPQBF_ENABLED
+    optDependencyScheme.addChoice("naive", "innermost variables", true);
+    optDependencyScheme.addChoice("simple", "quantifier prefix");
+#endif    
     app.getOptionHandler().addOption(optDependencyScheme, NSFMANAGER_SECTION);
     app.getOptionHandler().addOption(optPrintStats, NSFMANAGER_SECTION);
 }
@@ -81,7 +86,7 @@ Computation* ComputationManager::newComputation(const std::vector<NTYPE>& quanti
         keepFirstLevel = app.enumerate();
     }
 #ifdef DEPQBF_ENABLED
-    if (optDependencyScheme.getValue() == "standard") {
+    if (optDependencyScheme.getValue() == "standard" || (optDependencyScheme.getValue() == "dynamic" && quantifierSequence.size() > 2)) {
         if (depqbf == NULL) {
             initializeDepqbf();
         }
