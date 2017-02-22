@@ -227,7 +227,7 @@ int Application::run(int argc, char** argv) {
 
         // Return result
         result = nsfManager->decide(*computation);
-        if (enumerate()) {
+        if ((result == SAT) && enumerate()) {
             BDD answer = nsfManager->solutions(*computation);
             printer->models(answer, solverFactory->getVariables());
         }
