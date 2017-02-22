@@ -51,7 +51,6 @@ void StandardDependencyCacheComputation::conjunct(const Computation& other) {
     CacheComputation::conjunct(other);
     try {
         const StandardDependencyCacheComputation& t = dynamic_cast<const StandardDependencyCacheComputation&> (other);
-        // TODO: add checks not necessary
         for (unsigned int i = 0; i < t._notYetRemovedAtLevels.size(); i++) {
 
             std::set<htd::vertex_t> own = _notYetRemovedAtLevels.at(i);
@@ -70,18 +69,15 @@ void StandardDependencyCacheComputation::conjunct(const Computation& other) {
 
 bool StandardDependencyCacheComputation::reduceRemoveCache() {
     if (isRemoveCacheReducible()) {
-        // TODO add options for removal strategies (orderings) here
         for (unsigned int vl = _removeCache->size(); vl >= 1; vl--) {
             if (isRemovableAtRemoveCacheLevel(vl)) {
                 BDD toRemove = popFirstFromRemoveCache(vl); // simulate fifo
                 unsigned int removedOriginalId = _cuddToOriginalIds.at(toRemove.getRegularNode()->index);
 
                 bool dependent = false;
-
                 unsigned int independentUntilLevel = vl;
 
                 for (unsigned int level = vl + 1; level <= _notYetRemovedAtLevels.size(); level++) {
-
                     for (htd::vertex_t notYetRemoved : _notYetRemovedAtLevels.at(level - 1)) {
                         if (qdpll_var_depends(&_depqbf, removedOriginalId, notYetRemoved)) {
                             dependent = true;
@@ -95,8 +91,6 @@ bool StandardDependencyCacheComputation::reduceRemoveCache() {
                     }
                 }
 
-
-
                 if (dependent) {
                     if (independentUntilLevel >= (vl + 2)) {
                         if ((independentUntilLevel - vl) % 2 == 1) {
@@ -105,7 +99,6 @@ bool StandardDependencyCacheComputation::reduceRemoveCache() {
                         shiftVariableLevel(toRemove, vl, independentUntilLevel);
                         manager.incrementShiftCount();
                     }
-
                     Computation::remove(toRemove, independentUntilLevel); // instead of vl
                 } else {
                     manager.incrementAbstractCount();
@@ -115,7 +108,7 @@ bool StandardDependencyCacheComputation::reduceRemoveCache() {
 
                     // we abstract at vl since it does not make a difference
                     Computation::removeAbstract(toRemove, vl); // instead of vl
-                    // only remove if it is abstracted (hack)
+                    // only remove if it is abstracted
                     _notYetRemovedAtLevels.at(vl - 1).erase(removedOriginalId); // here we remove at vl, since variable was not shifted in notYetRemovedAtLevels
                 }
                 return true;
@@ -140,8 +133,9 @@ void StandardDependencyCacheComputation::addToRemoveCache(BDD variable, const un
             break;
         }
     }
-    if (!dependent) {
-        // TODO: only if we do not enumerate or level > 1!
+    
+    // TODO: only if we do not enumerate or level > 1!
+    if (!dependent && vl > 1) {
         Computation::removeAbstract(variable, vl);
         _notYetRemovedAtLevels.at(vl - 1).erase(removedOriginalId);
 
