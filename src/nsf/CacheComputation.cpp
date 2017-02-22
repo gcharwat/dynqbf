@@ -51,7 +51,6 @@ void CacheComputation::conjunct(const Computation& other) {
     try {
         // check if other contains a remove cache
         const CacheComputation& t = dynamic_cast<const CacheComputation&> (other);
-        // TODO: add checks not necessary
         addToRemoveCache(*(t._removeCache));
     } catch (std::bad_cast exp) {
     }
@@ -68,9 +67,6 @@ void CacheComputation::remove(const std::vector<std::vector<BDD>>&removedVertice
 void CacheComputation::removeApply(const std::vector<std::vector<BDD>>&removedVertices, const std::vector<BDD>& cubesAtLevels, const BDD& clauses) {
     apply(cubesAtLevels, clauses);
     addToRemoveCache(removedVertices);
-    
-//    // TODO: Integrate remove cache
-//    Computation::removeApply(removedVertices, cubesAtLevels, clauses);
 }
 
 BDD CacheComputation::evaluate(std::vector<BDD>& cubesAtlevels, bool keepFirstLevel) const {
@@ -138,7 +134,7 @@ bool CacheComputation::isRemoveCacheReducible() {
 
 bool CacheComputation::reduceRemoveCache() {
     if (isRemoveCacheReducible()) {
-        // TODO add options for removal strategies (orderings) here
+        // possibly add options for removal strategies (orderings) here
         for (unsigned int vl = _removeCache->size(); vl >= 1; vl--) {
             if (isRemovableAtRemoveCacheLevel(vl)) {
                 BDD toRemove = popFirstFromRemoveCache(vl); // simulate fifo
@@ -151,18 +147,16 @@ bool CacheComputation::reduceRemoveCache() {
 }
 
 void CacheComputation::addToRemoveCache(BDD variable, const unsigned int vl) {
+    if (vl > _removeCache->size()) {
+        throw std::runtime_error("invalid remove cache size");
+    }
+
     // always immediately remove innermost variables
     if (vl == _removeCache->size()) {
         Computation::remove(variable, vl);
-        return;
+    } else {
+        _removeCache->at(vl - 1).push_back(variable);
     }
-    if (_removeCache->size() < vl) {
-        for (unsigned int i = _removeCache->size(); i < vl; i++) {
-            std::vector<BDD> bddsAtLevel;
-            _removeCache->push_back(bddsAtLevel);
-        }
-    }
-    _removeCache->at(vl - 1).push_back(variable);
 }
 
 void CacheComputation::addToRemoveCache(const std::vector<std::vector<BDD>>&variables) {
@@ -174,19 +168,23 @@ void CacheComputation::addToRemoveCache(const std::vector<std::vector<BDD>>&vari
 }
 
 void CacheComputation::removeFromRemoveCache(BDD variable, const unsigned int vl) {
-    std::vector<BDD>::iterator position = std::find(_removeCache->at(vl-1).begin(), _removeCache->at(vl-1).end(), variable);
+    std::vector<BDD>::iterator position = std::find(_removeCache->at(vl - 1).begin(), _removeCache->at(vl - 1).end(), variable);
     _removeCache->at(vl - 1).erase(position);
 }
 
+/**
+ * isRemovableAtRemoveCacheLevel(vl) must return true
+ */
 BDD CacheComputation::popFromRemoveCache(const unsigned int vl) {
-    // TODO: We assume isRemovableAtRemoveCacheLevel() to be called first
     BDD b = _removeCache->at(vl - 1).back();
     _removeCache->at(vl - 1).pop_back();
     return b;
 }
 
+/**
+ * isRemovableAtRemoveCacheLevel(vl) must return true
+ */
 BDD CacheComputation::popFirstFromRemoveCache(const unsigned int vl) {
-    // TODO: We assume isRemovableAtRemoveCacheLevel() to be called first
     std::iter_swap(_removeCache->at(vl - 1).begin(), _removeCache->at(vl - 1).end() - 1);
     BDD b = _removeCache->at(vl - 1).back();
     _removeCache->at(vl - 1).pop_back();
