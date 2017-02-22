@@ -76,12 +76,8 @@ namespace solver {
                             removed[vertexLevel - 1].push_back(variable);
                         }
                         BDD removedClauses = this->removedClauses(currentNode, child);
-                        nsfMan.removeApply(*tmpOuter, removed, getCubesAtLevels(currentNode), removedClauses); // TODO fixme!
+                        nsfMan.removeApply(*tmpOuter, removed, getCubesAtLevels(currentNode), removedClauses); // TODO adapt towards removal before apply
                         app.getPrinter().solverIntermediateEvent(currentNode, *tmpOuter, "removing variables and introducing clauses - done");
-
-                        app.getPrinter().solverIntermediateEvent(currentNode, *tmpOuter, "removing variables and introducing clauses, opt");
-//                        nsfMan.optimize(*tmpOuter);
-                        app.getPrinter().solverIntermediateEvent(currentNode, *tmpOuter, "removing variables and introducing clauses, opt - done");
                         if (first) {
                             cC = tmpOuter;
                             first = false;
