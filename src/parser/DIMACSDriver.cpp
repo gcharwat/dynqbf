@@ -46,12 +46,15 @@ namespace parser {
         std::string inputFileFormat, dummy;
         unsigned int atoms = 0, clauses = 0;
         htd::vertex_t maxVertexId = htd::Vertex::FIRST - 1;
-//        unsigned int firstLevelCount = 0;
+        //        unsigned int firstLevelCount = 0;
 
         std::string line;
         std::string lineElement;
 
         while (getline(input, line)) {
+
+            std::cout << line << std::endl;
+
             if (line.length() == 0) continue;
             char firstChar = line.at(0);
             std::istringstream lineStream(line);
@@ -110,14 +113,16 @@ namespace parser {
                         htd::vertex_t vertexId = instance->hypergraph->addVertex(vertexName);
                         if (vertexId > maxVertexId) {
                             maxVertexId = vertexId;
-                            // Shift all levels by 1
+                            // if not, shift all levels by 1
                             if (instance->quantifier(1) != NTYPE::EXISTS) {
                                 instance->pushFrontQuantifier(NTYPE::EXISTS);
                                 for (const auto& oldVertex : instance->hypergraph->internalGraph().vertices()) {
-                                    const std::string oldVertexName = instance->hypergraph->vertexName(oldVertex);
-                                    int oldVertexLevel = htd::accessLabel<int>(instance->hypergraph->internalGraph().vertexLabel("level", oldVertex));
-                                    int newVertexLevel = oldVertexLevel + 1;
-                                    instance->hypergraph->setVertexLabel("level", oldVertexName, new htd::Label<int>(newVertexLevel));
+                                    if (oldVertex != vertexId) {
+                                        const std::string oldVertexName = instance->hypergraph->vertexName(oldVertex);
+                                        int oldVertexLevel = htd::accessLabel<int>(instance->hypergraph->internalGraph().vertexLabel("level", oldVertex));
+                                        int newVertexLevel = oldVertexLevel + 1;
+                                        instance->hypergraph->setVertexLabel("level", oldVertexName, new htd::Label<int>(newVertexLevel));
+                                    }
                                 }
                             }
                             instance->hypergraph->setVertexLabel("level", vertexName, new htd::Label<int>(1)); // insert at level 1
