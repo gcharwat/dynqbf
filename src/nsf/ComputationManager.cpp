@@ -36,20 +36,21 @@ const std::string ComputationManager::NSFMANAGER_SECTION = "NSF Manager";
 ComputationManager::ComputationManager(Application& app)
 : app(app)
 , optPrintStats("print-NSF-stats", "Print NSF Manager statistics")
-, optMaxGlobalNSFSize("max-est-NSF-size", "s", "Split until the global estimated NSF size <s> is reached, -1 to disable limit", 1000)
-, optMaxBDDSize("max-BDD-size", "s", "Split if a BDD size exceeds <s> (may be overruled by max-est-NSF-size)", 3000)
-, optOptimizeInterval("opt-interval", "i", "Optimize NSF every <i>-th computation step,0 to disable", 4)
-, optUnsatCheckInterval("unsat-check", "i", "Check for unsatisfiability after every <i>-th NSF join, 0 to disable", 2)
+, optMaxGlobalNSFSize("max-est-NSF-size", "e", "Split until the global estimated NSF size <e> is reached, -1 to disable limit", 1000)
+, optMaxBDDSize("max-BDD-size", "b", "Split if a BDD size exceeds <b> (may be overruled by max-est-NSF-size)", 3000)
+, optOptimizeInterval("opt-interval", "o", "Optimize NSF every <o>-th computation step, 0 to disable", 4)
+, optUnsatCheckInterval("unsat-check", "u", "Check for unsatisfiability after every <u>-th NSF join, 0 to disable", 2)
 , optSortBeforeJoining("sort-before-joining", "Sort NSFs by increasing size before joining; can increase subset check success rate")
 , optDependencyScheme("dep-scheme", "d", "Use dependency scheme <d>")
+, optDisableCache("disable-cache", "Disables removal cache (and sets e: -1, b: 0, d: naive)")
 , maxGlobalNSFSizeEstimation(1)
 , optIntervalCounter(0)
 , optUnsatCheckCounter(0) {
     app.getOptionHandler().addOption(optOptimizeInterval, NSFMANAGER_SECTION);
     app.getOptionHandler().addOption(optUnsatCheckInterval, NSFMANAGER_SECTION);
+    app.getOptionHandler().addOption(optSortBeforeJoining, NSFMANAGER_SECTION);
     app.getOptionHandler().addOption(optMaxGlobalNSFSize, NSFMANAGER_SECTION);
     app.getOptionHandler().addOption(optMaxBDDSize, NSFMANAGER_SECTION);
-    app.getOptionHandler().addOption(optSortBeforeJoining, NSFMANAGER_SECTION);
 #ifdef DEPQBF_ENABLED
     optDependencyScheme.addChoice("dynamic", "naive for 2-QBFs, standard for other instances", true);
     optDependencyScheme.addChoice("standard", "standard dependency scheme");
@@ -61,6 +62,7 @@ ComputationManager::ComputationManager(Application& app)
     optDependencyScheme.addChoice("simple", "quantifier prefix");
 #endif    
     app.getOptionHandler().addOption(optDependencyScheme, NSFMANAGER_SECTION);
+    app.getOptionHandler().addOption(optDisableCache, NSFMANAGER_SECTION);
     app.getOptionHandler().addOption(optPrintStats, NSFMANAGER_SECTION);
 }
 
@@ -80,6 +82,17 @@ ComputationManager::~ComputationManager() {
 }
 
 Computation* ComputationManager::newComputation(const std::vector<NTYPE>& quantifierSequence, const std::vector<BDD>& cubesAtLevels, const BDD& bdd) {
+    if (optDisableCache.isUsed()) {
+        if ((optMaxGlobalNSFSize.isUsed() && optMaxGlobalNSFSize.getValue() != -1) ||
+                (optMaxBDDSize.isUsed() && optMaxBDDSize.getValue() != 0) ||
+                (optDependencyScheme.isUsed() && optDependencyScheme.getValue() != "naive")) {
+            throw std::runtime_error("Cache can only be disabled if none of NSF size, BDD size, and dependency scheme are set");
+        }
+        optMaxGlobalNSFSize.setValue("-1");
+        optMaxBDDSize.setValue("0");
+        optDependencyScheme.setValue("naive");
+    }
+
     // TODO: dynamically return Computation with or without cache
     bool keepFirstLevel = false;
     if (quantifierSequence.size() >= 1 && quantifierSequence.at(0) == NTYPE::EXISTS) {
@@ -97,7 +110,7 @@ Computation* ComputationManager::newComputation(const std::vector<NTYPE>& quanti
         std::vector<std::set < htd::vertex_t>> alreadyAbstractedAtLevels = initializeAlreadyAbstractedAtLevels();
 
         return new StandardDependencyCacheComputation(*this, quantifierSequence, cubesAtLevels, bdd, optMaxBDDSize.getValue(), keepFirstLevel, *depqbf, *cuddToOriginalIds, alreadyAbstractedAtLevels);
-    } 
+    }
 #endif
     if (optDependencyScheme.getValue() == "simple") {
         if (variablesAtLevels == NULL) {
@@ -105,9 +118,12 @@ Computation* ComputationManager::newComputation(const std::vector<NTYPE>& quanti
         }
         return new SimpleDependencyCacheComputation(*this, quantifierSequence, cubesAtLevels, bdd, optMaxBDDSize.getValue(), keepFirstLevel, *variablesAtLevels);
     } else {
-        return new CacheComputation(*this, quantifierSequence, cubesAtLevels, bdd, optMaxBDDSize.getValue(), keepFirstLevel);
+        if (!optDisableCache.isUsed()) {
+            return new CacheComputation(*this, quantifierSequence, cubesAtLevels, bdd, optMaxBDDSize.getValue(), keepFirstLevel);
+        } else {
+            return new Computation(*this, quantifierSequence, cubesAtLevels, bdd);
+        }
     }
-    //return new Computation(quantifierSequence, cubesAtLevels, bdd);
 }
 
 Computation* ComputationManager::copyComputation(const Computation& c) {
@@ -233,6 +249,7 @@ void ComputationManager::multiplyGlobalNSFSizeEstimation(int value) {
 }
 
 #ifdef DEPQBF_ENABLED
+
 void ComputationManager::initializeDepqbf() {
     depqbf = qdpll_create();
     std::string depMan = "--dep-man=qdag";
