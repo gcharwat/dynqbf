@@ -44,7 +44,9 @@ public:
     virtual bool optimize(bool left) override;
 
     virtual void print(bool verbose) const override;
-
+    
+    unsigned int cacheSize() const;
+    
 protected:
     virtual BDD evaluate(std::vector<BDD>& cubesAtlevels, bool keepFirstLevel) const override;
 

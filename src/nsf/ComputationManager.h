@@ -69,6 +69,8 @@ public:
     void incrementInternalAbstractCount();
     void incrementAbstractCount();
     void incrementShiftCount();
+    
+    void incrementSplitCount();
 
 protected:
 
@@ -79,6 +81,8 @@ private:
 
     void divideGlobalNSFSizeEstimation(int value);
     void multiplyGlobalNSFSizeEstimation(int value);
+    
+    void updateStats(const Computation& c);
 
     static const std::string NSFMANAGER_SECTION;
 
@@ -116,6 +120,20 @@ private:
     unsigned int shiftCount;
     unsigned int internalAbstractCount;
     unsigned int abstractCount;
+    
+    unsigned int splitCount;
+    
+    unsigned int maxNSFsize;
+    unsigned int maxNSFsizeBDDsize;
+    unsigned int maxNSFsizeCacheSize;
+    
+    unsigned int maxBDDsize;
+    unsigned int maxBDDsizeNSFsize;
+    unsigned int maxBDDsizeCacheSize;
+    
+    unsigned int maxCacheSize;
+    unsigned int maxCacheSizeNSFsize;
+    unsigned int maxCacheSizeBDDsize;
     
 };
 

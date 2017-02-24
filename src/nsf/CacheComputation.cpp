@@ -123,6 +123,15 @@ void CacheComputation::print(bool verbose) const {
     Computation::print(verbose);
 }
 
+unsigned int CacheComputation::cacheSize() const {
+    unsigned int size = 0;
+    for (unsigned int vl = _removeCache->size(); vl >= 1; vl--) {
+        size += _removeCache->at(vl-1).size();
+    }
+    return size;
+}
+
+
 bool CacheComputation::isRemoveCacheReducible() {
     if (!isRemovableRemoveCache()) {
         return false;

@@ -58,11 +58,7 @@ namespace printer {
         intermediateEndClock = std::clock();
         double elapsed_secs = double(intermediateEndClock - intermediateBeginClock) / CLOCKS_PER_SEC;
         std::cout << std::fixed << "Decomposition (decomposing time): " << elapsed_secs << std::endl;
-        std::cout << "Decomposition (width): " << (result->maximumBagSize() - 1) << std::endl;
         intermediateBeginClock = std::clock();
-        std::cout << "Decomposition (nodes): " << result->vertexCount() << std::endl;
-        std::cout << "Decomposition (leaf nodes): " << result->leafCount() << std::endl;
-        std::cout << "Decomposition (join nodes): " << result->joinNodeCount() << std::endl;
     }
 
     void Performance::vertexOrdering(const std::vector<int>& ordering) {

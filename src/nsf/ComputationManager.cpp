@@ -97,6 +97,9 @@ Computation* ComputationManager::newComputation(const std::vector<NTYPE>& quanti
     if (quantifierSequence.size() >= 1 && quantifierSequence.at(0) == NTYPE::EXISTS) {
         keepFirstLevel = app.enumerate();
     }
+    
+    Computation* c;
+    
 #ifdef DEPQBF_ENABLED
     if (optDependencyScheme.getValue() == "standard" || (optDependencyScheme.getValue() == "dynamic" && quantifierSequence.size() > 2)) {
         if (depqbf == NULL) {
@@ -108,21 +111,23 @@ Computation* ComputationManager::newComputation(const std::vector<NTYPE>& quanti
         // always return a new vector
         std::vector<std::set < htd::vertex_t>> alreadyAbstractedAtLevels = initializeAlreadyAbstractedAtLevels();
 
-        return new StandardDependencyCacheComputation(*this, quantifierSequence, cubesAtLevels, bdd, optMaxBDDSize.getValue(), keepFirstLevel, *depqbf, *cuddToOriginalIds, alreadyAbstractedAtLevels);
+        c = new StandardDependencyCacheComputation(*this, quantifierSequence, cubesAtLevels, bdd, optMaxBDDSize.getValue(), keepFirstLevel, *depqbf, *cuddToOriginalIds, alreadyAbstractedAtLevels);
     }
 #endif
     if (optDependencyScheme.getValue() == "simple") {
         if (variablesAtLevels == NULL) {
             initializeVariablesAtLevels();
         }
-        return new SimpleDependencyCacheComputation(*this, quantifierSequence, cubesAtLevels, bdd, optMaxBDDSize.getValue(), keepFirstLevel, *variablesAtLevels);
+        c = new SimpleDependencyCacheComputation(*this, quantifierSequence, cubesAtLevels, bdd, optMaxBDDSize.getValue(), keepFirstLevel, *variablesAtLevels);
     } else {
         if (!optDisableCache.isUsed()) {
-            return new CacheComputation(*this, quantifierSequence, cubesAtLevels, bdd, optMaxBDDSize.getValue(), keepFirstLevel);
+            c = new CacheComputation(*this, quantifierSequence, cubesAtLevels, bdd, optMaxBDDSize.getValue(), keepFirstLevel);
         } else {
-            return new Computation(*this, quantifierSequence, cubesAtLevels, bdd);
+            c = new Computation(*this, quantifierSequence, cubesAtLevels, bdd);
         }
     }
+    updateStats(*c);
+    return c;
 }
 
 Computation* ComputationManager::copyComputation(const Computation& c) {
@@ -186,6 +191,7 @@ void ComputationManager::removeApply(Computation& c, const std::vector<std::vect
 }
 
 void ComputationManager::optimize(Computation &c) {
+    updateStats(c);
     if (optOptimizeInterval.getValue() > 0) {
         optIntervalCounter++;
         optIntervalCounter %= optOptimizeInterval.getValue();
@@ -201,6 +207,7 @@ void ComputationManager::optimize(Computation &c) {
             }
         }
     }
+    updateStats(c);
 }
 
 bool ComputationManager::isUnsat(const Computation& c) const {
@@ -227,13 +234,30 @@ void ComputationManager::incrementShiftCount() {
     shiftCount++;
 }
 
+void ComputationManager::incrementSplitCount() {
+    splitCount++;
+}
+
 void ComputationManager::printStatistics() const {
     if (!optPrintStats.isUsed()) {
         return;
     }
-    std::cout << "NSF (abstract count): " << abstractCount << std::endl;
-    std::cout << "NSF (internal abstract count): " << internalAbstractCount << std::endl;
-    std::cout << "NSF (shift count): " << shiftCount << std::endl;
+    std::cout << "NSF (max NSF size): " << maxNSFsize << std::endl;
+    std::cout << "NSF (max NSF size - BDD size): " << maxNSFsizeBDDsize << std::endl;
+    std::cout << "NSF (max NSF size - cache size): " << maxNSFsizeCacheSize << std::endl;
+    
+    std::cout << "NSF (max BDD size): " << maxBDDsize << std::endl;
+    std::cout << "NSF (max BDD size - NSF size): " << maxBDDsizeNSFsize << std::endl;
+    std::cout << "NSF (max BDD size - cache size): " << maxBDDsizeCacheSize << std::endl;
+    
+    std::cout << "NSF (max cache size): " << maxCacheSize << std::endl;
+    std::cout << "NSF (max cache size - NSF size): " << maxCacheSizeNSFsize << std::endl;
+    std::cout << "NSF (max cache size - BDD size): " << maxCacheSizeBDDsize << std::endl;
+     
+    std::cout << "NSF (splits): " << splitCount << std::endl;
+    std::cout << "NSF (abstractions): " << abstractCount << std::endl;
+    std::cout << "NSF (internal abstractions): " << internalAbstractCount << std::endl;
+    std::cout << "NSF (shifts): " << shiftCount << std::endl;
 }
 
 void ComputationManager::divideGlobalNSFSizeEstimation(int value) {
@@ -245,6 +269,40 @@ void ComputationManager::divideGlobalNSFSizeEstimation(int value) {
 
 void ComputationManager::multiplyGlobalNSFSizeEstimation(int value) {
     maxGlobalNSFSizeEstimation *= value;
+}
+
+void ComputationManager::updateStats(const Computation& c) {
+    if (optPrintStats.isUsed()) {
+
+        unsigned int nsfSize = c.leavesCount();
+        unsigned int bddSize = c.maxBDDsize();
+        unsigned int cacheSize = 0;
+
+        try {
+            // check if other contains a remove cache
+            const CacheComputation& t = dynamic_cast<const CacheComputation&> (c);
+            cacheSize = t.cacheSize();
+
+            if (maxCacheSize < cacheSize) {
+                maxCacheSize = cacheSize;
+                maxCacheSizeNSFsize = nsfSize;
+                maxCacheSizeBDDsize = bddSize;
+            }
+        } catch (std::bad_cast exp) {
+        }
+
+        if (maxNSFsize < nsfSize) {
+            maxNSFsize = nsfSize;
+            maxNSFsizeBDDsize = bddSize;
+            maxNSFsizeCacheSize = cacheSize;
+        }
+
+        if (maxBDDsize < bddSize) {
+            maxBDDsize = bddSize;
+            maxBDDsizeNSFsize = nsfSize;
+            maxBDDsizeCacheSize = cacheSize;
+        }
+    }
 }
 
 #ifdef DEPQBF_ENABLED
@@ -308,7 +366,7 @@ void ComputationManager::initializeCuddToOriginalIds() {
     }
 }
 
-std::vector<std::set < htd::vertex_t>> ComputationManager::initializeAlreadyAbstractedAtLevels() {
+std::vector<std::set < htd::vertex_t >> ComputationManager::initializeAlreadyAbstractedAtLevels() {
     std::vector<std::set < htd::vertex_t>> alreadyAbstractedAtLevels; // = new std::vector<std::set < htd::vertex_t >> ();
 
     for (htd::vertex_t vertex : app.getInputInstance()->hypergraph->internalGraph().vertices()) {

@@ -55,7 +55,8 @@ namespace decomposer {
     , optRootSelectionFitnessFunction("rs", "f", "Use fitness function <f> for decomposition root node selection")
     , optRootSelectionIterations("rsi", "i", "Randomly select <i> nodes as root, choose decomposition with best fitness value, 0 for #td nodes", 1)
     , optDecompositionFitnessFunction("ds", "f", "Use fitness function <f> for decomposition selection")
-    , optDecompositionIterations("dsi", "i", "Generate <i> tree decompositions, choose decomposition with best fitness value", 10) {
+    , optDecompositionIterations("dsi", "i", "Generate <i> tree decompositions, choose decomposition with best fitness value", 10)
+    , optPrintStats ("print-TD-stats", "Print detailed tree decomposition statistics") {
         optNormalization.addCondition(selected);
         optNormalization.addChoice("none", "no normalization", true);
         optNormalization.addChoice("weak", "weak normalization");
@@ -113,6 +114,9 @@ namespace decomposer {
         
         optDecompositionIterations.addCondition(selected);
         app.getOptionHandler().addOption(optDecompositionIterations, OPTION_SECTION);
+        
+        optPrintStats.addCondition(selected);
+        app.getOptionHandler().addOption(optPrintStats, OPTION_SECTION);
 
     }
 
@@ -244,7 +248,61 @@ namespace decomposer {
 
         htd::IMutableTreeDecomposition* decompMutable = &(app.getHTDManager()->treeDecompositionFactory().accessMutableInstance(*decomp));
         HTDDecompositionPtr decomposition(decompMutable);
+        
+        if (optPrintStats.isUsed()) {
+            printStatistics((instance->hypergraph->internalGraph()), *decomp);
+        }
+        
         return decomposition;
+    }
+    
+    void HTDTreeDecomposer::printStatistics(const htd::IMultiHypergraph & graph, const htd::ITreeDecomposition & decomposition) const {
+        
+        std::cout << "TD (nodes): " << decomposition.vertexCount() << std::endl;
+        std::cout << "TD (leaf nodes): " << decomposition.leafCount() << std::endl;
+        std::cout << "TD (join nodes): " << decomposition.joinNodeCount() << std::endl;
+        std::cout << "TD (width): " << (decomposition.maximumBagSize() - 1) << std::endl;
+
+        htd::FitnessEvaluation * eval;
+        
+        HeightFitnessFunction hff;
+        eval = hff.fitness(graph, decomposition);
+        std::cout << "TD (height): " << (int) (eval->at(0) * -1) << std::endl;
+        VariableLevelFitnessFunction vlff(app);
+        eval = vlff.fitness(graph, decomposition);
+        std::cout << "TD (variable-level): " << (eval->at(0) * -1) << std::endl;
+        RemovedLevelFitnessFunction rlff(app);
+        eval = rlff.fitness(graph, decomposition);
+        std::cout << "TD (removed-level): " << (int) (eval->at(0) * -1) << std::endl;
+        JoinNodeChildBagProductFitnessFunction jncbpff;
+        eval = jncbpff.fitness(graph, decomposition);
+        std::cout << "TD (join-child-bag-prod): " << (int) (eval->at(0) * -1) << std::endl;
+        NSFSizeEstimationFitnessFunction nseff;
+        eval = nseff.fitness(graph, decomposition);
+        std::cout << "TD (nsf): " << (int) (eval->at(0) * -1) << std::endl;
+        NSFSizeJoinEstimationFitnessFunction nsjeff;
+        eval = nsjeff.fitness(graph, decomposition);
+        std::cout << "TD (nsf-join): " << (int) (eval->at(0) * -1) << std::endl;
+        InverseNSFSizeJoinEstimationFitnessFunction insjeff;
+        eval = insjeff.fitness(graph, decomposition);
+        std::cout << "TD (nsf-join-i): " << (int) (eval->at(0) * -1) << std::endl;
+        JoinNodeCountFitnessFunction jncff;
+        eval = jncff.fitness(graph, decomposition);
+        std::cout << "TD (join-count): " << (int) (eval->at(0) * -1) << std::endl;
+        JoinNodeBagFitnessFunction jnbff;
+        eval = jnbff.fitness(graph, decomposition);
+        std::cout << "TD (join-bag): " << (int) (eval->at(0) * -1) << std::endl;
+        JoinNodeChildCountFitnessFunction jnccff;
+        eval = jnccff.fitness(graph, decomposition);
+        std::cout << "TD (join-child-count): " << (int) (eval->at(0) * -1) << std::endl;
+        JoinNodeChildBagFitnessFunction jncbff;
+        eval = jncbff.fitness(graph, decomposition);
+        std::cout << "TD (join-child-bag): " << (int) (eval->at(0) * -1) << std::endl;
+        JoinNodeBagExponentialFitnessFunction jnbeff;
+        eval = jnbeff.fitness(graph, decomposition);
+        std::cout << "TD (join-bag-exp): " << (int) (eval->at(0) * -1) << std::endl;
+        
+        delete eval;
     }
 
 } // namespace decomposer

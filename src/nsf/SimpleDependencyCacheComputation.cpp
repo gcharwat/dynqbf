@@ -60,10 +60,6 @@ bool SimpleDependencyCacheComputation::reduceRemoveCache() {
                 bool abstractable = isAbstractableAtLevel(vl);
                 if (abstractable) {
                     Computation::removeAbstract(toRemove, vl);
-                    manager.incrementAbstractCount();
-                    if (vl < _completelyRemovedAtLevel.size()) {
-                        manager.incrementInternalAbstractCount();
-                    }
                 } else {
                     Computation::remove(toRemove, vl);
                 }
@@ -79,11 +75,6 @@ void SimpleDependencyCacheComputation::addToRemoveCache(BDD variable, const unsi
     if (isAbstractableAtLevel(vl)) {
         Computation::removeAbstract(variable, vl);
         _completelyRemovedAtLevel.at(vl - 1) += 1;
-
-        manager.incrementAbstractCount();
-        if (vl < _completelyRemovedAtLevel.size()) {
-            manager.incrementInternalAbstractCount();
-        }
         return;
     }
     if (_removeCache->size() < vl) {

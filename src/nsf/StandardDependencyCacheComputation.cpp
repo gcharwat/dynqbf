@@ -101,11 +101,6 @@ bool StandardDependencyCacheComputation::reduceRemoveCache() {
                     }
                     Computation::remove(toRemove, independentUntilLevel); // instead of vl
                 } else {
-                    manager.incrementAbstractCount();
-                    if (vl < _notYetRemovedAtLevels.size()) {
-                        manager.incrementInternalAbstractCount();
-                    }
-
                     // we abstract at vl since it does not make a difference
                     Computation::removeAbstract(toRemove, vl); // instead of vl
                     // only remove if it is abstracted
@@ -138,11 +133,6 @@ void StandardDependencyCacheComputation::addToRemoveCache(BDD variable, const un
     if (!dependent && vl > 1) {
         Computation::removeAbstract(variable, vl);
         _notYetRemovedAtLevels.at(vl - 1).erase(removedOriginalId);
-
-        manager.incrementAbstractCount();
-        if (vl < _notYetRemovedAtLevels.size()) {
-            manager.incrementInternalAbstractCount();
-        }
         return;
     }
     if (_removeCache->size() < vl) {

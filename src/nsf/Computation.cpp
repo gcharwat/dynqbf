@@ -22,6 +22,7 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include <cuddInt.h>
 
 #include "Computation.h"
+#include "ComputationManager.h"
 
 Computation::Computation(ComputationManager& manager, const std::vector<NTYPE>& quantifierSequence, const std::vector<BDD>& cubesAtLevels, const BDD& bdd)
 : manager(manager) {
@@ -72,12 +73,21 @@ void Computation::conjunct(const Computation& other) {
 
 void Computation::removeAbstract(const BDD& variable, const unsigned int vl) {
     removeFromVariableDomain(variable, vl);
+    if (vl < _variableDomain->size()) {
+        manager.incrementInternalAbstractCount();
+    } 
+    manager.incrementAbstractCount();
     _nsf->removeAbstract(variable, vl);
 }
 
 
 void Computation::remove(const BDD& variable, const unsigned int vl) {
     removeFromVariableDomain(variable, vl);
+    if (vl < _variableDomain->size()) {
+        manager.incrementSplitCount();
+    } else {
+        manager.incrementAbstractCount(); // innermost are always abstracted
+    }
     _nsf->remove(variable, vl);
 }
 

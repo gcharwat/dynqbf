@@ -35,6 +35,9 @@ namespace decomposer {
         HTDTreeDecomposer(Application& app, bool newDefault = false);
 
         HTDDecompositionPtr decompose(const InstancePtr& instance) const override;
+        
+    protected:
+        void printStatistics(const htd::IMultiHypergraph & graph, const htd::ITreeDecomposition & decomposition) const;
 
     private:
         static const std::string OPTION_SECTION;
@@ -50,6 +53,7 @@ namespace decomposer {
         options::Choice optDecompositionFitnessFunction;
         options::DefaultIntegerValueOption optDecompositionIterations;
         
+        options::Option optPrintStats;
     };
 
 } // namespace decomposer
