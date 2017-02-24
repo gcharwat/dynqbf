@@ -129,6 +129,14 @@ const unsigned int Computation::nsfCount() const {
     return _nsf->nsfCount();
 }
 
+unsigned int Computation::domainSize() const {
+    unsigned int size = 0;
+    for (unsigned int level = 1; level <= _variableDomain->size(); level++) {
+        size += (_variableDomain->at(level - 1).CountPath() - 1);
+    }
+    return size;
+}
+
 BDD Computation::evaluate(std::vector<BDD>& cubesAtlevels, bool keepFirstLevel) const {
     // assert cubesAtLevels.size() == _variableDomain->size()
     for (unsigned int level = 1; level <= _variableDomain->size(); level++) {

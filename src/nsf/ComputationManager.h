@@ -125,15 +125,23 @@ private:
     
     unsigned int maxNSFsize;
     unsigned int maxNSFsizeBDDsize;
+    unsigned int maxNSFsizeDomainSize;
     unsigned int maxNSFsizeCacheSize;
     
     unsigned int maxBDDsize;
     unsigned int maxBDDsizeNSFsize;
+    unsigned int maxBDDsizeDomainSize;
     unsigned int maxBDDsizeCacheSize;
     
     unsigned int maxCacheSize;
     unsigned int maxCacheSizeNSFsize;
     unsigned int maxCacheSizeBDDsize;
+    unsigned int maxCacheSizeDomainSize;
+    
+    unsigned int maxDomainSize;
+    unsigned int maxDomainSizeNSFsize;
+    unsigned int maxDomainSizeBDDsize;
+    unsigned int maxDomainSizeCacheSize;
     
 };
 

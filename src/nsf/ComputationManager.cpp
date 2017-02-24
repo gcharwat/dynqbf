@@ -244,16 +244,24 @@ void ComputationManager::printStatistics() const {
     }
     std::cout << "NSF (max NSF size): " << maxNSFsize << std::endl;
     std::cout << "NSF (max NSF size - BDD size): " << maxNSFsizeBDDsize << std::endl;
+    std::cout << "NSF (max NSF size - domain size): " << maxNSFsizeDomainSize << std::endl;
     std::cout << "NSF (max NSF size - cache size): " << maxNSFsizeCacheSize << std::endl;
     
     std::cout << "NSF (max BDD size): " << maxBDDsize << std::endl;
     std::cout << "NSF (max BDD size - NSF size): " << maxBDDsizeNSFsize << std::endl;
+    std::cout << "NSF (max BDD size - domain size): " << maxBDDsizeDomainSize << std::endl;
     std::cout << "NSF (max BDD size - cache size): " << maxBDDsizeCacheSize << std::endl;
     
     std::cout << "NSF (max cache size): " << maxCacheSize << std::endl;
     std::cout << "NSF (max cache size - NSF size): " << maxCacheSizeNSFsize << std::endl;
     std::cout << "NSF (max cache size - BDD size): " << maxCacheSizeBDDsize << std::endl;
+    std::cout << "NSF (max cache size - domain size): " << maxCacheSizeDomainSize << std::endl;
      
+    std::cout << "NSF (max domain size): " << maxDomainSize << std::endl;
+    std::cout << "NSF (max domain size - NSF size): " << maxDomainSizeNSFsize << std::endl;
+    std::cout << "NSF (max domain size - BDD size): " << maxDomainSizeBDDsize << std::endl;
+    std::cout << "NSF (max domain size - cache size): " << maxDomainSizeCacheSize << std::endl;
+    
     std::cout << "NSF (splits): " << splitCount << std::endl;
     std::cout << "NSF (abstractions): " << abstractCount << std::endl;
     std::cout << "NSF (internal abstractions): " << internalAbstractCount << std::endl;
@@ -276,6 +284,7 @@ void ComputationManager::updateStats(const Computation& c) {
 
         unsigned int nsfSize = c.leavesCount();
         unsigned int bddSize = c.maxBDDsize();
+        unsigned int domainSize = c.domainSize();
         unsigned int cacheSize = 0;
 
         try {
@@ -287,6 +296,7 @@ void ComputationManager::updateStats(const Computation& c) {
                 maxCacheSize = cacheSize;
                 maxCacheSizeNSFsize = nsfSize;
                 maxCacheSizeBDDsize = bddSize;
+                maxCacheSizeDomainSize = domainSize;
             }
         } catch (std::bad_cast exp) {
         }
@@ -294,13 +304,22 @@ void ComputationManager::updateStats(const Computation& c) {
         if (maxNSFsize < nsfSize) {
             maxNSFsize = nsfSize;
             maxNSFsizeBDDsize = bddSize;
+            maxNSFsizeDomainSize = domainSize;
             maxNSFsizeCacheSize = cacheSize;
         }
 
         if (maxBDDsize < bddSize) {
             maxBDDsize = bddSize;
             maxBDDsizeNSFsize = nsfSize;
+            maxBDDsizeDomainSize = domainSize;
             maxBDDsizeCacheSize = cacheSize;
+        }
+        
+        if (maxDomainSize < domainSize) {
+            maxDomainSize = domainSize;
+            maxDomainSizeNSFsize = nsfSize;
+            maxDomainSizeBDDsize = bddSize;
+            maxDomainSizeCacheSize = cacheSize;
         }
     }
 }
