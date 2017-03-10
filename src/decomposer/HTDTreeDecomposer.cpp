@@ -54,13 +54,13 @@ namespace decomposer {
     , optEmptyLeaves("empty-leaves", "Add empty leaves to the tree decomposition")
     , optPathDecomposition("path-decomposition", "Create a path decomposition")
     , optRootSelectionFitnessFunction("rs", "f", "Use fitness function <f> for decomposition root node selection")
-    , optRootSelectionIterations("rsi", "i", "Randomly select <i> nodes as root, choose decomposition with best fitness value, 0 for #td nodes", 1)
+    , optRootSelectionIterations("rsi", "i", "Randomly select <i> nodes as root, choose decomposition with best fitness value, 0 for #TD nodes", 1)
     , optDecompositionFitnessFunction("ds", "f", "Use fitness function <f> for decomposition selection")
     , optDecompositionIterations("dsi", "i", "Generate <i> tree decompositions, choose decomposition with best fitness value", 10)
-    , optPrintStats ("print-TD-stats", "Print detailed tree decomposition statistics") {
+    , optPrintStats("print-TD-stats", "Print detailed tree decomposition statistics") {
         optDisableGraphPreprocessing.addCondition(selected);
         app.getOptionHandler().addOption(optDisableGraphPreprocessing, OPTION_SECTION);
-        
+
         optNormalization.addCondition(selected);
         optNormalization.addChoice("none", "no normalization", true);
         optNormalization.addChoice("weak", "weak normalization");
@@ -77,7 +77,7 @@ namespace decomposer {
 
         optJoinCompression.addCondition(selected);
         app.getOptionHandler().addOption(optJoinCompression, OPTION_SECTION);
-        
+
         optNoEmptyRoot.addCondition(selected);
         app.getOptionHandler().addOption(optNoEmptyRoot, OPTION_SECTION);
 
@@ -90,12 +90,12 @@ namespace decomposer {
         optRootSelectionFitnessFunction.addCondition(selected);
         optRootSelectionFitnessFunction.addChoice("none", "do not optimize selected root", true);
         optRootSelectionFitnessFunction.addChoice("height", "minimize decomposition height");
-        optRootSelectionFitnessFunction.addChoice("variable-level", "prefer innermost variables to be removed first (relative location in td and removal)");
+        optRootSelectionFitnessFunction.addChoice("est-join-effort", "minimize the sum over products of join node children bag sizes");
+        optRootSelectionFitnessFunction.addChoice("removal-impact", "minimize the estimated total size of computed NSFs");
+        optRootSelectionFitnessFunction.addChoice("removal-join-min", "minimize the estimated total size of computed NSFs in join nodes");
+        optRootSelectionFitnessFunction.addChoice("removal-join-max", "maximize the estimated total size of computed NSFs in join nodes");
+        optRootSelectionFitnessFunction.addChoice("variable-position", "prefer innermost variables to be removed first (relative location in TD and removal)");
         optRootSelectionFitnessFunction.addChoice("removed-level", "prefer innermost variables to be removed first (punish removal of variables with lower level)");
-        optRootSelectionFitnessFunction.addChoice("join-child-bag-prod", "minimize the sum over products of join node children bag sizes");
-        optRootSelectionFitnessFunction.addChoice("nsf", "minimize the estimated total size of computed NSFs");
-        optRootSelectionFitnessFunction.addChoice("join-nsf", "minimize the estimated total size of computed NSFs in join nodes");
-        optRootSelectionFitnessFunction.addChoice("join-nsf-i", "maximize the estimated total size of computed NSFs in join nodes");
         app.getOptionHandler().addOption(optRootSelectionFitnessFunction, OPTION_SECTION);
 
         optRootSelectionIterations.addCondition(selected);
@@ -105,20 +105,22 @@ namespace decomposer {
         optDecompositionFitnessFunction.addChoice("none", "do not optimize decomposition");
         optDecompositionFitnessFunction.addChoice("width", "minimize decomposition width");
         optDecompositionFitnessFunction.addChoice("join-count", "minimize number of join nodes");
-        optDecompositionFitnessFunction.addChoice("join-bag", "minimize the sum over join node bag sizes");
+        optDecompositionFitnessFunction.addChoice("join-bag-size", "minimize the sum over join node bag sizes");
         optDecompositionFitnessFunction.addChoice("join-child-count", "minimize number of join node children");
-        optDecompositionFitnessFunction.addChoice("join-child-bag", "minimize the sum over join node children bag sizes");
-        optDecompositionFitnessFunction.addChoice("join-child-bag-prod", "minimize the sum over products of join node children bag sizes", true);
-        optDecompositionFitnessFunction.addChoice("join-bag-exp", "minimize the sum over join node bag sizes to the power of number of children");
-        optDecompositionFitnessFunction.addChoice("nsf", "minimize the estimated total size of computed NSFs");
-        optDecompositionFitnessFunction.addChoice("join-nsf", "minimize the estimated total size of computed NSFs in join nodes");
-        optDecompositionFitnessFunction.addChoice("join-nsf-i", "maximize the estimated total size of computed NSFs in join nodes");
-        
+        optDecompositionFitnessFunction.addChoice("join-bag-size-exp", "minimize the sum over join node bag sizes to the power of number of children");
+        optDecompositionFitnessFunction.addChoice("join-child-bag-size", "minimize the sum over join node children bag sizes");
+        optDecompositionFitnessFunction.addChoice("est-join-effort", "minimize the sum over products of join node children bag sizes", true);
+        optDecompositionFitnessFunction.addChoice("removal-impact", "minimize the estimated total size of computed NSFs");
+        optDecompositionFitnessFunction.addChoice("removal-join-min", "minimize the estimated total size of computed NSFs in join nodes");
+        optDecompositionFitnessFunction.addChoice("removal-join-max", "maximize the estimated total size of computed NSFs in join nodes");
+        optDecompositionFitnessFunction.addChoice("variable-position", "prefer innermost variables to be removed first (relative location in TD and removal)");
+        optDecompositionFitnessFunction.addChoice("removed-level", "prefer innermost variables to be removed first (punish removal of variables with lower level)");
+
         app.getOptionHandler().addOption(optDecompositionFitnessFunction, OPTION_SECTION);
-        
+
         optDecompositionIterations.addCondition(selected);
         app.getOptionHandler().addOption(optDecompositionIterations, OPTION_SECTION);
-        
+
         optPrintStats.addCondition(selected);
         app.getOptionHandler().addOption(optPrintStats, OPTION_SECTION);
 
@@ -141,16 +143,16 @@ namespace decomposer {
             orderingAlgorithm = new htd::NaturalOrderingAlgorithm(app.getHTDManager());
         }
         app.getHTDManager()->orderingAlgorithmFactory().setConstructionTemplate(orderingAlgorithm);
-        
+
         htd::BucketEliminationTreeDecompositionAlgorithm * treeDecompositionAlgorithm = new htd::BucketEliminationTreeDecompositionAlgorithm(app.getHTDManager());
-        
+
         // disable compression for join nodes
         if (!(optJoinCompression.isUsed())) {
             treeDecompositionAlgorithm->setCompressionEnabled(false);
             treeDecompositionAlgorithm->addManipulationOperation(new htd::CompressionOperation(app.getHTDManager(), false));
         }
-        app.getHTDManager()->treeDecompositionAlgorithmFactory().setConstructionTemplate(treeDecompositionAlgorithm); 
-        
+        app.getHTDManager()->treeDecompositionAlgorithmFactory().setConstructionTemplate(treeDecompositionAlgorithm);
+
         // set cover oder exact...
         // htd::SetCoverAlgorithmFactory::instance().setConstructionTemplate(new htd::HeuristicSetCoverAlgorithm());
 
@@ -161,29 +163,29 @@ namespace decomposer {
         if (optRootSelectionFitnessFunction.getValue() == "height") {
             HeightFitnessFunction heightFitnessFunction;
             operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager(), heightFitnessFunction);
-        } else if (optRootSelectionFitnessFunction.getValue() == "variable-level") {
+        } else if (optRootSelectionFitnessFunction.getValue() == "est-join-effort") {
+            JoinNodeChildBagProductFitnessFunction joinNodeChildBagProductFitnessFunction;
+            operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager(), joinNodeChildBagProductFitnessFunction);
+        } else if (optRootSelectionFitnessFunction.getValue() == "removal-impact") {
+            NSFSizeEstimationFitnessFunction nsfSizeEstimationFitnessFunction;
+            operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager(), nsfSizeEstimationFitnessFunction);
+        } else if (optRootSelectionFitnessFunction.getValue() == "removal-join-min") {
+            NSFSizeJoinEstimationFitnessFunction nsfSizeJoinEstimationFitnessFunction;
+            operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager(), nsfSizeJoinEstimationFitnessFunction);
+        } else if (optRootSelectionFitnessFunction.getValue() == "removal-join-max") {
+            InverseNSFSizeJoinEstimationFitnessFunction inverseNSFSizeJoinEstimationFitnessFunction;
+            operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager(), inverseNSFSizeJoinEstimationFitnessFunction);
+        } else if (optRootSelectionFitnessFunction.getValue() == "variable-position") {
             VariableLevelFitnessFunction variableLevelFitnessFunction(app);
             operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager(), variableLevelFitnessFunction);
         } else if (optRootSelectionFitnessFunction.getValue() == "removed-level") {
             RemovedLevelFitnessFunction removedLevelFitnessFunction(app);
             operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager(), removedLevelFitnessFunction);
-        } else if (optRootSelectionFitnessFunction.getValue() == "join-child-bag-prod") {
-            JoinNodeChildBagProductFitnessFunction joinNodeChildBagProductFitnessFunction;
-            operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager(), joinNodeChildBagProductFitnessFunction);
-        } else if (optRootSelectionFitnessFunction.getValue() == "nsf") {
-            NSFSizeEstimationFitnessFunction nsfSizeEstimationFitnessFunction;
-            operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager(), nsfSizeEstimationFitnessFunction);
-        } else if (optRootSelectionFitnessFunction.getValue() == "join-nsf") {
-            NSFSizeJoinEstimationFitnessFunction nsfSizeJoinEstimationFitnessFunction;
-            operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager(), nsfSizeJoinEstimationFitnessFunction);
-        } else if (optRootSelectionFitnessFunction.getValue() == "join-nsf-i") {
-            InverseNSFSizeJoinEstimationFitnessFunction inverseNSFSizeJoinEstimationFitnessFunction;
-            operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager(), inverseNSFSizeJoinEstimationFitnessFunction);
         } else {
             assert(optRootSelectionFitnessFunction.getValue() == "none");
             operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager());
         }
-
+        
         operation->setVertexSelectionStrategy(new htd::RandomVertexSelectionStrategy(optRootSelectionIterations.getValue() - 1));
 
         // Path decomposition
@@ -216,105 +218,121 @@ namespace decomposer {
             } else if (optDecompositionFitnessFunction.getValue() == "join-count") {
                 JoinNodeCountFitnessFunction fitnessFunction;
                 iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
-            }else if (optDecompositionFitnessFunction.getValue() == "join-bag") {
+            } else if (optDecompositionFitnessFunction.getValue() == "join-bag-size") {
                 JoinNodeBagFitnessFunction fitnessFunction;
                 iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
             } else if (optDecompositionFitnessFunction.getValue() == "join-child-count") {
                 JoinNodeChildCountFitnessFunction fitnessFunction;
                 iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
-            } else if (optDecompositionFitnessFunction.getValue() == "join-child-bag") {
-                JoinNodeChildBagFitnessFunction fitnessFunction;
-                iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
-            } else if (optDecompositionFitnessFunction.getValue() == "join-child-bag-prod") {
-                JoinNodeChildBagProductFitnessFunction fitnessFunction;
-                iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
-            } else if (optDecompositionFitnessFunction.getValue() == "join-bag-exp") {
+            } else if (optDecompositionFitnessFunction.getValue() == "join-bag-size-exp") {
                 JoinNodeBagExponentialFitnessFunction fitnessFunction;
                 iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
-            } else if (optDecompositionFitnessFunction.getValue() == "nsf") {
+            } else if (optDecompositionFitnessFunction.getValue() == "join-child-bag-size") {
+                JoinNodeChildBagFitnessFunction fitnessFunction;
+                iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
+            } else if (optDecompositionFitnessFunction.getValue() == "est-join-effort") {
+                JoinNodeChildBagProductFitnessFunction fitnessFunction;
+                iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
+            } else if (optDecompositionFitnessFunction.getValue() == "removal-impact") {
                 NSFSizeEstimationFitnessFunction fitnessFunction;
                 iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
-            } else if (optDecompositionFitnessFunction.getValue() == "join-nsf") {
+            } else if (optDecompositionFitnessFunction.getValue() == "removal-join-min") {
                 NSFSizeJoinEstimationFitnessFunction fitnessFunction;
                 iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
-            } else if (optDecompositionFitnessFunction.getValue() == "join-nsf-i") {
+            } else if (optDecompositionFitnessFunction.getValue() == "removal-join-max") {
                 InverseNSFSizeJoinEstimationFitnessFunction fitnessFunction;
+                iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
+            } else if (optDecompositionFitnessFunction.getValue() == "variable-position") {
+                VariableLevelFitnessFunction fitnessFunction(app);
+                iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
+            } else if (optDecompositionFitnessFunction.getValue() == "removed-level") {
+                RemovedLevelFitnessFunction fitnessFunction(app);
                 iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
             } else {
                 throw std::runtime_error("Invalid option");
             }
+            
             iterativeAlgorithm->setIterationCount(optDecompositionIterations.getValue());
             iterativeAlgorithm->setNonImprovementLimit(-1);
             algorithm = iterativeAlgorithm;
         }
 
-        htd::ITreeDecomposition* decomp;
-        if (optDisableGraphPreprocessing.isUsed()) {
-            decomp = algorithm->computeDecomposition(instance->hypergraph->internalGraph());
-        } else {
-            htd::GraphPreprocessor preprocessor(app.getHTDManager());
-            htd::IPreprocessedGraph* preprocessedGraph = preprocessor.prepare(instance->hypergraph->internalGraph(), true);
-            decomp = algorithm->computeDecomposition(instance->hypergraph->internalGraph(), *preprocessedGraph);
-            delete preprocessedGraph;
-        }
+
+        htd::GraphPreprocessor preprocessor(app.getHTDManager());
+        htd::IPreprocessedGraph* preprocessedGraph = preprocessor.prepare(instance->hypergraph->internalGraph(), (optDisableGraphPreprocessing.isUsed() ? false : true));
+        htd::ITreeDecomposition* decomp = algorithm->computeDecomposition(instance->hypergraph->internalGraph(), *preprocessedGraph);
+        delete preprocessedGraph;
+
 
         htd::IMutableTreeDecomposition* decompMutable = &(app.getHTDManager()->treeDecompositionFactory().accessMutableInstance(*decomp));
         HTDDecompositionPtr decomposition(decompMutable);
-        
+
         if (optPrintStats.isUsed()) {
             printStatistics((instance->hypergraph->internalGraph()), *decomp);
         }
-        
+
         return decomposition;
     }
-    
+
     void HTDTreeDecomposer::printStatistics(const htd::IMultiHypergraph & graph, const htd::ITreeDecomposition & decomposition) const {
-        
+
         std::cout << "TD (nodes): " << decomposition.vertexCount() << std::endl;
         std::cout << "TD (leaf nodes): " << decomposition.leafCount() << std::endl;
         std::cout << "TD (join nodes): " << decomposition.joinNodeCount() << std::endl;
         std::cout << "TD (width): " << (decomposition.maximumBagSize() - 1) << std::endl;
 
         htd::FitnessEvaluation * eval;
-        
+
         HeightFitnessFunction hff;
         eval = hff.fitness(graph, decomposition);
         std::cout << "TD (height): " << (int) (eval->at(0) * -1) << std::endl;
-        VariableLevelFitnessFunction vlff(app);
-        eval = vlff.fitness(graph, decomposition);
-        std::cout << "TD (variable-level): " << (eval->at(0) * -1) << std::endl;
-        RemovedLevelFitnessFunction rlff(app);
-        eval = rlff.fitness(graph, decomposition);
-        std::cout << "TD (removed-level): " << (int) (eval->at(0) * -1) << std::endl;
-        JoinNodeChildBagProductFitnessFunction jncbpff;
-        eval = jncbpff.fitness(graph, decomposition);
-        std::cout << "TD (join-child-bag-prod): " << (int) (eval->at(0) * -1) << std::endl;
-        NSFSizeEstimationFitnessFunction nseff;
-        eval = nseff.fitness(graph, decomposition);
-        std::cout << "TD (nsf): " << (int) (eval->at(0) * -1) << std::endl;
-        NSFSizeJoinEstimationFitnessFunction nsjeff;
-        eval = nsjeff.fitness(graph, decomposition);
-        std::cout << "TD (nsf-join): " << (int) (eval->at(0) * -1) << std::endl;
-        InverseNSFSizeJoinEstimationFitnessFunction insjeff;
-        eval = insjeff.fitness(graph, decomposition);
-        std::cout << "TD (nsf-join-i): " << (int) (eval->at(0) * -1) << std::endl;
+        delete eval;
         JoinNodeCountFitnessFunction jncff;
         eval = jncff.fitness(graph, decomposition);
         std::cout << "TD (join-count): " << (int) (eval->at(0) * -1) << std::endl;
+        delete eval;
         JoinNodeBagFitnessFunction jnbff;
         eval = jnbff.fitness(graph, decomposition);
-        std::cout << "TD (join-bag): " << (int) (eval->at(0) * -1) << std::endl;
+        std::cout << "TD (join-bag-size): " << (long) (eval->at(0) * -1) << std::endl;
+        delete eval;
         JoinNodeChildCountFitnessFunction jnccff;
         eval = jnccff.fitness(graph, decomposition);
-        std::cout << "TD (join-child-count): " << (int) (eval->at(0) * -1) << std::endl;
-        JoinNodeChildBagFitnessFunction jncbff;
-        eval = jncbff.fitness(graph, decomposition);
-        std::cout << "TD (join-child-bag): " << (int) (eval->at(0) * -1) << std::endl;
+        std::cout << "TD (join-child-count): " << (long) (eval->at(0) * -1) << std::endl;
+        delete eval;
         JoinNodeBagExponentialFitnessFunction jnbeff;
         eval = jnbeff.fitness(graph, decomposition);
-        std::cout << "TD (join-bag-exp): " << (int) (eval->at(0) * -1) << std::endl;
-        
+        std::cout << "TD (join-bag-size-exp): " << (long) (eval->at(0) * -1) << std::endl;
         delete eval;
+        JoinNodeChildBagFitnessFunction jncbff;
+        eval = jncbff.fitness(graph, decomposition);
+        std::cout << "TD (join-child-bag-size): " << (long) (eval->at(0) * -1) << std::endl;
+        delete eval;
+        
+        JoinNodeChildBagProductFitnessFunction jncbpff;
+        eval = jncbpff.fitness(graph, decomposition);
+        std::cout << "TD (est-join-effort): " << (long) (eval->at(0) * -1) << std::endl;
+        delete eval;
+        NSFSizeEstimationFitnessFunction nseff;
+        eval = nseff.fitness(graph, decomposition);
+        std::cout << "TD (removal-impact): " << (long) (eval->at(0) * -1) << std::endl;
+        delete eval;
+        NSFSizeJoinEstimationFitnessFunction nsjeff;
+        eval = nsjeff.fitness(graph, decomposition);
+        std::cout << "TD (removal-join-min): " << (long) (eval->at(0) * -1) << std::endl;
+        delete eval;
+        InverseNSFSizeJoinEstimationFitnessFunction insjeff;
+        eval = insjeff.fitness(graph, decomposition);
+        std::cout << "TD (removal-join-max): " << (long) (eval->at(0) * -1) << std::endl;
+        delete eval;
+        
+        VariableLevelFitnessFunction vlff(app);
+        eval = vlff.fitness(graph, decomposition);
+        std::cout << "TD (variable-position): " << (eval->at(0) * -1) << std::endl;
+        delete eval;
+        RemovedLevelFitnessFunction rlff(app);
+        eval = rlff.fitness(graph, decomposition);
+        std::cout << "TD (removed-level): " << (long) (eval->at(0) * -1) << std::endl;
+        delete eval;        
     }
 
 } // namespace decomposer
