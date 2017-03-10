@@ -130,7 +130,7 @@ void StandardDependencyCacheComputation::addToRemoveCache(BDD variable, const un
     }
     
     // TODO: only if we do not enumerate or level > 1!
-    if (!dependent && vl > 1) {
+    if (!dependent && !(_keepFirstLevel && vl == 1)) {
         Computation::removeAbstract(variable, vl);
         _notYetRemovedAtLevels.at(vl - 1).erase(removedOriginalId);
         return;
