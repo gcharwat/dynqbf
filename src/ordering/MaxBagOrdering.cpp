@@ -58,7 +58,7 @@ namespace ordering {
 
         while (true) {
 
-            std::cout << "c: " << maxCosts << std::endl;
+            //std::cout << "c: " << maxCosts << std::endl;
             //std::cout << "o: " << ordering << std::endl;
 
             int bestSwapFrom = 0;

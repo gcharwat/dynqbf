@@ -66,54 +66,54 @@ namespace ordering {
             orderingVertices.insert(orderingVertices.begin() + bestPos, v);
         }
 
-        std::cout << "before costs: " << std::endl;
+        //std::cout << "before costs: " << std::endl;
 
-        //        int maxCosts = costs(orderingVertices);
-        //        int maxItations = INT_MAX;
-        //        
-        //        while (maxItations > 0) {
-        //            maxItations--;
-        //
-        //            int bestSwapFrom = 0;
-        //            int bestSwapTo = 0;
-        //            int bestCosts = INT_MAX;
-        //            
-        //            int* costsBefore = new int[orderingVertices.size()];
-        //            for (unsigned int index = 0; index < orderingVertices.size(); index++) {
-        //                costsBefore[index] = costsVertex(orderingVertices, index);
-        //            }
-        //            
-        //            for (unsigned int from = 0; from < orderingVertices.size() - 1; from++) {
-        //                
-        //                int costsFromBefore = costsBefore[from];
-        //                
-        //                for (unsigned int to = from + 1; to < orderingVertices.size(); to++) {
-        //                    
-        //                    int costsToBefore = costsBefore[to];
-        //                    
-        //                    std::swap(orderingVertices[from], orderingVertices[to]);
-        //                    
-        //                    int costsFromAfter = costsVertex(orderingVertices, from);
-        //                    int costsToAfter = costsVertex(orderingVertices, to);
-        //                    
-        //                    int tmpCosts = maxCosts - 2*costsFromBefore - 2*costsToBefore + 2*costsFromAfter + 2*costsToAfter;
-        //
-        //                    if (tmpCosts < bestCosts || (tmpCosts == bestCosts && orderingVertices[to] < orderingVertices[from])) {
-        //                        bestSwapFrom = from;
-        //                        bestSwapTo = to;
-        //                        bestCosts = tmpCosts;
-        //                    }
-        //                    std::swap(orderingVertices[from], orderingVertices[to]); // swap back
-        //                }
-        //            }
-        //
-        //            if (bestCosts < maxCosts) {
-        //                std::swap(orderingVertices[bestSwapFrom], orderingVertices[bestSwapTo]);
-        //                maxCosts = bestCosts;
-        //            } else {
-        //                break;
-        //            }
-        //        }
+        int maxCosts = costs(orderingVertices);
+        int maxItations = INT_MAX;
+
+        while (maxItations > 0) {
+            maxItations--;
+
+            int bestSwapFrom = 0;
+            int bestSwapTo = 0;
+            int bestCosts = INT_MAX;
+
+            int* costsBefore = new int[orderingVertices.size()];
+            for (unsigned int index = 0; index < orderingVertices.size(); index++) {
+                costsBefore[index] = costsVertex(orderingVertices, index);
+            }
+
+            for (unsigned int from = 0; from < orderingVertices.size() - 1; from++) {
+
+                int costsFromBefore = costsBefore[from];
+
+                for (unsigned int to = from + 1; to < orderingVertices.size(); to++) {
+
+                    int costsToBefore = costsBefore[to];
+
+                    std::swap(orderingVertices[from], orderingVertices[to]);
+
+                    int costsFromAfter = costsVertex(orderingVertices, from);
+                    int costsToAfter = costsVertex(orderingVertices, to);
+
+                    int tmpCosts = maxCosts - 2 * costsFromBefore - 2 * costsToBefore + 2 * costsFromAfter + 2 * costsToAfter;
+
+                    if (tmpCosts < bestCosts || (tmpCosts == bestCosts && orderingVertices[to] < orderingVertices[from])) {
+                        bestSwapFrom = from;
+                        bestSwapTo = to;
+                        bestCosts = tmpCosts;
+                    }
+                    std::swap(orderingVertices[from], orderingVertices[to]); // swap back
+                }
+            }
+
+            if (bestCosts < maxCosts) {
+                std::swap(orderingVertices[bestSwapFrom], orderingVertices[bestSwapTo]);
+                maxCosts = bestCosts;
+            } else {
+                break;
+            }
+        }
 
         std::vector<int> orderingIndex(instance->hypergraph->vertexCount() + 1); // "0" vertex is skipped by HTD
         for (const auto& vertexId : instance->hypergraph->internalGraph().vertices()) {
