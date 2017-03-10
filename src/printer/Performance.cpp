@@ -41,6 +41,8 @@ namespace printer {
         intermediateBeginClock = std::clock();
         std::cout << "Input (vertices): " << instance->hypergraph->vertexCount() << std::endl;
         std::cout << "Input (edges): " << instance->hypergraph->edgeCount() << std::endl;
+        std::cout << "Input (quantifiers): " << instance->quantifierCount() << std::endl;
+        std::cout << "Input (first quantifier): " << (instance->quantifier(1) == NTYPE::EXISTS ? "E" : "A") << std::endl;
     }
 
     void Performance::preprocessedInstance(const InstancePtr& instance) {
@@ -51,6 +53,8 @@ namespace printer {
         intermediateBeginClock = std::clock();
         std::cout << "Preprocessing (vertices): " << instance->hypergraph->vertexCount() << std::endl;
         std::cout << "Preprocessing (edges): " << instance->hypergraph->edgeCount() << std::endl;
+        std::cout << "Preprocessing (quantifiers): " << instance->quantifierCount() << std::endl;
+        std::cout << "Preprocessing (first quantifier): " << (instance->quantifier(1) == NTYPE::EXISTS ? "E" : "A") << std::endl;
     }
 
     void Performance::decomposerResult(const HTDDecompositionPtr& result) {
@@ -58,6 +62,8 @@ namespace printer {
         intermediateEndClock = std::clock();
         double elapsed_secs = double(intermediateEndClock - intermediateBeginClock) / CLOCKS_PER_SEC;
         std::cout << std::fixed << "Decomposition (decomposing time): " << elapsed_secs << std::endl;
+        std::cout << "Decomposition (width): " << (result->maximumBagSize() - 1) << std::endl;
+
         intermediateBeginClock = std::clock();
     }
 
