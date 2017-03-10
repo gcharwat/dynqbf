@@ -269,7 +269,7 @@ void Application::usage() const {
 }
 
 void Application::version() const {
-    std::cerr << "Version:            " << DYNQBF_VERSION_MAJOR << "." << DYNQBF_VERSION_MINOR << "." << DYNQBF_VERSION_PATCH << std::endl;
+    std::cerr << "Version:            " << DYNQBF_VERSION_MAJOR << "." << DYNQBF_VERSION_MINOR << "." << DYNQBF_VERSION_PATCH << std::string(DYNQBF_VERSION_PRERELEASE) << std::endl;
     std::cerr << "Github Commit ID:   " << DYNQBF_GIT_COMMIT_ID << std::endl;
     std::cerr << " with HTD Commit:   " << HTD_GIT_COMMIT_ID << std::endl;
     std::cerr << "DepQBF integration: ";

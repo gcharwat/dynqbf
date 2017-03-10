@@ -22,6 +22,18 @@ Source:     https://github.com/gcharwat/dynqbf
 Version info 
 --------------
 
+2017-03-10: dynQBF 1.0.0-rc.1
+- Dynamic dependency scheme selection based on quantifier prefix
+- Added detailed decomposition and NSF statistics output
+- Unsatisfiable parts of NSFs ore now truncated
+- Integrated tree decomposition preprocessing
+- Removal cache can now be disabled
+- Memory improvements: instance parsing and representation is now more efficient
+- Improvements w.r.t. solution enumeration
+- Fixed a bug when compiled with clang
+- Compatibility with htd release 1.1-rc1
+(see https://github.com/mabseher/htd/releases/tag/1.1-rc1)
+
 2017-01-19: dynQBF 0.5.1
 - Fixed a bug related to the default setting of the selected decomposition strategy
 - Minor code cleaning
