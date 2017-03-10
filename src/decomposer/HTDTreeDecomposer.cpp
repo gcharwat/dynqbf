@@ -46,6 +46,7 @@ namespace decomposer {
 
     HTDTreeDecomposer::HTDTreeDecomposer(Application& app, bool newDefault)
     : Decomposer(app, "td", "Tree decomposition (bucket elimination)", newDefault)
+    , optDisableGraphPreprocessing("disable-preprocessing", "Disable graph preprocessing")
     , optNormalization("n", "normalization", "Use normal form <normalization> for the tree decomposition")
     , optEliminationOrdering("elimination", "h", "Use heuristic <h> for bucket elimination")
     , optJoinCompression("join-compression", "Enable subset-maximal compression at join nodes")
@@ -57,6 +58,9 @@ namespace decomposer {
     , optDecompositionFitnessFunction("ds", "f", "Use fitness function <f> for decomposition selection")
     , optDecompositionIterations("dsi", "i", "Generate <i> tree decompositions, choose decomposition with best fitness value", 10)
     , optPrintStats ("print-TD-stats", "Print detailed tree decomposition statistics") {
+        optDisableGraphPreprocessing.addCondition(selected);
+        app.getOptionHandler().addOption(optDisableGraphPreprocessing, OPTION_SECTION);
+        
         optNormalization.addCondition(selected);
         optNormalization.addChoice("none", "no normalization", true);
         optNormalization.addChoice("weak", "weak normalization");
@@ -244,7 +248,15 @@ namespace decomposer {
             algorithm = iterativeAlgorithm;
         }
 
-        htd::ITreeDecomposition* decomp = algorithm->computeDecomposition(instance->hypergraph->internalGraph());
+        htd::ITreeDecomposition* decomp;
+        if (optDisableGraphPreprocessing.isUsed()) {
+            decomp = algorithm->computeDecomposition(instance->hypergraph->internalGraph());
+        } else {
+            htd::GraphPreprocessor preprocessor(app.getHTDManager());
+            htd::IPreprocessedGraph* preprocessedGraph = preprocessor.prepare(instance->hypergraph->internalGraph(), true);
+            decomp = algorithm->computeDecomposition(instance->hypergraph->internalGraph(), *preprocessedGraph);
+            delete preprocessedGraph;
+        }
 
         htd::IMutableTreeDecomposition* decompMutable = &(app.getHTDManager()->treeDecompositionFactory().accessMutableInstance(*decomp));
         HTDDecompositionPtr decomposition(decompMutable);
