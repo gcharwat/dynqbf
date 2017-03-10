@@ -69,6 +69,7 @@ namespace parser {
                     }
                     std::getline(lineStream, lineElement, ' '); // skip first character
                     while (std::getline(lineStream, lineElement, ' ')) {
+                        if (lineElement == "") continue;
                         if (lineElement == "0") break;
                         vertexNameType vertex = utils::strToInt(lineElement, "Error converting element");
                         htd::vertex_t vertexId = instance->hypergraph->addVertex(vertex);
@@ -84,6 +85,7 @@ namespace parser {
                     }
                     std::getline(lineStream, lineElement, ' '); // skip first character
                     while (std::getline(lineStream, lineElement, ' ')) {
+                        if (lineElement == "") continue;
                         if (lineElement == "0") break;
                         vertexNameType vertex = utils::strToInt(lineElement, "Error converting element");
                         htd::vertex_t vertexId = instance->hypergraph->addVertex(vertex);
@@ -100,7 +102,7 @@ namespace parser {
 
                     while (std::getline(lineStream, lineElement, ' ')) {
                         if (lineElement == "0") break;
-                        if (lineElement.length() == 0) continue;
+                        if (lineElement == "") continue;
                         int parsedLiteral = utils::strToInt(lineElement, "Error converting element");
                         
                         bool sign = true;
