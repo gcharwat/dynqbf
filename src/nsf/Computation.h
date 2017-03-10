@@ -42,8 +42,8 @@ public:
     virtual void removeApply(const std::vector<std::vector<BDD>>& removedVertices, const std::vector<BDD>& cubesAtLevels, const BDD& clauses);
 
     virtual bool isUnsat() const;
-    virtual RESULT decide() const;
-    virtual BDD solutions() const;
+    virtual RESULT decide();
+    virtual BDD solutions();
 
     virtual bool optimize();
     virtual bool optimize(bool left);
@@ -57,8 +57,10 @@ public:
     
     unsigned int domainSize() const;
 
+    virtual BDD truncate(std::vector<BDD>& cubesAtlevels);
+
 protected:
-    virtual BDD evaluate(std::vector<BDD>& cubesAtlevels, bool keepFirstLevel) const;
+    virtual BDD evaluate(std::vector<BDD>& cubesAtlevels, bool keepFirstLevel);
     
     ComputationManager& manager;
     NSF* _nsf;

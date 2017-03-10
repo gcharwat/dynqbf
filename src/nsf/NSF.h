@@ -73,7 +73,9 @@ public:
     void remove(const BDD& variable, const unsigned int vl);
     void remove(const std::vector<std::vector<BDD>>&removedVertices);
 
-    const BDD evaluate(const std::vector<BDD>& cubesAtlevels, const bool keepFirstLevel) const;
+    // deprecated
+    BDD truncate(const std::vector<BDD>& cubesAtlevels);
+    const BDD evaluate(const std::vector<BDD>& cubesAtlevels, const bool keepFirstLevel);
     bool isUnsat() const;
 
     bool optimize();

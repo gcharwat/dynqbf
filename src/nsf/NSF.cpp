@@ -524,7 +524,31 @@ void NSF::sortByIncreasingSize() {
     });
 }
 
-const BDD NSF::evaluate(const std::vector<BDD>& cubesAtlevels, const bool keepFirstLevel) const {
+BDD NSF::truncate(const std::vector<BDD>& cubesAtlevels) {
+    BDD ret;
+    if (isLeaf()) {
+        ret = value();
+    } else {
+        ret = nestedSet().front()->truncate(cubesAtlevels);
+        for (unsigned int it = 1; it < nestedSet().size(); it++) {
+            if (isExistentiallyQuantified()) {
+                ret += nestedSet().at(it)->truncate(cubesAtlevels);
+            } else {
+                ret *= nestedSet().at(it)->truncate(cubesAtlevels);
+            }
+        }
+    }
+
+    if (isExistentiallyQuantified()) {
+        ret = ret.ExistAbstract(cubesAtlevels[level() - 1], 0);
+    } else {
+        ret = ret.UnivAbstract(cubesAtlevels[level() - 1]);
+    }
+
+    return ret;
+}
+
+const BDD NSF::evaluate(const std::vector<BDD>& cubesAtlevels, const bool keepFirstLevel) {
     BDD ret;
     if (isLeaf()) {
         ret = value();
@@ -546,6 +570,32 @@ const BDD NSF::evaluate(const std::vector<BDD>& cubesAtlevels, const bool keepFi
             ret = ret.UnivAbstract(cubesAtlevels[level() - 1]);
         }
     }
+    
+    if (ret.IsZero()) {
+//        std::cout << "truncate" << std::endl;
+//        print(true);
+//        std::cout << "" << std::endl;
+        for (NSF* child : _nestedSet) {
+            delete child;
+        }
+        _nestedSet.clear();
+        
+        NSF* current = this;
+        
+        // TODO handling could be shifted elsewhere
+        while(current->depth() > 0) {
+            NSF* child = new NSF(current->level()+1, current->depth()-1, (current->quantifier() == NTYPE::EXISTS ? NTYPE::FORALL : NTYPE::EXISTS));
+            current->insertNSF(child);
+            current = child;
+        }
+        current->setValue(ret);
+//        std::cout << "to" << std::endl;
+//        print(true);
+//        std::cout << "" << std::endl;
+        
+    }
+    
+    
     return ret;
 }
 

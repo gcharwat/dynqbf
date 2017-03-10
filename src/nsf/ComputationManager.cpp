@@ -39,7 +39,7 @@ ComputationManager::ComputationManager(Application& app)
 , optMaxGlobalNSFSize("max-est-NSF-size", "e", "Split until the global estimated NSF size <e> is reached, -1 to disable limit", 1000)
 , optMaxBDDSize("max-BDD-size", "b", "Split if a BDD size exceeds <b> (may be overruled by max-est-NSF-size)", 3000)
 , optOptimizeInterval("opt-interval", "o", "Optimize NSF every <o>-th computation step, 0 to disable", 4)
-, optUnsatCheckInterval("unsat-check", "u", "Check for unsatisfiability after every <u>-th NSF join, 0 to disable", 2)
+, optUnsatCheckInterval("unsat-check", "u", "Check for unsatisfiability (and remove unsat NSFs) after every <u>-th computation step, 0 to disable", 2)
 , optSortBeforeJoining("sort-before-joining", "Sort NSFs by increasing size before joining; can increase subset check success rate")
 , optDependencyScheme("dep-scheme", "d", "Use dependency scheme <d>")
 , optDisableCache("disable-cache", "Disables removal cache (and sets e: -1, b: 0, d: naive)")
@@ -98,7 +98,7 @@ Computation* ComputationManager::newComputation(const std::vector<NTYPE>& quanti
         keepFirstLevel = app.enumerate();
     }
     
-    Computation* c;
+    Computation* c = NULL;
     
 #ifdef DEPQBF_ENABLED
     if (optDependencyScheme.getValue() == "standard" || (optDependencyScheme.getValue() == "dynamic" && quantifierSequence.size() > 2)) {
@@ -119,7 +119,8 @@ Computation* ComputationManager::newComputation(const std::vector<NTYPE>& quanti
             initializeVariablesAtLevels();
         }
         c = new SimpleDependencyCacheComputation(*this, quantifierSequence, cubesAtLevels, bdd, optMaxBDDSize.getValue(), keepFirstLevel, *variablesAtLevels);
-    } else {
+    } 
+    if (c == NULL) {
         if (!optDisableCache.isUsed()) {
             c = new CacheComputation(*this, quantifierSequence, cubesAtLevels, bdd, optMaxBDDSize.getValue(), keepFirstLevel);
         } else {
@@ -155,18 +156,6 @@ void ComputationManager::conjunct(Computation& c, Computation& other) {
     c.conjunct(other);
     multiplyGlobalNSFSizeEstimation(c.leavesCount());
     optimize(c);
-
-    if (optUnsatCheckInterval.getValue() > 0) {
-        optUnsatCheckCounter++;
-        optUnsatCheckCounter %= optUnsatCheckInterval.getValue();
-
-        if (optUnsatCheckCounter == 0) {
-            RESULT result = decide(c);
-            if (result == RESULT::UNSAT) {
-                throw AbortException("Intermediate unsat check successful", RESULT::UNSAT);
-            }
-        }
-    }
 }
 
 void ComputationManager::remove(Computation& c, const BDD& variable, const unsigned int vl) {
@@ -192,6 +181,19 @@ void ComputationManager::removeApply(Computation& c, const std::vector<std::vect
 
 void ComputationManager::optimize(Computation &c) {
     updateStats(c);
+    
+    if (optUnsatCheckInterval.getValue() > 0) {
+        optUnsatCheckCounter++;
+        optUnsatCheckCounter %= optUnsatCheckInterval.getValue();
+
+        if (optUnsatCheckCounter == 0) {
+            RESULT result = decide(c); 
+            if (result == RESULT::UNSAT) {
+                throw AbortException("Intermediate unsat check successful", RESULT::UNSAT);
+            }
+        }
+    }
+    
     if (optOptimizeInterval.getValue() > 0) {
         optIntervalCounter++;
         optIntervalCounter %= optOptimizeInterval.getValue();
@@ -214,11 +216,11 @@ bool ComputationManager::isUnsat(const Computation& c) const {
     return c.isUnsat();
 }
 
-RESULT ComputationManager::decide(const Computation& c) const {
+RESULT ComputationManager::decide(Computation& c) {
     return c.decide();
 }
 
-BDD ComputationManager::solutions(const Computation& c) const {
+BDD ComputationManager::solutions(Computation& c) {
     return c.solutions();
 }
 

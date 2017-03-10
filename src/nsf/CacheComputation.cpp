@@ -26,15 +26,17 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 
 CacheComputation::CacheComputation(ComputationManager& manager, const std::vector<NTYPE>& quantifierSequence, const std::vector<BDD>& cubesAtLevels, const BDD& bdd, unsigned int maxBDDsize, bool keepFirstLevel)
 : Computation(manager, quantifierSequence, cubesAtLevels, bdd)
+, _keepFirstLevel(keepFirstLevel)
 , _maxBDDsize(maxBDDsize)
-, _keepFirstLevel(keepFirstLevel) {
+{
     _removeCache = new std::vector<std::vector < BDD >> (quantifierSequence.size());
 }
 
 CacheComputation::CacheComputation(const CacheComputation& other)
 : Computation(other)
+, _keepFirstLevel(other._keepFirstLevel)
 , _maxBDDsize(other._maxBDDsize)
-, _keepFirstLevel(other._keepFirstLevel) {
+{
     _removeCache = new std::vector<std::vector < BDD >> (other._removeCache->size());
     for (unsigned int level = 1; level <= other._removeCache->size(); level++) {
         std::copy(_removeCache->at(level - 1).begin(), other._removeCache->at(level - 1).begin(), other._removeCache->at(level - 1).end());
@@ -69,7 +71,20 @@ void CacheComputation::removeApply(const std::vector<std::vector<BDD>>&removedVe
     addToRemoveCache(removedVertices);
 }
 
-BDD CacheComputation::evaluate(std::vector<BDD>& cubesAtlevels, bool keepFirstLevel) const {
+BDD CacheComputation::truncate(std::vector<BDD>& cubesAtlevels) {
+    for (unsigned int level = 1; level <= _removeCache->size(); level++) {
+        for (BDD b : _removeCache->at(level - 1)) {
+            if (cubesAtlevels.size() < level) {
+                cubesAtlevels.push_back(b);
+            } else {
+                cubesAtlevels.at(level - 1) *= b;
+            }
+        }
+    }
+    return Computation::truncate(cubesAtlevels);
+}
+
+BDD CacheComputation::evaluate(std::vector<BDD>& cubesAtlevels, bool keepFirstLevel) {
     for (unsigned int level = 1; level <= _removeCache->size(); level++) {
         for (BDD b : _removeCache->at(level - 1)) {
             if (cubesAtlevels.size() < level) {
@@ -82,7 +97,7 @@ BDD CacheComputation::evaluate(std::vector<BDD>& cubesAtlevels, bool keepFirstLe
     return Computation::evaluate(cubesAtlevels, keepFirstLevel);
 }
 
-RESULT CacheComputation::decide() const {
+RESULT CacheComputation::decide() {
     std::vector<BDD> cubesAtlevels;
     BDD decide = evaluate(cubesAtlevels, false);
     if (decide.IsZero()) {
@@ -94,7 +109,7 @@ RESULT CacheComputation::decide() const {
     }
 }
 
-BDD CacheComputation::solutions() const {
+BDD CacheComputation::solutions() {
     std::vector<BDD> cubesAtlevels;
     return evaluate(cubesAtlevels, true);
 }

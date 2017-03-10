@@ -137,7 +137,18 @@ unsigned int Computation::domainSize() const {
     return size;
 }
 
-BDD Computation::evaluate(std::vector<BDD>& cubesAtlevels, bool keepFirstLevel) const {
+BDD Computation::truncate(std::vector<BDD>& cubesAtlevels) {
+    for (unsigned int level = 1; level <= _variableDomain->size(); level++) {
+        if (cubesAtlevels.size() < level) {
+            cubesAtlevels.push_back(_variableDomain->at(level-1));
+        } else {
+            cubesAtlevels.at(level - 1) *= _variableDomain->at(level - 1);
+        }
+    }
+    return _nsf->truncate(cubesAtlevels);
+}
+
+BDD Computation::evaluate(std::vector<BDD>& cubesAtlevels, bool keepFirstLevel) {
     // assert cubesAtLevels.size() == _variableDomain->size()
     for (unsigned int level = 1; level <= _variableDomain->size(); level++) {
         if (cubesAtlevels.size() < level) {
@@ -153,7 +164,7 @@ bool Computation::isUnsat() const {
     return _nsf->isUnsat();
 }
 
-RESULT Computation::decide() const {
+RESULT Computation::decide() {
     std::vector<BDD> cubesAtlevels;
     BDD decide = evaluate(cubesAtlevels, false);
     if (decide.IsZero()) {
@@ -166,7 +177,7 @@ RESULT Computation::decide() const {
     }
 }
 
-BDD Computation::solutions() const {
+BDD Computation::solutions() {
     std::vector<BDD> cubesAtlevels;
     return evaluate(cubesAtlevels, true);
 }
