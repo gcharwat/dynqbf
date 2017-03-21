@@ -301,7 +301,7 @@ namespace decomposer {
         delete eval;
         JoinNodeBagExponentialFitnessFunction jnbeff;
         eval = jnbeff.fitness(graph, decomposition);
-        std::cout << "TD (join-bag-size-exp): " << (long) (eval->at(0) * -1) << std::endl;
+        std::cout << "TD (join-bag-size-exp): " << (eval->at(0) * -1) << std::endl;
         delete eval;
         JoinNodeChildBagFitnessFunction jncbff;
         eval = jncbff.fitness(graph, decomposition);
@@ -310,7 +310,7 @@ namespace decomposer {
         
         JoinNodeChildBagProductFitnessFunction jncbpff;
         eval = jncbpff.fitness(graph, decomposition);
-        std::cout << "TD (est-join-effort): " << (long) (eval->at(0) * -1) << std::endl;
+        std::cout << "TD (est-join-effort): " << (eval->at(0) * -1) << std::endl;
         delete eval;
         NSFSizeEstimationFitnessFunction nseff;
         eval = nseff.fitness(graph, decomposition);

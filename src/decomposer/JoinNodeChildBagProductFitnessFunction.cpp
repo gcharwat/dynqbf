@@ -32,6 +32,9 @@ namespace decomposer {
 
     htd::FitnessEvaluation * JoinNodeChildBagProductFitnessFunction::fitness(const htd::IMultiHypergraph & graph,
             const htd::ITreeDecomposition & decomposition) const {
+        
+        double instanceSize = graph.vertexCount();
+        
         std::vector<htd::vertex_t> joinNodes;
 
         decomposition.copyJoinNodesTo(joinNodes);
@@ -41,7 +44,7 @@ namespace decomposer {
         for (htd::vertex_t joinNode : joinNodes) {
             double joinNodeChildBagProduct = 1.0;
             for (htd::vertex_t childNode : decomposition.children(joinNode)) {
-                joinNodeChildBagProduct *= decomposition.bagSize(childNode);
+                joinNodeChildBagProduct *= (instanceSize / decomposition.bagSize(childNode));
             }
             joinNodeChildBagSum += joinNodeChildBagProduct;
         }

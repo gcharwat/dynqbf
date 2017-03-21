@@ -39,7 +39,7 @@ namespace decomposer {
         double joinNodeBagExponentialSum = 0.0;
 
         for (htd::vertex_t joinNode : joinNodes) {
-            double joinNodeBagExponential = pow(decomposition.bagSize(joinNode), decomposition.childCount(joinNode));
+            double joinNodeBagExponential = decomposition.childCount(joinNode) * log(decomposition.bagSize(joinNode));
             joinNodeBagExponentialSum += joinNodeBagExponential;
         }
         return new htd::FitnessEvaluation(1, -joinNodeBagExponentialSum);
