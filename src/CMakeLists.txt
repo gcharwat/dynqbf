@@ -6,7 +6,7 @@ project (DYNQBF)
 set (DYNQBF_VERSION_MAJOR 1)
 set (DYNQBF_VERSION_MINOR 0)
 set (DYNQBF_VERSION_PATCH 0)
-set (DYNQBF_VERSION_PRERELEASE "-rc.1")
+set (DYNQBF_VERSION_PRERELEASE "-rc.3")
         
 find_package(Git)
 if(GIT_FOUND)
@@ -123,6 +123,7 @@ set(dynqbf-sources ${dynqbf-sources}
     decomposer/NSFSizeEstimationFitnessFunction.cpp
     decomposer/NSFSizeJoinEstimationFitnessFunction.cpp
     decomposer/InverseNSFSizeJoinEstimationFitnessFunction.cpp
+    decomposer/LeafNodeCountFitnessFunction.cpp
     Ordering.cpp
     ordering/InstanceOrdering.cpp
     ordering/LexicographicalOrdering.cpp

@@ -36,6 +36,7 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "InverseNSFSizeJoinEstimationFitnessFunction.h"
 #include "VariableLevelFitnessFunction.h"
 #include "RemovedLevelFitnessFunction.h"
+#include "LeafNodeCountFitnessFunction.h"
 
 #include <htd/main.hpp>
 
@@ -115,6 +116,7 @@ namespace decomposer {
         optDecompositionFitnessFunction.addChoice("removal-join-max", "maximize the estimated total size of computed NSFs in join nodes");
         optDecompositionFitnessFunction.addChoice("variable-position", "prefer innermost variables to be removed first (relative location in TD and removal)");
         optDecompositionFitnessFunction.addChoice("removed-level", "prefer innermost variables to be removed first (punish removal of variables with lower level)");
+        optDecompositionFitnessFunction.addChoice("leaf-count", "minimize the number of leaf nodes");
 
         app.getOptionHandler().addOption(optDecompositionFitnessFunction, OPTION_SECTION);
 
@@ -247,6 +249,9 @@ namespace decomposer {
                 iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
             } else if (optDecompositionFitnessFunction.getValue() == "removed-level") {
                 RemovedLevelFitnessFunction fitnessFunction(app);
+                iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
+            } else if (optDecompositionFitnessFunction.getValue() == "leaf-count") {
+                LeafNodeCountFitnessFunction fitnessFunction;
                 iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
             } else {
                 throw std::runtime_error("Invalid option");
