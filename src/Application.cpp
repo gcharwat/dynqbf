@@ -77,6 +77,7 @@ Application::Application(const std::string& binaryName)
 : binaryName(binaryName)
 , optHelp("h", "Print usage information and exit")
 , optVersion("v", "Print version information and exit")
+, optLicense("l", "Print license information and exit")
 , optInputFile("f", "file", "Read problem instance from <file> (default: from stdin)")
 , optHGInputParser("i", "input-format", "Specify the instance input format")
 , optDecomposer("d", "decomposer", "Use decomposition method <decomposer>")
@@ -112,6 +113,7 @@ int Application::run(int argc, char** argv) {
     options::HelpObserver helpObserver(*this, optHelp);
     opts.registerObserver(helpObserver);
     opts.addOption(optVersion);
+    opts.addOption(optLicense);
 
     opts.addOption(optInputFile);
     opts.addOption(optOnlyParseInstance);
@@ -181,6 +183,11 @@ int Application::run(int argc, char** argv) {
 
     if (optVersion.isUsed()) {
         version();
+        return RESULT::UNDECIDED;
+    }
+    
+    if (optLicense.isUsed()) {
+        license();
         return RESULT::UNDECIDED;
     }
 
@@ -279,6 +286,58 @@ void Application::version() const {
     std::cerr << "no" << std::endl;
 #endif
     std::cerr << "Built on:           " << __DATE__ << " at " << __TIME__ << std::endl;
+}
+
+void Application::license() const {
+    std::cout << std::endl;
+    std::cout << "dynQBF is released under the GNU GENERAL PUBLIC LICENSE  Version 3, 29 June 2007" << std::endl;
+    std::cout << " A copy of the license should be provided with the system, otherwise see" << std::endl;
+    std::cout << " http://www.gnu.org/licenses/" << std::endl << std::endl;
+    
+    std::cerr << "dynQBF uses the following external libraries:" << std::endl << std::endl;
+    
+    std::cerr << "- HTD (see https://github.com/mabseher/htd)" << std::endl;
+    std::cerr << "  HTD is is released under the GNU GENERAL PUBLIC LICENSE  Version 3, 29 June 2007" << std::endl << std::endl;
+    
+#ifdef DEPQBF_ENABLED
+    std::cerr << "- DepQBF (https://github.com/lonsing/depqbf)" << std::endl;
+    std::cerr << "  DepQBF is is released under the GNU GENERAL PUBLIC LICENSE  Version 3, 29 June 2007" << std::endl << std::endl;
+#endif
+    
+    std::cerr << "- CUDD (http://vlsi.colorado.edu/~fabio/CUDD/)" << std::endl;
+    std::cerr << "  CUDD is released under the following license:" << std::endl << std::endl;
+    
+    std::cerr << "    Copyright (c) 1995-2004, Regents of the University of Colorado      " << std::endl;
+    std::cerr << "    All rights reserved.                                                " << std::endl;
+    std::cerr << "                                                                        " << std::endl;
+    std::cerr << "    Redistribution and use in source and binary forms, with or without  " << std::endl;
+    std::cerr << "    modification, are permitted provided that the following conditions  " << std::endl;
+    std::cerr << "    are met:                                                            " << std::endl;
+    std::cerr << "                                                                        " << std::endl;
+    std::cerr << "    Redistributions of source code must retain the above copyright      " << std::endl;
+    std::cerr << "    notice, this list of conditions and the following disclaimer.       " << std::endl;
+    std::cerr << "                                                                     " << std::endl;
+    std::cerr << "    Redistributions in binary form must reproduce the above copyright   " << std::endl;
+    std::cerr << "    notice, this list of conditions and the following disclaimer in the " << std::endl;
+    std::cerr << "    documentation and/or other materials provided with the distribution." << std::endl;
+    std::cerr << "                                                                        " << std::endl;
+    std::cerr << "    Neither the name of the University of Colorado nor the names of its " << std::endl;
+    std::cerr << "    contributors may be used to endorse or promote products derived from" << std::endl;
+    std::cerr << "    this software without specific prior written permission.            " << std::endl;
+    std::cerr << "                                                                        " << std::endl;
+    std::cerr << "    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS " << std::endl;
+    std::cerr << "    \"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT " << std::endl;
+    std::cerr << "    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS   " << std::endl;
+    std::cerr << "    FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE      " << std::endl;
+    std::cerr << "    COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, " << std::endl;
+    std::cerr << "    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING," << std::endl;
+    std::cerr << "    BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;    " << std::endl;
+    std::cerr << "    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER    " << std::endl;
+    std::cerr << "    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT  " << std::endl;
+    std::cerr << "    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN   " << std::endl;
+    std::cerr << "    ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE     " << std::endl;
+    std::cerr << "    POSSIBILITY OF SUCH DAMAGE.                                         " << std::endl;
+    
 }
 
 InstancePtr Application::getInputInstance() const {
