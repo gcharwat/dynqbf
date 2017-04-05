@@ -44,7 +44,7 @@ namespace decomposer {
         for (htd::vertex_t joinNode : joinNodes) {
             double joinNodeChildBagProduct = 1.0;
             for (htd::vertex_t childNode : decomposition.children(joinNode)) {
-                joinNodeChildBagProduct *= (instanceSize / decomposition.bagSize(childNode));
+                joinNodeChildBagProduct *= (decomposition.bagSize(childNode) / instanceSize);
             }
             joinNodeChildBagSum += joinNodeChildBagProduct;
         }
