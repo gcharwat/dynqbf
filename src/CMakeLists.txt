@@ -6,7 +6,7 @@ project (DYNQBF)
 set (DYNQBF_VERSION_MAJOR 1)
 set (DYNQBF_VERSION_MINOR 0)
 set (DYNQBF_VERSION_PATCH 0)
-set (DYNQBF_VERSION_PRERELEASE "-rc.5")
+set (DYNQBF_VERSION_PRERELEASE "-rc.6")
         
 find_package(Git)
 if(GIT_FOUND)

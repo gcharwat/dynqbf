@@ -95,7 +95,7 @@ private:
     options::Choice optDependencyScheme;
     options::Option optDisableCache;
 
-    long maxGlobalNSFSizeEstimation;
+    double maxGlobalNSFSizeEstimation;
 
     unsigned int optIntervalCounter;
     bool left = true;

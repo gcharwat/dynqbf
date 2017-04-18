@@ -147,34 +147,48 @@ void ComputationManager::apply(Computation& c, const std::vector<BDD>& cubesAtLe
 }
 
 void ComputationManager::conjunct(Computation& c, Computation& other) {
-    divideGlobalNSFSizeEstimation(c.leavesCount());
-    divideGlobalNSFSizeEstimation(other.leavesCount());
+    
+    unsigned int oldLeavesCount1 = c.leavesCount();
+    unsigned int oldLeavesCount2 = other.leavesCount();
+    
+//    divideGlobalNSFSizeEstimation(c.leavesCount());
+//    divideGlobalNSFSizeEstimation(other.leavesCount());
+    
     if (optSortBeforeJoining.isUsed()) {
         c.sortByIncreasingSize();
         other.sortByIncreasingSize();
     }
     c.conjunct(other);
+    divideGlobalNSFSizeEstimation(oldLeavesCount1);
+    divideGlobalNSFSizeEstimation(oldLeavesCount2);
     multiplyGlobalNSFSizeEstimation(c.leavesCount());
+        
     optimize(c);
 }
 
 void ComputationManager::remove(Computation& c, const BDD& variable, const unsigned int vl) {
-    divideGlobalNSFSizeEstimation(c.leavesCount());
+    unsigned int oldLeavesCount = c.leavesCount();
+//    divideGlobalNSFSizeEstimation(c.leavesCount());
     c.remove(variable, vl);
+    divideGlobalNSFSizeEstimation(oldLeavesCount);
     multiplyGlobalNSFSizeEstimation(c.leavesCount());
     optimize(c);
 }
 
 void ComputationManager::remove(Computation& c, const std::vector<std::vector<BDD>>&removedVertices) {
-    divideGlobalNSFSizeEstimation(c.leavesCount());
+    unsigned int oldLeavesCount = c.leavesCount();
+//    divideGlobalNSFSizeEstimation(c.leavesCount());
     c.remove(removedVertices);
+    divideGlobalNSFSizeEstimation(oldLeavesCount);
     multiplyGlobalNSFSizeEstimation(c.leavesCount());
     optimize(c);
 }
 
 void ComputationManager::removeApply(Computation& c, const std::vector<std::vector<BDD>>&removedVertices, const std::vector<BDD>& cubesAtLevels, const BDD& clauses) {
-    divideGlobalNSFSizeEstimation(c.leavesCount());
+    unsigned int oldLeavesCount = c.leavesCount();
+//    divideGlobalNSFSizeEstimation(c.leavesCount());
     c.removeApply(removedVertices, cubesAtLevels, clauses);
+    divideGlobalNSFSizeEstimation(oldLeavesCount);
     multiplyGlobalNSFSizeEstimation(c.leavesCount());
     optimize(c);
 }
@@ -200,11 +214,13 @@ void ComputationManager::optimize(Computation &c) {
 
         if (optIntervalCounter == 0) {
             while ((maxGlobalNSFSizeEstimation < optMaxGlobalNSFSize.getValue()) || (optMaxGlobalNSFSize.getValue() <= -1)) {
-                divideGlobalNSFSizeEstimation(c.leavesCount());
+                unsigned int oldLeavesCount = c.leavesCount();
+//    divideGlobalNSFSizeEstimation(c.leavesCount());
                 if (!(c.optimize(left))) {
                     break;
                 }
                 left = !left;
+                divideGlobalNSFSizeEstimation(oldLeavesCount);
                 multiplyGlobalNSFSizeEstimation(c.leavesCount());
             }
         }
@@ -271,14 +287,14 @@ void ComputationManager::printStatistics() const {
 }
 
 void ComputationManager::divideGlobalNSFSizeEstimation(int value) {
-    maxGlobalNSFSizeEstimation /= value;
+    maxGlobalNSFSizeEstimation /= (1.0 * value);
     if (maxGlobalNSFSizeEstimation < 1) {
         maxGlobalNSFSizeEstimation = 1;
     }
 }
 
 void ComputationManager::multiplyGlobalNSFSizeEstimation(int value) {
-    maxGlobalNSFSizeEstimation *= value;
+    maxGlobalNSFSizeEstimation *= (1.0 * value);
 }
 
 void ComputationManager::updateStats(const Computation& c) {
