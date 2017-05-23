@@ -104,13 +104,14 @@ namespace decomposer {
 
         optDecompositionFitnessFunction.addCondition(selected);
         optDecompositionFitnessFunction.addChoice("none", "do not optimize decomposition");
+        optDecompositionFitnessFunction.addChoice("dynamic", "for 2-QBFs: join-child-count, removed-level otherwise", true);
         optDecompositionFitnessFunction.addChoice("width", "minimize decomposition width");
         optDecompositionFitnessFunction.addChoice("join-count", "minimize number of join nodes");
         optDecompositionFitnessFunction.addChoice("join-bag-size", "minimize the sum over join node bag sizes");
         optDecompositionFitnessFunction.addChoice("join-child-count", "minimize number of join node children");
         optDecompositionFitnessFunction.addChoice("join-bag-size-exp", "minimize the sum over join node bag sizes to the power of number of children");
         optDecompositionFitnessFunction.addChoice("join-child-bag-size", "minimize the sum over join node children bag sizes");
-        optDecompositionFitnessFunction.addChoice("est-join-effort", "minimize the sum over products of join node children bag sizes", true);
+        optDecompositionFitnessFunction.addChoice("est-join-effort", "minimize the sum over products of join node children bag sizes");
         optDecompositionFitnessFunction.addChoice("removal-impact", "minimize the estimated total size of computed NSFs");
         optDecompositionFitnessFunction.addChoice("removal-join-min", "minimize the estimated total size of computed NSFs in join nodes");
         optDecompositionFitnessFunction.addChoice("removal-join-max", "maximize the estimated total size of computed NSFs in join nodes");
@@ -214,7 +215,17 @@ namespace decomposer {
 
         if (optDecompositionFitnessFunction.getValue() != "none") {
             htd::IterativeImprovementTreeDecompositionAlgorithm* iterativeAlgorithm;
-            if (optDecompositionFitnessFunction.getValue() == "width") {
+            if (optDecompositionFitnessFunction.getValue() == "dynamic") {
+                if (instance->quantifierCount() <= 2) {
+                    JoinNodeChildCountFitnessFunction fitnessFunction;
+                    iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
+                }
+                else {
+                    RemovedLevelFitnessFunction fitnessFunction(app);
+                    iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
+                }
+            } 
+            else if (optDecompositionFitnessFunction.getValue() == "width") {
                 WidthFitnessFunction fitnessFunction;
                 iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
             } else if (optDecompositionFitnessFunction.getValue() == "join-count") {
