@@ -36,7 +36,7 @@ const std::string ComputationManager::NSFMANAGER_SECTION = "NSF Manager";
 ComputationManager::ComputationManager(Application& app)
 : app(app)
 , optPrintStats("print-NSF-stats", "Print NSF Manager statistics")
-, optMaxGlobalNSFSize("max-est-NSF-size", "e", "Split until the global estimated NSF size <e> is reached, -1 to disable limit", 1000)
+, optMaxGlobalNSFSize("max-est-NSF-size", "e", "Split until the global estimated NSF size <e> is reached, -1 to disable limit", 125)
 , optMaxBDDSize("max-BDD-size", "b", "Split if a BDD size exceeds <b> (may be overruled by max-est-NSF-size)", 3000)
 , optOptimizeInterval("opt-interval", "o", "Optimize NSF every <o>-th computation step, 0 to disable", 4)
 , optUnsatCheckInterval("unsat-check", "u", "Check for unsatisfiability (and remove unsat NSFs) after every <u>-th computation step, 0 to disable", 2)
