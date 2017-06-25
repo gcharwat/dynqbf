@@ -5,7 +5,7 @@ Compilation of dynQBF has been tested with the following versions of the depende
 - CUDD (http://vlsi.colorado.edu/~fabio/CUDD/), version 3.0.0
   Note: C++ support must be enabled with:
       ./configure --enable-obj
-- HTD (https://github.com/mabseher/htd), version 1.1-rc1
+- HTD (https://github.com/mabseher/htd), version 1.1-rc1-bugfix
   Note: You should build a static htd library with:
       cmake -DBUILD_SHARED_LIBS=OFF
 - Optional: DepQBF (https://github.com/lonsing/depqbf), version 5.01

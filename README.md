@@ -22,6 +22,18 @@ Source:     https://github.com/gcharwat/dynqbf
 Version info 
 --------------
 
+2017-06-25: dynQBF 1.0.0-final
+- Default parameter tuning
+
+2017-04-18: dynQBF 1.0.0-rc.6
+- Improved NSF/BDD size balancing
+- Minor TD fitness function optimizations
+- New LeafNodeCount fitness function
+- Dynamic TD selection strategy is now available (2-QBFs: join-child-count, removed-level otherwise)
+- Printing License information is now supported
+- Compatibility with htd release 1.1-rc1-bugfix 
+(see https://github.com/mabseher/htd/releases/tag/1.1-rc1-bugfix)
+
 2017-03-10: dynQBF 1.0.0-rc.1
 - Dynamic dependency scheme selection based on quantifier prefix
 - Added detailed decomposition and NSF statistics output
