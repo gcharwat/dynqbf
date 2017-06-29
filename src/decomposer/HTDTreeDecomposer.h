@@ -42,7 +42,7 @@ namespace decomposer {
     private:
         static const std::string OPTION_SECTION;
 
-        options::Option optDisableGraphPreprocessing;
+        options::Choice optGraphPreprocessing;
         options::Choice optNormalization;
         options::Choice optEliminationOrdering;
         options::Option optJoinCompression;

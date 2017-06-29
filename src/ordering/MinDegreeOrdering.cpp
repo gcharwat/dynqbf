@@ -32,7 +32,7 @@ namespace ordering {
     std::vector<int> MinDegreeOrdering::computeVertexOrder(const InstancePtr& instance, const HTDDecompositionPtr& decomposition) const {
         htd::IOrderingAlgorithm * orderingAlgorithm = new htd::MinDegreeOrderingAlgorithm(app.getHTDManager());
         // TODO: Do not recompute ordering
-        htd::VertexOrdering* ordering = orderingAlgorithm->computeOrdering(instance->hypergraph->internalGraph());
+        htd::IVertexOrdering* ordering = orderingAlgorithm->computeOrdering(instance->hypergraph->internalGraph());
         
         std::vector<int> orderingIndex(instance->hypergraph->vertexCount() + 1); // "0" vertex is skipped by HTD
         for (const auto& vertexId : instance->hypergraph->internalGraph().vertices()) {

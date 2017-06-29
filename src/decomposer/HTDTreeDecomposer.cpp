@@ -47,7 +47,7 @@ namespace decomposer {
 
     HTDTreeDecomposer::HTDTreeDecomposer(Application& app, bool newDefault)
     : Decomposer(app, "td", "Tree decomposition (bucket elimination)", newDefault)
-    , optDisableGraphPreprocessing("disable-preprocessing", "Disable graph preprocessing")
+    , optGraphPreprocessing("td-preprocessing", "p", "Graph preprocessing before tree decomposition construction")
     , optNormalization("n", "normalization", "Use normal form <normalization> for the tree decomposition")
     , optEliminationOrdering("elimination", "h", "Use heuristic <h> for bucket elimination")
     , optJoinCompression("join-compression", "Enable subset-maximal compression at join nodes")
@@ -59,8 +59,12 @@ namespace decomposer {
     , optDecompositionFitnessFunction("ds", "f", "Use fitness function <f> for decomposition selection")
     , optDecompositionIterations("dsi", "i", "Generate <i> tree decompositions, choose decomposition with best fitness value", 10)
     , optPrintStats("print-TD-stats", "Print detailed tree decomposition statistics") {
-        optDisableGraphPreprocessing.addCondition(selected);
-        app.getOptionHandler().addOption(optDisableGraphPreprocessing, OPTION_SECTION);
+        optGraphPreprocessing.addCondition(selected);
+        optGraphPreprocessing.addChoice("none", "disabled", true);
+        optGraphPreprocessing.addChoice("simple", "simple");
+        optGraphPreprocessing.addChoice("advanced", "advanced");
+        optGraphPreprocessing.addChoice("full", "full");
+        app.getOptionHandler().addOption(optGraphPreprocessing, OPTION_SECTION);
 
         optNormalization.addCondition(selected);
         optNormalization.addChoice("none", "no normalization", true);
@@ -188,7 +192,7 @@ namespace decomposer {
             assert(optRootSelectionFitnessFunction.getValue() == "none");
             operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager());
         }
-        
+
         operation->setVertexSelectionStrategy(new htd::RandomVertexSelectionStrategy(optRootSelectionIterations.getValue() - 1));
 
         // Path decomposition
@@ -219,12 +223,11 @@ namespace decomposer {
                 if (instance->quantifierCount() <= 2) {
                     JoinNodeChildCountFitnessFunction fitnessFunction;
                     iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
-                }
-                else {
+                } else {
                     RemovedLevelFitnessFunction fitnessFunction(app);
                     iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
                 }
-            } 
+            }
             else if (optDecompositionFitnessFunction.getValue() == "width") {
                 WidthFitnessFunction fitnessFunction;
                 iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
@@ -267,18 +270,30 @@ namespace decomposer {
             } else {
                 throw std::runtime_error("Invalid option");
             }
-            
+
             iterativeAlgorithm->setIterationCount(optDecompositionIterations.getValue());
             iterativeAlgorithm->setNonImprovementLimit(-1);
             algorithm = iterativeAlgorithm;
         }
 
 
-        htd::GraphPreprocessor preprocessor(app.getHTDManager());
-        htd::IPreprocessedGraph* preprocessedGraph = preprocessor.prepare(instance->hypergraph->internalGraph(), (optDisableGraphPreprocessing.isUsed() ? false : true));
+        htd::GraphPreprocessor * preprocessor = new htd::GraphPreprocessor(app.getHTDManager());
+
+        if (std::string(optGraphPreprocessing.getValue()) == "none") {
+            preprocessor->setPreprocessingStrategy(0);
+        } else if (std::string(optGraphPreprocessing.getValue()) == "simple") {
+            preprocessor->setPreprocessingStrategy(1);
+        } else if (std::string(optGraphPreprocessing.getValue()) == "advanced") {
+            preprocessor->setPreprocessingStrategy(2);
+        } else if (std::string(optGraphPreprocessing.getValue()) == "full") {
+            preprocessor->setPreprocessingStrategy(3);
+        }
+
+        htd::IPreprocessedGraph * preprocessedGraph = preprocessor->prepare(instance->hypergraph->internalGraph());
+
         htd::ITreeDecomposition* decomp = algorithm->computeDecomposition(instance->hypergraph->internalGraph(), *preprocessedGraph);
         delete preprocessedGraph;
-
+        delete preprocessor;
 
         htd::IMutableTreeDecomposition* decompMutable = &(app.getHTDManager()->treeDecompositionFactory().accessMutableInstance(*decomp));
         HTDDecompositionPtr decomposition(decompMutable);
@@ -323,7 +338,7 @@ namespace decomposer {
         eval = jncbff.fitness(graph, decomposition);
         std::cout << "TD (join-child-bag-size): " << (long) (eval->at(0) * -1) << std::endl;
         delete eval;
-        
+
         JoinNodeChildBagProductFitnessFunction jncbpff;
         eval = jncbpff.fitness(graph, decomposition);
         std::cout << "TD (est-join-effort): " << (eval->at(0) * -1) << std::endl;
@@ -340,7 +355,7 @@ namespace decomposer {
         eval = insjeff.fitness(graph, decomposition);
         std::cout << "TD (removal-join-max): " << (long) (eval->at(0) * -1) << std::endl;
         delete eval;
-        
+
         VariableLevelFitnessFunction vlff(app);
         eval = vlff.fitness(graph, decomposition);
         std::cout << "TD (variable-position): " << (eval->at(0) * -1) << std::endl;
@@ -348,7 +363,7 @@ namespace decomposer {
         RemovedLevelFitnessFunction rlff(app);
         eval = rlff.fitness(graph, decomposition);
         std::cout << "TD (removed-level): " << (long) (eval->at(0) * -1) << std::endl;
-        delete eval;        
+        delete eval;
     }
 
 } // namespace decomposer
