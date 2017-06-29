@@ -52,8 +52,8 @@ namespace parser {
         std::string lineElement;
 
         while (getline(input, line)) {
-
             if (line.length() == 0) continue;
+            if (line[line.length()-1] == '\r') line = line.substr(0, line.length()-1); // fix for files with \r\n line ending
             char firstChar = line.at(0);
             std::istringstream lineStream(line);
             switch (firstChar) {
