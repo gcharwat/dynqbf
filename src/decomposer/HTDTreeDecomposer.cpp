@@ -60,10 +60,10 @@ namespace decomposer {
     , optDecompositionIterations("dsi", "i", "Generate <i> tree decompositions, choose decomposition with best fitness value", 10)
     , optPrintStats("print-TD-stats", "Print detailed tree decomposition statistics") {
         optGraphPreprocessing.addCondition(selected);
-        optGraphPreprocessing.addChoice("none", "disabled", true);
-        optGraphPreprocessing.addChoice("simple", "simple");
+        optGraphPreprocessing.addChoice("full", "full", true);
         optGraphPreprocessing.addChoice("advanced", "advanced");
-        optGraphPreprocessing.addChoice("full", "full");
+        optGraphPreprocessing.addChoice("simple", "simple");
+        optGraphPreprocessing.addChoice("none", "disabled");
         app.getOptionHandler().addOption(optGraphPreprocessing, OPTION_SECTION);
 
         optNormalization.addCondition(selected);
@@ -168,26 +168,19 @@ namespace decomposer {
 
         htd::TreeDecompositionOptimizationOperation * operation;
         if (optRootSelectionFitnessFunction.getValue() == "height") {
-            HeightFitnessFunction heightFitnessFunction;
-            operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager(), heightFitnessFunction);
+            operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager(), new HeightFitnessFunction());
         } else if (optRootSelectionFitnessFunction.getValue() == "est-join-effort") {
-            JoinNodeChildBagProductFitnessFunction joinNodeChildBagProductFitnessFunction;
-            operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager(), joinNodeChildBagProductFitnessFunction);
+            operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager(), new JoinNodeChildBagProductFitnessFunction());
         } else if (optRootSelectionFitnessFunction.getValue() == "removal-impact") {
-            NSFSizeEstimationFitnessFunction nsfSizeEstimationFitnessFunction;
-            operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager(), nsfSizeEstimationFitnessFunction);
+            operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager(), new NSFSizeEstimationFitnessFunction());
         } else if (optRootSelectionFitnessFunction.getValue() == "removal-join-min") {
-            NSFSizeJoinEstimationFitnessFunction nsfSizeJoinEstimationFitnessFunction;
-            operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager(), nsfSizeJoinEstimationFitnessFunction);
+            operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager(), new NSFSizeJoinEstimationFitnessFunction());
         } else if (optRootSelectionFitnessFunction.getValue() == "removal-join-max") {
-            InverseNSFSizeJoinEstimationFitnessFunction inverseNSFSizeJoinEstimationFitnessFunction;
-            operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager(), inverseNSFSizeJoinEstimationFitnessFunction);
+            operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager(), new InverseNSFSizeJoinEstimationFitnessFunction());
         } else if (optRootSelectionFitnessFunction.getValue() == "variable-position") {
-            VariableLevelFitnessFunction variableLevelFitnessFunction(app);
-            operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager(), variableLevelFitnessFunction);
+            operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager(), new VariableLevelFitnessFunction(app));
         } else if (optRootSelectionFitnessFunction.getValue() == "removed-level") {
-            RemovedLevelFitnessFunction removedLevelFitnessFunction(app);
-            operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager(), removedLevelFitnessFunction);
+            operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager(), new RemovedLevelFitnessFunction(app));
         } else {
             assert(optRootSelectionFitnessFunction.getValue() == "none");
             operation = new htd::TreeDecompositionOptimizationOperation(app.getHTDManager());
@@ -221,52 +214,37 @@ namespace decomposer {
             htd::IterativeImprovementTreeDecompositionAlgorithm* iterativeAlgorithm;
             if (optDecompositionFitnessFunction.getValue() == "dynamic") {
                 if (instance->quantifierCount() <= 2) {
-                    JoinNodeChildCountFitnessFunction fitnessFunction;
-                    iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
+                    iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, new JoinNodeChildCountFitnessFunction());
                 } else {
-                    RemovedLevelFitnessFunction fitnessFunction(app);
-                    iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
+                    iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, new RemovedLevelFitnessFunction(app));
                 }
             }
             else if (optDecompositionFitnessFunction.getValue() == "width") {
-                WidthFitnessFunction fitnessFunction;
-                iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
+                iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, new WidthFitnessFunction());
             } else if (optDecompositionFitnessFunction.getValue() == "join-count") {
-                JoinNodeCountFitnessFunction fitnessFunction;
-                iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
+                iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, new JoinNodeCountFitnessFunction());
             } else if (optDecompositionFitnessFunction.getValue() == "join-bag-size") {
-                JoinNodeBagFitnessFunction fitnessFunction;
-                iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
+                iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, new JoinNodeBagFitnessFunction());
             } else if (optDecompositionFitnessFunction.getValue() == "join-child-count") {
-                JoinNodeChildCountFitnessFunction fitnessFunction;
-                iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
+                iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, new JoinNodeChildCountFitnessFunction());
             } else if (optDecompositionFitnessFunction.getValue() == "join-bag-size-exp") {
-                JoinNodeBagExponentialFitnessFunction fitnessFunction;
-                iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
+                iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, new JoinNodeBagExponentialFitnessFunction());
             } else if (optDecompositionFitnessFunction.getValue() == "join-child-bag-size") {
-                JoinNodeChildBagFitnessFunction fitnessFunction;
-                iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
+                iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, new JoinNodeChildBagFitnessFunction());
             } else if (optDecompositionFitnessFunction.getValue() == "est-join-effort") {
-                JoinNodeChildBagProductFitnessFunction fitnessFunction;
-                iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
+                iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, new JoinNodeChildBagProductFitnessFunction());
             } else if (optDecompositionFitnessFunction.getValue() == "removal-impact") {
-                NSFSizeEstimationFitnessFunction fitnessFunction;
-                iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
+                iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, new NSFSizeEstimationFitnessFunction());
             } else if (optDecompositionFitnessFunction.getValue() == "removal-join-min") {
-                NSFSizeJoinEstimationFitnessFunction fitnessFunction;
-                iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
+                iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, new NSFSizeJoinEstimationFitnessFunction());
             } else if (optDecompositionFitnessFunction.getValue() == "removal-join-max") {
-                InverseNSFSizeJoinEstimationFitnessFunction fitnessFunction;
-                iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
+                iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, new InverseNSFSizeJoinEstimationFitnessFunction());
             } else if (optDecompositionFitnessFunction.getValue() == "variable-position") {
-                VariableLevelFitnessFunction fitnessFunction(app);
-                iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
+                iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, new VariableLevelFitnessFunction(app));
             } else if (optDecompositionFitnessFunction.getValue() == "removed-level") {
-                RemovedLevelFitnessFunction fitnessFunction(app);
-                iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
+                iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, new RemovedLevelFitnessFunction(app));
             } else if (optDecompositionFitnessFunction.getValue() == "leaf-count") {
-                LeafNodeCountFitnessFunction fitnessFunction;
-                iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, fitnessFunction);
+                iterativeAlgorithm = new htd::IterativeImprovementTreeDecompositionAlgorithm(app.getHTDManager(), algorithm, new LeafNodeCountFitnessFunction());
             } else {
                 throw std::runtime_error("Invalid option");
             }

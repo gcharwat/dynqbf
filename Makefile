@@ -1,7 +1,7 @@
 cudd_dir=$(CURDIR)/../cudd-3.0.0
 cudd_lib=$(cudd_dir)/cudd/.libs/libcudd.a
 
-htd_dir=$(CURDIR)/../htd-lib/htd-20170629/htd
+htd_dir=$(CURDIR)/../htd-lib/current/
 htd_lib=$(htd_dir)/lib/libhtd.a
 
 # Set to false to disable depqbf dependency scheme integration (option --dep-scheme standard)
