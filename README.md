@@ -22,6 +22,12 @@ Source:     https://github.com/gcharwat/dynqbf
 Version info 
 --------------
 
+2017-XX-XX: dynQBF 1.0.1
+- Fixed a bug for QDIMACS input files with \r\n line ending
+- htd graph preprocessing options (--td-preprocessing)
+- Compatibility with htd release 1.2.0
+(see https://github.com/mabseher/htd/releases/tag/1.2)
+
 2017-06-25: dynQBF 1.0.0-final
 - Default parameter tuning
 
