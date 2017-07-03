@@ -1,14 +1,27 @@
 dynQBF 
 ====================
 
-dynQBF is a structure-aware QBF solver. It handles QBF instances
-in prenex CNF format, and supports QSAT (deciding satisfiability
-of QBFs) as well as enumerating solutions (partial certificates
-for the outermost quantifier block). In a nutshell, dynQBF splits
-the QBF instance into subproblems by constructing a so-called
-tree decomposition. The QBF is then solved by dynamic programming
-over the tree decomposition. As key ingredient, dynQBF uses
-Binary Decision Diagrams to efficiently store intermediate results.
+dynQBF is an expansion-based QBF solver for instances in prenex CNF form.  First, 
+the CNF matix is split into subproblems by constructing a tree decomposition. 
+The QBF is then solved by dynamic programming over the tree decomposition. While 
+the structure of the CNF is reflected by the tree decomposition, structure within 
+the prefix is considered by integrating dependency schemes in the solving process.
+Furthermore, dynQBF uses nested sets of binary decision diagrams  (BDDs) to 
+efficiently store intermediate results.
+
+The core concepts of dynQBF are described in [1] and [2]. The solver relies on 
+htd (https://github.com/mabseher/htd) for constructing the tree decomposition 
+and CUDD (http://vlsi.colorado.edu/~fabio/) for handling the BDDs. Optionally, 
+DepQBF (https://github.com/lonsing/depqbf) can be used to compute the standard 
+dependency scheme.
+
+[1] G. Charwat and S. Woltran. BDD-based dynamic programming on tree decompositions. 
+  Technical Report DBAI-TR-2016-95, TU Wien, 2016.
+  http://www.dbai.tuwien.ac.at/research/report/dbai-tr-2016-95.pdf
+[2] G. Charwat and S. Woltran. Dynamic programming-based QBF solving. In QBF@SAT, 
+volume 1719 of CEUR Workshop Proceedings, pages 27–40, 2016.
+  http://ceur-ws.org/Vol-1719/paper2.pdf
+
 
 Contact 
 -------
@@ -19,10 +32,36 @@ WWW:        http://dbai.tuwien.ac.at/proj/decodyn/dynqbf/
 
 Source:     https://github.com/gcharwat/dynqbf
 
+
+Building dynQBF 
+---------------
+
+For instructions about compiling, please read the INSTALL file.
+Precompiled binaries are available at https://github.com/gcharwat/dynqbf/releases
+
+Running dynQBF
+--------------
+
+A simple program call is of the following form:
+
+    ./dynqbf -f $file
+
+Run `./dynqbf -h` to get a complete list of all available options.
+In order to obtain reproducible results, you might want to fix the seed by using option `--seed <s>`. 
+
+
+License
+-------
+
+Released under the GNU GENERAL PUBLIC LICENSE  Version 3, 29 June 2007
+A copy of the license should be provided with the system, otherwise see
+http://www.gnu.org/licenses/
+
+
 Version info 
 --------------
 
-2017-XX-XX: dynQBF 1.0.1
+2017-XX-XX: dynQBF 1.0.1 (to be released)
 - Fixed a bug for QDIMACS input files with \r\n line ending
 - htd graph preprocessing options (--td-preprocessing)
 - Compatibility with htd release 1.2.0
@@ -106,24 +145,3 @@ Version info
 2016-02-24: dynQBF 0.1-beta
  - Currently only available as statically linked x86-86 binary
 
-License
--------
-
-Released under the GNU GENERAL PUBLIC LICENSE  Version 3, 29 June 2007
-A copy of the license should be provided with the system, otherwise see
-http://www.gnu.org/licenses/
-
-Building dynQBF 
----------------
-
-For instructions about compiling, please read the INSTALL file.
-
-Running dynQBF
---------------
-
-A simple program call is of the following form:
-
-    ./dynqbf < $file
-
-Run `./dynqbf -h` to get a complete list of all available options.
-In order to get reproducible results, you might want to fix the seed by using option `--seed <s>`. 
