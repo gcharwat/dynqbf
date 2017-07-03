@@ -17,9 +17,12 @@ dependency scheme.
 
 [1] G. Charwat and S. Woltran. BDD-based dynamic programming on tree decompositions. 
   Technical Report DBAI-TR-2016-95, TU Wien, 2016.
+
   http://www.dbai.tuwien.ac.at/research/report/dbai-tr-2016-95.pdf
+
 [2] G. Charwat and S. Woltran. Dynamic programming-based QBF solving. In QBF@SAT, 
 volume 1719 of CEUR Workshop Proceedings, pages 27–40, 2016.
+
   http://ceur-ws.org/Vol-1719/paper2.pdf
 
 
@@ -37,6 +40,7 @@ Building dynQBF
 ---------------
 
 For instructions about compiling, please read the INSTALL file.
+
 Precompiled binaries are available at https://github.com/gcharwat/dynqbf/releases
 
 Running dynQBF
