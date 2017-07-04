@@ -60,10 +60,10 @@ namespace decomposer {
     , optDecompositionIterations("dsi", "i", "Generate <i> tree decompositions, choose decomposition with best fitness value", 10)
     , optPrintStats("print-TD-stats", "Print detailed tree decomposition statistics") {
         optGraphPreprocessing.addCondition(selected);
-        optGraphPreprocessing.addChoice("full", "full", true);
-        optGraphPreprocessing.addChoice("advanced", "advanced");
-        optGraphPreprocessing.addChoice("simple", "simple");
-        optGraphPreprocessing.addChoice("none", "disabled");
+        optGraphPreprocessing.addChoice("full", "all TD graph preprocessing optimizations enabled", true);
+        optGraphPreprocessing.addChoice("advanced", "most TD graph preprocessing optimizations enabled");
+        optGraphPreprocessing.addChoice("simple", "some TD graph preprocessing optimizations enabled");
+        optGraphPreprocessing.addChoice("none", "TD graph preprocessing disabled");
         app.getOptionHandler().addOption(optGraphPreprocessing, OPTION_SECTION);
 
         optNormalization.addCondition(selected);
@@ -77,6 +77,7 @@ namespace decomposer {
         optEliminationOrdering.addChoice("min-fill", "minimum fill ordering", true);
         optEliminationOrdering.addChoice("min-degree", "minimum degree ordering");
         optEliminationOrdering.addChoice("mcs", "maximum cardinality search");
+        optEliminationOrdering.addChoice("mcsm", "enhanced maximum cardinality search");
         optEliminationOrdering.addChoice("natural", "natural order search");
         app.getOptionHandler().addOption(optEliminationOrdering, OPTION_SECTION);
 
@@ -145,6 +146,8 @@ namespace decomposer {
             orderingAlgorithm = new htd::MinDegreeOrderingAlgorithm(app.getHTDManager());
         else if (optEliminationOrdering.getValue() == "mcs")
             orderingAlgorithm = new htd::MaximumCardinalitySearchOrderingAlgorithm(app.getHTDManager());
+        else if (optEliminationOrdering.getValue() == "mcsm")
+            orderingAlgorithm = new htd::EnhancedMaximumCardinalitySearchOrderingAlgorithm(app.getHTDManager());
         else {
             assert(optEliminationOrdering.getValue() == "natural");
             orderingAlgorithm = new htd::NaturalOrderingAlgorithm(app.getHTDManager());
