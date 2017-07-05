@@ -103,6 +103,7 @@ Application::~Application() {
         delete bddManager;
     }
     if (htdManager != NULL) {
+        htdManager->terminate();
         delete htdManager;
     }
 }
