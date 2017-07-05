@@ -28,9 +28,9 @@ namespace decomposer {
         NSFSizeEstimationFitnessFunction(void);
         ~NSFSizeEstimationFitnessFunction();
 
-        htd::FitnessEvaluation * fitness(const htd::IMultiHypergraph & graph, const htd::ITreeDecomposition & decomposition) const;
+        htd::FitnessEvaluation * fitness(const htd::IMultiHypergraph & graph, const htd::ITreeDecomposition & decomposition) const override;
 
-        NSFSizeEstimationFitnessFunction * clone(void) const;
+        NSFSizeEstimationFitnessFunction * clone(void) const override;
         
 private:
         double removedCount(const htd::ITreeDecomposition& decomposition, htd::vertex_t node, double& fitness) const;

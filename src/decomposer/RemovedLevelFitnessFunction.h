@@ -30,9 +30,9 @@ namespace decomposer {
         RemovedLevelFitnessFunction(Application& app);
         ~RemovedLevelFitnessFunction();
 
-        htd::FitnessEvaluation * fitness(const htd::IMultiHypergraph & graph, const htd::ITreeDecomposition & decomposition) const;
+        htd::FitnessEvaluation * fitness(const htd::IMultiHypergraph & graph, const htd::ITreeDecomposition & decomposition) const override;
 
-        RemovedLevelFitnessFunction * clone(void) const;
+        RemovedLevelFitnessFunction * clone(void) const override;
         
     private:
         std::vector<unsigned int> removedCountRec(const htd::ITreeDecomposition & decomposition, htd::vertex_t node, double& totalCosts) const;

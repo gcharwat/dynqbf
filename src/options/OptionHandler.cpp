@@ -33,7 +33,6 @@ namespace options {
     const std::string OptionHandler::GENERAL_SECTION = "General options";
 
     OptionHandler::OptionHandler() {
-        // Add the general section without any options before any other sections will be added (to make sure the general section is always shown first)
         sections.emplace_back(GENERAL_SECTION, OptionList());
     }
 

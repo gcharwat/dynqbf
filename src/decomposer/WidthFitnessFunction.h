@@ -29,8 +29,8 @@ namespace decomposer {
         WidthFitnessFunction(void);
         ~WidthFitnessFunction();
 
-        htd::FitnessEvaluation * fitness(const htd::IMultiHypergraph & graph, const htd::ITreeDecomposition & decomposition) const;
+        htd::FitnessEvaluation * fitness(const htd::IMultiHypergraph & graph, const htd::ITreeDecomposition & decomposition) const override;
 
-        WidthFitnessFunction * clone(void) const;
+        WidthFitnessFunction * clone(void) const override;
     };
 }

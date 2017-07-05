@@ -28,8 +28,8 @@ namespace decomposer {
         JoinNodeCountFitnessFunction(void);
         ~JoinNodeCountFitnessFunction();
 
-        htd::FitnessEvaluation * fitness(const htd::IMultiHypergraph & graph, const htd::ITreeDecomposition & decomposition) const;
+        htd::FitnessEvaluation * fitness(const htd::IMultiHypergraph & graph, const htd::ITreeDecomposition & decomposition) const override;
 
-        JoinNodeCountFitnessFunction * clone(void) const;
+        JoinNodeCountFitnessFunction * clone(void) const override;
     };
 }

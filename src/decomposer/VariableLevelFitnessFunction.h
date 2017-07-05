@@ -30,9 +30,9 @@ namespace decomposer {
         VariableLevelFitnessFunction(Application& app);
         ~VariableLevelFitnessFunction();
 
-        htd::FitnessEvaluation * fitness(const htd::IMultiHypergraph & graph, const htd::ITreeDecomposition & decomposition) const;
+        htd::FitnessEvaluation * fitness(const htd::IMultiHypergraph & graph, const htd::ITreeDecomposition & decomposition) const override;
 
-        VariableLevelFitnessFunction * clone(void) const;
+        VariableLevelFitnessFunction * clone(void) const override;
         
     private:
         Application& app;

@@ -28,8 +28,8 @@ namespace decomposer {
         HeightFitnessFunction(void);
         ~HeightFitnessFunction();
 
-        htd::FitnessEvaluation * fitness(const htd::IMultiHypergraph & graph, const htd::ITreeDecomposition & decomposition) const;
+        htd::FitnessEvaluation * fitness(const htd::IMultiHypergraph & graph, const htd::ITreeDecomposition & decomposition) const override;
 
-        HeightFitnessFunction * clone(void) const;
+        HeightFitnessFunction * clone(void) const override;
     };
 }

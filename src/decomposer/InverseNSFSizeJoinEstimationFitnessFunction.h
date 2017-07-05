@@ -28,9 +28,9 @@ namespace decomposer {
         InverseNSFSizeJoinEstimationFitnessFunction(void);
         ~InverseNSFSizeJoinEstimationFitnessFunction();
 
-        htd::FitnessEvaluation * fitness(const htd::IMultiHypergraph & graph, const htd::ITreeDecomposition & decomposition) const;
+        htd::FitnessEvaluation * fitness(const htd::IMultiHypergraph & graph, const htd::ITreeDecomposition & decomposition) const override;
 
-        InverseNSFSizeJoinEstimationFitnessFunction * clone(void) const;
+        InverseNSFSizeJoinEstimationFitnessFunction * clone(void) const override;
         
     private:
         double removedCount(const htd::ITreeDecomposition& decomposition, htd::vertex_t node, double& fitness) const;
