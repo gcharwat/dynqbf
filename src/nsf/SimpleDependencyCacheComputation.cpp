@@ -24,16 +24,16 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "SimpleDependencyCacheComputation.h"
 #include "cuddInt.h"
 
-SimpleDependencyCacheComputation::SimpleDependencyCacheComputation(ComputationManager& manager, const std::vector<NTYPE>& quantifierSequence, const std::vector<BDD>& cubesAtLevels, const BDD& bdd, unsigned int maxBDDsize, bool keepFirstLevel, const std::vector<unsigned int>& variablesAtLevels)
+SimpleDependencyCacheComputation::SimpleDependencyCacheComputation(ComputationManager& manager, const std::vector<NTYPE>& quantifierSequence, const std::vector<BDD>& cubesAtLevels, const BDD& bdd, unsigned int maxBDDsize, bool keepFirstLevel, const std::vector<unsigned int>& variableCountAtLevels)
 : CacheComputation(manager, quantifierSequence, cubesAtLevels, bdd, maxBDDsize, keepFirstLevel)
-, _completelyRemovedAtLevel(quantifierSequence.size(), 0)
-, _variablesAtLevels(variablesAtLevels) {
+, _completelyRemovedCountAtLevel(quantifierSequence.size(), 0)
+, _variableCountAtLevels(variableCountAtLevels) {
 }
 
 SimpleDependencyCacheComputation::SimpleDependencyCacheComputation(const SimpleDependencyCacheComputation& other)
 : CacheComputation(other)
-, _completelyRemovedAtLevel(other._completelyRemovedAtLevel)
-, _variablesAtLevels(other._variablesAtLevels) {
+, _completelyRemovedCountAtLevel(other._completelyRemovedCountAtLevel)
+, _variableCountAtLevels(other._variableCountAtLevels) {
 }
 
 SimpleDependencyCacheComputation::~SimpleDependencyCacheComputation() {
@@ -44,8 +44,8 @@ void SimpleDependencyCacheComputation::conjunct(const Computation& other) {
     try {
         // check if other contains a remove cache
         const SimpleDependencyCacheComputation& t = dynamic_cast<const SimpleDependencyCacheComputation&> (other);
-        for (unsigned int i = 0; i < t._completelyRemovedAtLevel.size(); i++) {
-            _completelyRemovedAtLevel[i] += t._completelyRemovedAtLevel.at(i);
+        for (unsigned int i = 0; i < t._completelyRemovedCountAtLevel.size(); i++) {
+            _completelyRemovedCountAtLevel[i] += t._completelyRemovedCountAtLevel.at(i);
         }
     } catch (std::bad_cast exp) {
     }
@@ -63,7 +63,7 @@ bool SimpleDependencyCacheComputation::reduceRemoveCache() {
                 } else {
                     Computation::remove(toRemove, vl);
                 }
-                _completelyRemovedAtLevel.at(vl - 1) += 1;
+                _completelyRemovedCountAtLevel.at(vl - 1) += 1;
                 return true;
             }
         }
@@ -74,7 +74,7 @@ bool SimpleDependencyCacheComputation::reduceRemoveCache() {
 void SimpleDependencyCacheComputation::addToRemoveCache(BDD variable, const unsigned int vl) {
     if (isAbstractableAtLevel(vl)) {
         Computation::removeAbstract(variable, vl);
-        _completelyRemovedAtLevel.at(vl - 1) += 1;
+        _completelyRemovedCountAtLevel.at(vl - 1) += 1;
         return;
     }
     if (_removeCache->size() < vl) {
@@ -89,8 +89,8 @@ void SimpleDependencyCacheComputation::addToRemoveCache(BDD variable, const unsi
 bool SimpleDependencyCacheComputation::isAbstractableAtLevel(unsigned int vl) {
     bool isAbstractable = true;
 
-    for (unsigned int i = vl; i < _variablesAtLevels.size(); i++) {
-        if (_completelyRemovedAtLevel.at(i) < _variablesAtLevels.at(i)) {
+    for (unsigned int i = vl; i < _variableCountAtLevels.size(); i++) {
+        if (_completelyRemovedCountAtLevel.at(i) < _variableCountAtLevels.at(i)) {
             isAbstractable = false;
         }
     }

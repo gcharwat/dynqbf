@@ -75,8 +75,8 @@ ComputationManager::~ComputationManager() {
         delete cuddToOriginalIds;
     }
 #endif    
-    if (variablesAtLevels != NULL) {
-        delete variablesAtLevels;
+    if (variableCountAtLevels != NULL) {
+        delete variableCountAtLevels;
     }
     printStatistics();
 }
@@ -109,16 +109,16 @@ Computation* ComputationManager::newComputation(const std::vector<NTYPE>& quanti
             initializeCuddToOriginalIds();
         }
         // always return a new vector
-        std::vector<std::set < htd::vertex_t>> alreadyAbstractedAtLevels = initializeAlreadyAbstractedAtLevels();
+        std::vector<std::set < htd::vertex_t>> notYetRemovedAtLevels = initializeNotYetRemovedAtLevels();
 
-        c = new StandardDependencyCacheComputation(*this, quantifierSequence, cubesAtLevels, bdd, optMaxBDDSize.getValue(), keepFirstLevel, *depqbf, *cuddToOriginalIds, alreadyAbstractedAtLevels);
+        c = new StandardDependencyCacheComputation(*this, quantifierSequence, cubesAtLevels, bdd, optMaxBDDSize.getValue(), keepFirstLevel, *depqbf, *cuddToOriginalIds, notYetRemovedAtLevels);
     }
 #endif
     if (optDependencyScheme.getValue() == "simple") {
-        if (variablesAtLevels == NULL) {
-            initializeVariablesAtLevels();
+        if (variableCountAtLevels == NULL) {
+            initializeVariableCountAtLevels();
         }
-        c = new SimpleDependencyCacheComputation(*this, quantifierSequence, cubesAtLevels, bdd, optMaxBDDSize.getValue(), keepFirstLevel, *variablesAtLevels);
+        c = new SimpleDependencyCacheComputation(*this, quantifierSequence, cubesAtLevels, bdd, optMaxBDDSize.getValue(), keepFirstLevel, *variableCountAtLevels);
     } 
     if (c == NULL) {
         if (!optDisableCache.isUsed()) {
@@ -403,28 +403,28 @@ void ComputationManager::initializeCuddToOriginalIds() {
     }
 }
 
-std::vector<std::set < htd::vertex_t >> ComputationManager::initializeAlreadyAbstractedAtLevels() {
-    std::vector<std::set < htd::vertex_t>> alreadyAbstractedAtLevels; // = new std::vector<std::set < htd::vertex_t >> ();
+std::vector<std::set < htd::vertex_t >> ComputationManager::initializeNotYetRemovedAtLevels() {
+    std::vector<std::set < htd::vertex_t>> notYetRemovedAtLevels; // = new std::vector<std::set < htd::vertex_t >> ();
 
     for (htd::vertex_t vertex : app.getInputInstance()->hypergraph->internalGraph().vertices()) {
         unsigned int vertexLevel = htd::accessLabel<int>(app.getInputInstance()->hypergraph->internalGraph().vertexLabel("level", vertex));
-        while (alreadyAbstractedAtLevels.size() < vertexLevel) {
+        while (notYetRemovedAtLevels.size() < vertexLevel) {
             std::set<htd::vertex_t> notYetRemoved;
-            alreadyAbstractedAtLevels.push_back(notYetRemoved);
+            notYetRemovedAtLevels.push_back(notYetRemoved);
         }
-        alreadyAbstractedAtLevels.at(vertexLevel - 1).insert(vertex);
+        notYetRemovedAtLevels.at(vertexLevel - 1).insert(vertex);
     }
-    return alreadyAbstractedAtLevels;
+    return notYetRemovedAtLevels;
 }
 #endif
 
-void ComputationManager::initializeVariablesAtLevels() {
-    variablesAtLevels = new std::vector<unsigned int>();
+void ComputationManager::initializeVariableCountAtLevels() {
+    variableCountAtLevels = new std::vector<unsigned int>();
     for (htd::vertex_t vertex : app.getInputInstance()->hypergraph->internalGraph().vertices()) {
         unsigned int vertexLevel = htd::accessLabel<int>(app.getInputInstance()->hypergraph->internalGraph().vertexLabel("level", vertex));
-        while (variablesAtLevels->size() < vertexLevel) {
-            variablesAtLevels->push_back(0);
+        while (variableCountAtLevels->size() < vertexLevel) {
+            variableCountAtLevels->push_back(0);
         }
-        variablesAtLevels->at(vertexLevel - 1) += 1;
+        variableCountAtLevels->at(vertexLevel - 1) += 1;
     }
 }

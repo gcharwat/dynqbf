@@ -106,14 +106,14 @@ private:
 #ifdef DEPQBF_ENABLED
     void initializeDepqbf();
     void initializeCuddToOriginalIds();
-    std::vector<std::set < htd::vertex_t>> initializeAlreadyAbstractedAtLevels();
+    std::vector<std::set < htd::vertex_t>> initializeNotYetRemovedAtLevels();
     QDPLL* depqbf = NULL;
     std::vector<unsigned int>* cuddToOriginalIds;
 #endif
     
     // for simple dependency scheme handling
-    void initializeVariablesAtLevels();
-    std::vector<unsigned int>* variablesAtLevels;
+    void initializeVariableCountAtLevels();
+    std::vector<unsigned int>* variableCountAtLevels;
     
     
     // Statistics

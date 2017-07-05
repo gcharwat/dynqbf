@@ -42,6 +42,6 @@ private:
     
     bool isAbstractableAtLevel(unsigned int vl);
     
-    std::vector<unsigned int> _completelyRemovedAtLevel;
-    const std::vector<unsigned int>& _variablesAtLevels;    
+    std::vector<unsigned int> _completelyRemovedCountAtLevel;
+    const std::vector<unsigned int>& _variableCountAtLevels;    
 };
