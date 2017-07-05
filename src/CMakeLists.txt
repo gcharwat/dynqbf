@@ -74,9 +74,6 @@ if(${depqbf_enabled})
     set(dynqbf-sources 
         nsf/StandardDependencyCacheComputation.cpp
     )
-    #set(dynqbf-linking
-    #    qdpll)
-    #target_link_libraries(dynqbf qdpll)
 endif()
 
 set(dynqbf-sources ${dynqbf-sources}
