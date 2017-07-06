@@ -57,7 +57,7 @@ namespace decomposer {
     , optRootSelectionFitnessFunction("rs", "f", "Use fitness function <f> for decomposition root node selection")
     , optRootSelectionIterations("rsi", "i", "Randomly select <i> nodes as root, choose decomposition with best fitness value, 0 for #TD nodes", 1)
     , optDecompositionFitnessFunction("ds", "f", "Use fitness function <f> for decomposition selection")
-    , optDecompositionIterations("dsi", "i", "Generate <i> tree decompositions, choose decomposition with best fitness value", 10)
+    , optDecompositionIterations("dsi", "i", "Generate <i> tree decompositions, choose decomposition with best fitness value", 30)
     , optPrintStats("print-TD-stats", "Print detailed tree decomposition statistics") {
         optGraphPreprocessing.addCondition(selected);
         optGraphPreprocessing.addChoice("full", "all TD graph preprocessing optimizations enabled", true);
