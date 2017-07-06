@@ -67,6 +67,7 @@ Version info
 
 2017-XX-XX: dynQBF 1.0.1 (to be released)
 - Fixed a bug for QDIMACS input files with \r\n line ending
+- order of quantification and conjunction/disjunction changed  
 - htd graph preprocessing options (--td-preprocessing)
 - added enhanced maximum cardinality search
 - Compatibility with htd release 1.2.0
