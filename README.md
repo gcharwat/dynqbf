@@ -65,8 +65,8 @@ http://www.gnu.org/licenses/
 Version info 
 --------------
 
-2017-XX-XX: dynQBF 1.0.1 (to be released)
-- Fixed a bug for QDIMACS input files with \r\n line ending
+2017-07-18: dynQBF 1.0.1
+- Fixed a bug related to QDIMACS input files with \r\n line ending
 - Per default, now 30 tree decompositions are generated for TD selection
 - Order of quantification and conjunction/disjunction changed  
 - htd graph preprocessing options (--td-preprocessing)
