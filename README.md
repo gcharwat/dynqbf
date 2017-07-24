@@ -65,6 +65,9 @@ http://www.gnu.org/licenses/
 Version info 
 --------------
 
+2017-07-24: dynQBF 1.0.2
+- Optimization intervals
+
 2017-07-18: dynQBF 1.0.1
 - Fixed a bug related to QDIMACS input files with \r\n line ending
 - Per default, now 30 tree decompositions are generated for TD selection
