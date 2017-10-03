@@ -50,7 +50,7 @@ namespace decomposer {
     , optGraphPreprocessing("td-preprocessing", "p", "Graph preprocessing before tree decomposition construction")
     , optNormalization("n", "normalization", "Use normal form <normalization> for the tree decomposition")
     , optEliminationOrdering("elimination", "h", "Use heuristic <h> for bucket elimination")
-    , optJoinCompression("join-compression", "Enable subset-maximal compression at join nodes")
+//    , optJoinCompression("join-compression", "Enable subset-maximal compression at join nodes")
     , optNoEmptyRoot("no-empty-root", "Do not add an empty root to the tree decomposition")
     , optEmptyLeaves("empty-leaves", "Add empty leaves to the tree decomposition")
     , optPathDecomposition("path-decomposition", "Create a path decomposition")
@@ -81,8 +81,8 @@ namespace decomposer {
         optEliminationOrdering.addChoice("natural", "natural order search");
         app.getOptionHandler().addOption(optEliminationOrdering, OPTION_SECTION);
 
-        optJoinCompression.addCondition(selected);
-        app.getOptionHandler().addOption(optJoinCompression, OPTION_SECTION);
+//        optJoinCompression.addCondition(selected);
+//        app.getOptionHandler().addOption(optJoinCompression, OPTION_SECTION);
 
         optNoEmptyRoot.addCondition(selected);
         app.getOptionHandler().addOption(optNoEmptyRoot, OPTION_SECTION);
@@ -154,13 +154,23 @@ namespace decomposer {
         }
         app.getHTDManager()->orderingAlgorithmFactory().setConstructionTemplate(orderingAlgorithm);
 
-        htd::BucketEliminationTreeDecompositionAlgorithm * treeDecompositionAlgorithm = new htd::BucketEliminationTreeDecompositionAlgorithm(app.getHTDManager());
+//        htd::BucketEliminationTreeDecompositionAlgorithm * treeDecompositionAlgorithm = new htd::BucketEliminationTreeDecompositionAlgorithm(app.getHTDManager());
 
-        // disable compression for join nodes
-        if (!(optJoinCompression.isUsed())) {
-            treeDecompositionAlgorithm->setCompressionEnabled(false);
-            treeDecompositionAlgorithm->addManipulationOperation(new htd::CompressionOperation(app.getHTDManager(), false));
+        // TODO!!
+        htd::ITreeDecompositionAlgorithm * treeDecompositionAlgorithm = NULL;
+        if (true) {
+            treeDecompositionAlgorithm = new htd::BucketEliminationTreeDecompositionAlgorithm(app.getHTDManager());
+        } else {
+            // experimental (disabled for now)
+            treeDecompositionAlgorithm = new htd::SeparatorBasedTreeDecompositionAlgorithm(app.getHTDManager());
         }
+        
+//        // disable compression for join nodes
+//        if (!(optJoinCompression.isUsed())) {
+//            treeDecompositionAlgorithm->setCompressionEnabled(false); // disable compression
+//            treeDecompositionAlgorithm->addManipulationOperation(new htd::CompressionOperation(app.getHTDManager(), false)); // compress everything, except join nodes
+//        }
+        
         app.getHTDManager()->treeDecompositionAlgorithmFactory().setConstructionTemplate(treeDecompositionAlgorithm);
 
         // set cover oder exact...
