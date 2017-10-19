@@ -91,8 +91,8 @@ Application::Application(const std::string& binaryName)
 , optPrintVertexOrdering("print-ordering", "Print the computed initial vertex ordering")
 , optOnlyParseInstance("only-parse-instance", "Only construct hypergraph and exit")
 , optOnlyDecomposeInstance("only-decompose", "Only parse input instance, decompose it and exit")
-, optEnumerate("enumerate", "Enumerate models (for outermost existential quantifier, satisfiable instances)")
-, optModelCount("model-count", "Count models (for outermost quantifier block, EXPERIMENTAL)")
+, optEnumerate("enumerate", "Enumerate models (for outermost quantifier block. if existential and SAT: models; if universal and UNSAT: 'forwhich' models)")
+, optModelCount("model-count", "Count models (for outermost quantifier block. if existential and SAT: model count; if universal and UNSAT: 'forwhich' model count)")
 , optSeed("seed", "s", "Initialize random number generator with seed <s>") {
 }
 

@@ -87,8 +87,8 @@ Computation* ComputationManager::newComputation(const std::vector<NTYPE>& quanti
         keepFirstLevel = app.enumerate() || app.modelCount();
     }
     if (keepFirstLevel) {
-        if (optUnsatCheckInterval.getValue() > 0) {
-            throw std::runtime_error("Intermediate UNSAT checking must be disabled for enumeration and counting");
+        if (optUnsatCheckInterval.getValue() > 0 && quantifierSequence.size() >= 1 && quantifierSequence.at(0) == NTYPE::FORALL) {
+            throw std::runtime_error("Intermediate UNSAT checking must be disabled for enumeration and counting if outermost quantifier is universal");
         }
         if (optDisableCache.isUsed()) {
             throw std::runtime_error("Removal cache must be enabled for enumeration and counting");
