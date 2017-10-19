@@ -24,6 +24,7 @@ along with dynQBF.  If not, see <http://www.gnu.org/licenses/>.
 #include "options/OptionHandler.h"
 #include "options/Choice.h"
 #include "Utils.h"
+#include "options/DefaultIntegerValueOption.h"
 
 #include <mtr.h>
 
@@ -96,6 +97,7 @@ public:
     bool printDecomposition() const;
     bool printVertexOrdering() const;
     bool enumerate() const;
+    int enumerateLimit() const;
     bool modelCount() const;
 
     BDDManager& getBDDManager() const;
@@ -131,7 +133,7 @@ private:
     options::Option optPrintVertexOrdering;
     options::Option optOnlyParseInstance;
     options::Option optOnlyDecomposeInstance;
-    options::Option optEnumerate;
+    options::DefaultIntegerValueOption optEnumerate;
     options::Option optModelCount;
     options::SingleValueOption optSeed;
 

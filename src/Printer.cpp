@@ -211,7 +211,7 @@ void Printer::select() {
     app.getVertexOrdering();
 }
 
-void Printer::models(const BDD bdd, std::vector<Variable> variables) {
+void Printer::models(const BDD bdd, std::vector<Variable> variables, int limit) {
 
     HTDHypergraph* hypergraph = app.getInputInstance()->hypergraph;
 
@@ -233,11 +233,18 @@ void Printer::models(const BDD bdd, std::vector<Variable> variables) {
 
     std::vector<std::string> model;
 
-    modelsRec(bdd, lvl1, model);
-
+    std::cout << "Sum-of-product cover models (limit " << limit << "):" << std::endl;
+    
+    int printed = 0;
+    modelsRec(bdd, lvl1, model, limit, &printed);
+    std::cout << printed << std::endl;
 }
 
-void Printer::modelsRec(BDD bdd, std::list<Variable> variables, std::vector<std::string> model) {
+void Printer::modelsRec(BDD bdd, std::list<Variable> variables, std::vector<std::string> model, int limit, int* printed) {
+    if (limit > 0 && (*printed >= limit)) {
+        return;
+    }
+    
     if (bdd == app.getBDDManager().getManager().bddZero()) {
         return;
     }
@@ -246,6 +253,9 @@ void Printer::modelsRec(BDD bdd, std::list<Variable> variables, std::vector<std:
             std::cout << literal << " ";
         }
         std::cout << std::endl;
+        if (limit >= 0) {
+            (*printed)++;
+        }
     } else {
         Variable v = variables.front();
         variables.pop_front();
@@ -259,17 +269,17 @@ void Printer::modelsRec(BDD bdd, std::list<Variable> variables, std::vector<std:
         if (bdd1 == bdd0) {
             std::vector<std::string> model10 = model;
             //            model10.push_back("±" + vString);
-            modelsRec(bdd1, variables, model10);
+            modelsRec(bdd1, variables, model10, limit, printed);
 
         } else {
 
             std::vector<std::string> model1 = model;
             model1.push_back("+" + std::to_string(vertex));
-            modelsRec(bdd1, variables, model1);
+            modelsRec(bdd1, variables, model1, limit, printed);
 
             std::vector<std::string> model0 = model;
             model0.push_back("-" + std::to_string(vertex));
-            modelsRec(bdd0, variables, model0);
+            modelsRec(bdd0, variables, model0, limit, printed);
         }
     }
 }
