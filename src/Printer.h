@@ -45,7 +45,9 @@ public:
     virtual void result(const RESULT result);
 
     virtual void models(const BDD bdd, const std::vector<Variable> variables);
-
+    //virtual void model(const BDD bdd, const std::vector<Variable> variables);
+    virtual void modelCount(const BDD bdd, const std::vector<Variable> variables);
+    
     virtual void select() override;
 
 private:

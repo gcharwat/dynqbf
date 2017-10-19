@@ -82,6 +82,19 @@ ComputationManager::~ComputationManager() {
 }
 
 Computation* ComputationManager::newComputation(const std::vector<NTYPE>& quantifierSequence, const std::vector<BDD>& cubesAtLevels, const BDD& bdd) {
+    bool keepFirstLevel = false;
+    if (quantifierSequence.size() >= 1) { // && quantifierSequence.at(0) == NTYPE::EXISTS) {
+        keepFirstLevel = app.enumerate() || app.modelCount();
+    }
+    if (keepFirstLevel) {
+        if (optUnsatCheckInterval.getValue() > 0) {
+            throw std::runtime_error("Intermediate UNSAT checking must be disabled for enumeration and counting");
+        }
+        if (optDisableCache.isUsed()) {
+            throw std::runtime_error("Removal cache must be enabled for enumeration and counting");
+
+        }
+    }
     if (optDisableCache.isUsed()) {
         if ((optMaxGlobalNSFSize.isUsed() && optMaxGlobalNSFSize.getValue() != -1) ||
                 (optMaxBDDSize.isUsed() && optMaxBDDSize.getValue() != 0) ||
@@ -93,10 +106,7 @@ Computation* ComputationManager::newComputation(const std::vector<NTYPE>& quanti
         optDependencyScheme.setValue("naive");
     }
 
-    bool keepFirstLevel = false;
-    if (quantifierSequence.size() >= 1 && quantifierSequence.at(0) == NTYPE::EXISTS) {
-        keepFirstLevel = app.enumerate();
-    }
+    
     
     Computation* c = NULL;
     

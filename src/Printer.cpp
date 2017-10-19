@@ -41,7 +41,7 @@ void Printer::inputInstance(const InstancePtr& instance) {
     if (!app.printInputInstance()) {
         return;
     }
-    
+
     HTDHypergraph* hypergraph = instance->hypergraph;
 
     std::cout << "### Input instance ###" << std::endl;
@@ -84,7 +84,7 @@ void Printer::preprocessedInstance(const InstancePtr& instance) {
     if (!app.printPreprocessedInstance()) {
         return;
     }
-    
+
     HTDHypergraph* hypergraph = instance->hypergraph;
 
     std::cout << "### Preprocessed instance ###" << std::endl;
@@ -128,7 +128,7 @@ void Printer::decomposerResult(const HTDDecompositionPtr& result) {
         return;
     }
     std::cout << "### Tree decomposition ###" << std::endl;
-    std::cout << "Width: " << result->maximumBagSize()-1 << std::endl;
+    std::cout << "Width: " << result->maximumBagSize() - 1 << std::endl;
     decomposerResultRec("", result->root());
 }
 
@@ -148,7 +148,7 @@ void Printer::vertexOrdering(const std::vector<int>& ordering) {
     if (!app.printVertexOrdering()) {
         return;
     }
-    
+
     std::cout << "### Vertex ordering ###" << std::endl;
 
     HTDHypergraph* hypergraph = app.getInputInstance()->hypergraph;
@@ -272,5 +272,28 @@ void Printer::modelsRec(BDD bdd, std::list<Variable> variables, std::vector<std:
             modelsRec(bdd0, variables, model0);
         }
     }
+}
 
+void Printer::modelCount(const BDD bdd, std::vector<Variable> variables) {
+
+    HTDHypergraph* hypergraph = app.getInputInstance()->hypergraph;
+
+    // only vertices at level 1
+    std::list<Variable> lvl1;
+    for (Variable v : variables) {
+        int vertexLevel = htd::accessLabel<int>(hypergraph->internalGraph().vertexLabel("level", v.getVertices()[0]));
+        if (vertexLevel == 1) {
+            lvl1.push_back(v);
+        }
+    }
+
+    unsigned int variableCount = lvl1.size();
+
+    int digits;
+
+    DdApaNumber minterms = bdd.ApaCountMinterm(variableCount, &digits);
+
+    std::cout << "Model count: " << app.getBDDManager().getManager().ApaStringDecimal(digits, minterms) << std::endl;
+
+    free(minterms);
 }

@@ -550,7 +550,6 @@ BDD NSF::truncate(const std::vector<BDD>& cubesAtlevels) {
 
 const BDD NSF::evaluate(const std::vector<BDD>& cubesAtlevels, const bool keepFirstLevel) {
     BDD ret;
-
     if (level() == 1 && keepFirstLevel) {
         if (isLeaf()) {
             ret = value();
@@ -575,8 +574,8 @@ const BDD NSF::evaluate(const std::vector<BDD>& cubesAtlevels, const bool keepFi
         } else {
             ret = ret.UnivAbstract(cubesAtlevels[level() - 1]);
         }
-
-
+        
+        
         for (unsigned int it = 1; it < nestedSet().size(); it++) {
             if (isExistentiallyQuantified()) {
                 ret += (nestedSet().at(it)->evaluate(cubesAtlevels, keepFirstLevel).ExistAbstract(cubesAtlevels[level() - 1], 0));
@@ -585,24 +584,25 @@ const BDD NSF::evaluate(const std::vector<BDD>& cubesAtlevels, const bool keepFi
             }
         }
     }
-
-    if (ret.IsZero()) {
-        for (NSF* child : _nestedSet) {
-            delete child;
-        }
-        _nestedSet.clear();
-
-        NSF* current = this;
-
-        // TODO handling could be shifted elsewhere
-        while (current->depth() > 0) {
-            NSF* child = new NSF(current->level() + 1, current->depth() - 1, (current->quantifier() == NTYPE::EXISTS ? NTYPE::FORALL : NTYPE::EXISTS));
-            current->insertNSF(child);
-            current = child;
-        }
-        current->setValue(ret);
-
-    }
+//std::ocut << "test 4" << std::endl;
+//ret.print(0,1);
+//    if (ret.IsZero()) {
+//        for (NSF* child : _nestedSet) {
+//            delete child;
+//        }
+//        _nestedSet.clear();
+//
+//        NSF* current = this;
+//
+//        // TODO handling could be shifted elsewhere
+//        while (current->depth() > 0) {
+//            NSF* child = new NSF(current->level() + 1, current->depth() - 1, (current->quantifier() == NTYPE::EXISTS ? NTYPE::FORALL : NTYPE::EXISTS));
+//            current->insertNSF(child);
+//            current = child;
+//        }
+//        current->setValue(ret);
+//
+//    }
 
 
     return ret;

@@ -92,6 +92,7 @@ Application::Application(const std::string& binaryName)
 , optOnlyParseInstance("only-parse-instance", "Only construct hypergraph and exit")
 , optOnlyDecomposeInstance("only-decompose", "Only parse input instance, decompose it and exit")
 , optEnumerate("enumerate", "Enumerate models (for outermost existential quantifier, satisfiable instances)")
+, optModelCount("model-count", "Count models (for outermost quantifier block, EXPERIMENTAL)")
 , optSeed("seed", "s", "Initialize random number generator with seed <s>") {
 }
 
@@ -124,6 +125,7 @@ int Application::run(int argc, char** argv) {
     opts.addOption(optPrintDecomposition);
     opts.addOption(optPrintVertexOrdering);
     opts.addOption(optEnumerate);
+    opts.addOption(optModelCount);
     opts.addOption(optSeed);
 
     //opts.addOption(optHGInputParser, MODULE_SECTION); // uncomment to add to selection
@@ -235,9 +237,14 @@ int Application::run(int argc, char** argv) {
 
         // Return result
         result = nsfManager->decide(*computation);
-        if ((result == SAT) && enumerate()) {
+        if (//(result == SAT) && 
+                enumerate()) {
             BDD answer = nsfManager->solutions(*computation);
             printer->models(answer, solverFactory->getVariables());
+        }
+        if (modelCount()) {
+            BDD answer = nsfManager->solutions(*computation);
+            printer->modelCount(answer, solverFactory->getVariables());
         }
 
         delete computation;
@@ -438,6 +445,10 @@ bool Application::printVertexOrdering() const {
 
 bool Application::enumerate() const {
     return optEnumerate.isUsed();
+}
+
+bool Application::modelCount() const {
+    return optModelCount.isUsed();
 }
 
 BDDManager& Application::getBDDManager() const {

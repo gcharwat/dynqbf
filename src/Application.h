@@ -96,6 +96,7 @@ public:
     bool printDecomposition() const;
     bool printVertexOrdering() const;
     bool enumerate() const;
+    bool modelCount() const;
 
     BDDManager& getBDDManager() const;
     ComputationManager& getNSFManager() const;
@@ -131,6 +132,7 @@ private:
     options::Option optOnlyParseInstance;
     options::Option optOnlyDecomposeInstance;
     options::Option optEnumerate;
+    options::Option optModelCount;
     options::SingleValueOption optSeed;
 
     HGInputParser* hgInputParser;
