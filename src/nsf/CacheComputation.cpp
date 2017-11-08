@@ -176,7 +176,8 @@ void CacheComputation::addToRemoveCache(BDD variable, const unsigned int vl) {
     }
 
     // always immediately remove innermost variables
-    if (vl == _removeCache->size()) {
+    // except if we only have one quantifier block and enumeration/first level is kept
+    if ((vl == _removeCache->size()) && !(_keepFirstLevel && (_removeCache->size() == 1))) {
         Computation::remove(variable, vl);
     } else {
         _removeCache->at(vl - 1).push_back(variable);

@@ -237,7 +237,7 @@ void Printer::models(const BDD bdd, std::vector<Variable> variables, int limit) 
     
     int printed = 0;
     modelsRec(bdd, lvl1, model, limit, &printed);
-    std::cout << printed << std::endl;
+    std::cout << std::endl;
 }
 
 void Printer::modelsRec(BDD bdd, std::list<Variable> variables, std::vector<std::string> model, int limit, int* printed) {
@@ -304,6 +304,7 @@ void Printer::modelCount(const BDD bdd, std::vector<Variable> variables) {
     DdApaNumber minterms = bdd.ApaCountMinterm(variableCount, &digits);
 
     std::cout << "Model count: " << app.getBDDManager().getManager().ApaStringDecimal(digits, minterms) << std::endl;
+    std::cout << std::endl;
 
     free(minterms);
 }
