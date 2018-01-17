@@ -65,6 +65,10 @@ http://www.gnu.org/licenses/
 Version info 
 --------------
 
+2018-01-17: dynQBF 1.1.0
+- Counting support
+- Enumeration: limit number of sum-over-product cover models
+
 2017-07-24: dynQBF 1.0.2
 - Optimization intervals
 
