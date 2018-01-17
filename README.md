@@ -65,6 +65,9 @@ http://www.gnu.org/licenses/
 Version info 
 --------------
 
+2018-01-17: dynQBF 1.1.1
+- Fixing version information and README
+
 2018-01-17: dynQBF 1.1.0
 - Counting support
 - Enumeration: limit number of sum-over-product cover models
